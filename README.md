@@ -1,59 +1,79 @@
-# StudyEnglish
+# Study English
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.1.
+Gemini AI を使った英語添削 PWA アプリです。Angular で構築されており、英文を入力すると AI が文法・語彙・表現のミスを指摘・修正します。
 
-## Development server
+## 機能
 
-To start a local development server, run:
+- **練習 (Practice)** — 英文を入力し、Gemini AI によるリアルタイム添削を受ける
+- **履歴 (History)** — 過去の添削セッションを一覧で確認する
+- **ミス一覧 (Mistakes)** — 蓄積されたミスをカテゴリ別に振り返る
+- **設定 (Settings)** — Gemini API キー・モデル・添削プロンプトを設定する
+
+## 技術スタック
+
+| 項目 | 内容 |
+|------|------|
+| フレームワーク | Angular 22 |
+| AI | Google Gemini API (`@google/generative-ai`) |
+| ストレージ | LocalStorage（`StorageService`） |
+| スタイル | SCSS |
+| テスト | Vitest |
+
+## セットアップ
+
+### 必要なもの
+
+- Node.js
+- Gemini API キー（[Google AI Studio](https://aistudio.google.com/) で取得）
+
+### インストール
 
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### 開発サーバーの起動
 
 ```bash
-ng generate component component-name
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+ブラウザで `http://localhost:4200/` を開きます。
 
-```bash
-ng generate --help
-```
+### 初回設定
 
-## Building
+アプリ起動後、**Settings** ページで以下を設定してください。
 
-To build the project run:
+1. Gemini API キー
+2. 使用するモデル（例: `gemini-1.5-flash`）
+3. 添削プロンプト（`{USER_TEXT}` が入力テキストに置換されます）
+
+## ビルド
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+ビルド成果物は `dist/` に出力されます。
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## テスト
 
 ```bash
 ng test
 ```
 
-## Running end-to-end tests
+## プロジェクト構成
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+src/app/
+├── models/
+│   └── session.model.ts      # CorrectionSession / Mistake の型定義
+├── services/
+│   ├── gemini.service.ts     # Gemini API 呼び出し・ミス解析
+│   └── storage.service.ts    # LocalStorage の読み書き
+└── pages/
+    ├── practice/             # 添削入力ページ
+    ├── history/              # 履歴ページ
+    ├── mistakes/             # ミス一覧ページ
+    └── settings/             # 設定ページ
+```
