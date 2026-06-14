@@ -1,0 +1,11 @@
+import {B,$,f as ae}from'./main-UU62UOHP.js';var a="correction_sessions",l="app_settings",f=`\u4EE5\u4E0B\u306E\u82F1\u4F5C\u6587\u3092\u6DFB\u524A\u3057\u3066\u304F\u3060\u3055\u3044\u3002
+1. \u6587\u6CD5\u30FB\u8A9E\u6CD5\u306E\u30DF\u30B9\u3092\u6307\u6458\u3057\u3001\u6B63\u3057\u3044\u8868\u73FE\u3092\u793A\u3057\u3066\u304F\u3060\u3055\u3044
+2. \u3088\u308A\u81EA\u7136\u306A\u8868\u73FE\u304C\u3042\u308C\u3070\u63D0\u6848\u3057\u3066\u304F\u3060\u3055\u3044
+3. \u6DFB\u524A\u5F8C\u306E\u5168\u6587\u3082\u793A\u3057\u3066\u304F\u3060\u3055\u3044
+4. \u30DF\u30B9\u3092\u5FC5\u305A\u4EE5\u4E0B\u306EJSON\u5F62\u5F0F\u3067\u30EC\u30B9\u30DD\u30F3\u30B9\u306E\u672B\u5C3E\u306B\u307E\u3068\u3081\u3066\u304F\u3060\u3055\u3044\uFF1A
+<mistakes>
+{"mistakes": [{"category": "\u30AB\u30C6\u30B4\u30EA\u540D", "original": "\u5143\u306E\u8868\u73FE", "corrected": "\u6B63\u3057\u3044\u8868\u73FE", "explanation": "\u8AAC\u660E"}]}
+</mistakes>
+
+\u82F1\u4F5C\u6587:
+{USER_TEXT}`,c={apiKey:"",model:"gemini-3.5-flash",prompt:f},m=class r{getSessions(){let t=localStorage.getItem(a);if(!t)return [];try{return JSON.parse(t)}catch{return []}}saveSession(t){let e=this.getSessions();e.unshift(t),localStorage.setItem(a,JSON.stringify(e));}deleteSession(t){let e=this.getSessions().filter(o=>o.id!==t);localStorage.setItem(a,JSON.stringify(e));}getSettings(){let t=localStorage.getItem(l);if(!t)return B({},c);try{return B(B({},c),JSON.parse(t))}catch{return B({},c)}}saveSettings(t){localStorage.setItem(l,JSON.stringify(t));}getMistakeStats(){let t=this.getSessions(),e={};for(let o of t)for(let s of o.mistakes)e[s.category]=(e[s.category]??0)+1;return Object.entries(e).map(([o,s])=>({category:o,count:s})).sort((o,s)=>s.count-o.count)}getFrequentMistakes(){let e=this.getSessions().flatMap(s=>s.mistakes),o=new Map;for(let s of e){let i=s.original.toLowerCase().trim(),g=o.get(i);g?g.count++:o.set(i,$(B({},s),{count:1}));}return [...o.values()].sort((s,i)=>i.count-s.count).slice(0,20)}static \u0275fac=function(e){return new(e||r)};static \u0275prov=ae({token:r,factory:r.\u0275fac,providedIn:"root"})};export{m};
