@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, ElementRef, ViewChild, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import { StorageService } from '../../services/storage.service';
@@ -12,6 +12,8 @@ import { CorrectionSession } from '../../models/session.model';
 export class History {
   sessions = signal<CorrectionSession[]>([]);
   expandedId = signal<string | null>(null);
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(
     private storage: StorageService,
@@ -42,5 +44,45 @@ export class History {
       day: 'numeric',
       weekday: 'short',
     });
+  }
+
+  triggerImport() {
+    this.fileInput.nativeElement.click();
+  }
+
+  onFileSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result as string);
+        if (!Array.isArray(parsed)) {
+          alert('配列形式のJSONを指定してください');
+          return;
+        }
+        const valid = parsed.filter(
+          (s: unknown) => {
+            const session = s as Record<string, unknown>;
+            return session['id'] && session['date'] && session['original'] !== undefined &&
+              session['corrected'] !== undefined && Array.isArray(session['mistakes']);
+          }
+        );
+        this.sessions.set(this.storage.importSessions(valid as CorrectionSession[]));
+      } catch {
+        alert('JSONの形式が正しくありません');
+      }
+      (event.target as HTMLInputElement).value = '';
+    };
+    reader.readAsText(file);
+  }
+
+  exportJson() {
+    const blob = new Blob([this.storage.exportSessions()], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `history_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 }

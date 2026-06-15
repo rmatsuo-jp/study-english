@@ -7,26 +7,68 @@ const SETTINGS_KEY = 'app_settings';
 export interface AppSettings {
   apiKey: string;
   model: string;
-  prompt: string;
+  includeNaturalExpressions: boolean;
+  includeGrammarTendency: boolean;
+  includeCefrEvaluation: boolean;
+  includeLevelUpSuggestion: boolean;
 }
-
-const DEFAULT_PROMPT = `以下の英作文を添削してください。
-1. 文法・語法のミスを指摘し、正しい表現を示してください
-2. より自然な表現があれば提案してください
-3. 添削後の全文も示してください
-4. ミスを必ず以下のJSON形式でレスポンスの末尾にまとめてください：
-<mistakes>
-{"mistakes": [{"category": "カテゴリ名", "original": "元の表現", "corrected": "正しい表現", "explanation": "説明"}]}
-</mistakes>
-
-英作文:
-{USER_TEXT}`;
 
 const DEFAULT_SETTINGS: AppSettings = {
   apiKey: '',
   model: 'gemini-3.5-flash',
-  prompt: DEFAULT_PROMPT,
+  includeNaturalExpressions: true,
+  includeGrammarTendency: true,
+  includeCefrEvaluation: true,
+  includeLevelUpSuggestion: true,
 };
+
+export function buildPrompt(settings: AppSettings): string {
+  const sections: string[] = [];
+
+  sections.push(`以下の英作文（英語日記）の添削をお願いします。
+単に修正するだけでなく、以下の指示に従って詳細なフィードバックを日本語で出力してください。
+
+1. 文法・語法のミスを指摘し、正しい表現を示してください。
+   【なぜその修正が必要なのか（文法的な理由）】を、初心者にも分かりやすく丁寧に解説してください。`);
+
+  if (settings.includeNaturalExpressions) {
+    sections.push(`2. より自然な表現、ネイティブらしい表現があれば提案してください。`);
+  }
+
+  sections.push(`3. 添削後の全文（修正を反映した完成版の文章）を提示してください。
+4. ミスを必ず以下のJSON形式でレスポンスの「一番最後（末尾）」にまとめてください：
+<mistakes>
+{"mistakes": [{"category": "カテゴリ名", "original": "元の表現", "corrected": "正しい表現", "explanation": "説明"}]}
+</mistakes>`);
+
+  const analysis: string[] = [];
+
+  if (settings.includeGrammarTendency) {
+    analysis.push(`【文法のミスの傾向】
+今回の日記から読み取れる、私が犯しやすい「文法のミスの傾向や癖」があれば、今後の対策と合わせて教えてください。`);
+  }
+
+  if (settings.includeCefrEvaluation) {
+    analysis.push(`【CEFR基準による評価】
+今回の文章をCEFR（ヨーロッパ言語共通参照枠）の観点から、以下の3つの側面で客観的に評価してください（例：A2、B1など）。
+・文法面：
+・語彙面：
+・内容面：`);
+  }
+
+  if (settings.includeLevelUpSuggestion) {
+    analysis.push(`【レベルアップした表現の提案】
+今回のCEFR評価の「一段階上」のレベル（例：今回がA2ならB1レベル、B1ならB2レベル）で、同じ日記の内容を書いた場合の英文のサンプルを提示してください。どのような語彙や構文を使えばレベルアップできるかの解説も添えてください。`);
+  }
+
+  if (analysis.length > 0) {
+    sections.push(`\nまた、添削に加えて以下の分析と評価も必ず行ってください。\n\n` + analysis.join('\n\n'));
+  }
+
+  sections.push(`\n英作文:\n{USER_TEXT}`);
+
+  return sections.join('\n\n');
+}
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
@@ -63,6 +105,20 @@ export class StorageService {
 
   saveSettings(settings: AppSettings): void {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  }
+
+  importSessions(incoming: CorrectionSession[]): CorrectionSession[] {
+    const existing = this.getSessions();
+    const existingIds = new Set(existing.map(s => s.id));
+    const newOnes = incoming.filter(s => !existingIds.has(s.id));
+    const merged = [...existing, ...newOnes]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(merged));
+    return merged;
+  }
+
+  exportSessions(): string {
+    return JSON.stringify(this.getSessions(), null, 2);
   }
 
   getMistakeStats(): { category: string; count: number }[] {

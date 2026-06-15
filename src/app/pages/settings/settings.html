@@ -31,14 +31,52 @@
   </div>
 
   <div class="form-group">
-    <label class="label">添削プロンプト</label>
-    <p class="hint"><code>&#123;USER_TEXT&#125;</code> の位置に英作文が挿入されます。</p>
-    <textarea
-      class="textarea"
-      [value]="settings().prompt"
-      (input)="update('prompt', $any($event.target).value)"
-      rows="12"
-    ></textarea>
+    <label class="label">添削オプション</label>
+    <p class="hint">常に含まれる項目：文法ミスの指摘・理由説明、添削後の全文、ミス一覧（JSON）</p>
+    <div class="option-list">
+      <label class="option-item">
+        <input type="checkbox"
+          [checked]="settings().includeNaturalExpressions"
+          (change)="update('includeNaturalExpressions', $any($event.target).checked)" />
+        <span>
+          <strong>より自然な表現の提案</strong>
+          <span class="option-desc">ネイティブらしい言い回しのアドバイス</span>
+        </span>
+      </label>
+      <label class="option-item">
+        <input type="checkbox"
+          [checked]="settings().includeGrammarTendency"
+          (change)="update('includeGrammarTendency', $any($event.target).checked)" />
+        <span>
+          <strong>文法ミスの傾向分析</strong>
+          <span class="option-desc">犯しやすいミスの癖と今後の対策</span>
+        </span>
+      </label>
+      <label class="option-item">
+        <input type="checkbox"
+          [checked]="settings().includeCefrEvaluation"
+          (change)="update('includeCefrEvaluation', $any($event.target).checked)" />
+        <span>
+          <strong>CEFR基準による評価</strong>
+          <span class="option-desc">文法・語彙・内容の3観点で客観的なレベル評価（A1〜C2）</span>
+        </span>
+      </label>
+      <label class="option-item">
+        <input type="checkbox"
+          [checked]="settings().includeLevelUpSuggestion"
+          (change)="update('includeLevelUpSuggestion', $any($event.target).checked)" />
+        <span>
+          <strong>レベルアップ表現の提案</strong>
+          <span class="option-desc">CEFR評価より一段階上のレベルのサンプル英文と解説</span>
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="label">プロンプトプレビュー</label>
+    <p class="hint">上記の選択をもとに自動生成されるプロンプトです。</p>
+    <textarea class="textarea" rows="12" readonly [value]="promptPreview()"></textarea>
   </div>
 
   <div class="actions">
@@ -46,4 +84,46 @@
       @if (saved()) { ✓ 保存しました } @else { 保存する }
     </button>
   </div>
+
+  <hr class="section-divider">
+
+  <h2 class="section-title">過去の英作文をJSON形式に変換</h2>
+  <p class="hint">過去の英作文テキストを入力すると、履歴画面で取り込めるJSON形式に変換します。</p>
+
+  <div class="form-group">
+    <label class="label">日付</label>
+    <input class="input" type="date" [value]="convertDate()"
+      (input)="convertDate.set($any($event.target).value)" />
+  </div>
+
+  <div class="form-group">
+    <label class="label">英作文（1件ずつ入力）</label>
+    @for (text of convertTexts(); track $index) {
+      <div class="entry-row">
+        <textarea class="textarea" rows="4" [value]="text"
+          (input)="updateEntry($index, $any($event.target).value)"
+          placeholder="過去の英作文を入力..."></textarea>
+        @if (convertTexts().length > 1) {
+          <button class="remove-btn" type="button" (click)="removeEntry($index)">✕</button>
+        }
+      </div>
+    }
+    <button class="add-btn" type="button" (click)="addEntry()">＋ 追加</button>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary" (click)="generateJson()">JSONを生成</button>
+  </div>
+
+  @if (convertResult()) {
+    <div class="form-group" style="margin-top: 1rem">
+      <label class="label">生成されたJSON（履歴画面でインポートできます）</label>
+      <textarea class="textarea" rows="10" readonly [value]="convertResult()"></textarea>
+      <div class="actions" style="margin-top: 0.5rem">
+        <button class="btn-primary" (click)="copyResult()">
+          @if (copiedConvert()) { ✓ コピーしました } @else { クリップボードにコピー }
+        </button>
+      </div>
+    </div>
+  }
 </div>

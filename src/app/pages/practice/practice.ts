@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import { GeminiService } from '../../services/gemini.service';
-import { StorageService } from '../../services/storage.service';
+import { StorageService, buildPrompt } from '../../services/storage.service';
 import { CorrectionSession, Mistake } from '../../models/session.model';
 
 @Component({
@@ -44,7 +44,7 @@ export class Practice {
     this.result.set(null);
 
     try {
-      const res = await this.gemini.correct(settings.apiKey, settings.model, settings.prompt, text);
+      const res = await this.gemini.correct(settings.apiKey, settings.model, buildPrompt(settings), text);
       this.result.set(res);
 
       const session: CorrectionSession = {

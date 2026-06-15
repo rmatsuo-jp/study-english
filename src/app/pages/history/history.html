@@ -1,6 +1,12 @@
 <div class="page">
   <h1 class="page-title">履歴</h1>
 
+  <div class="toolbar">
+    <button class="toolbar-btn" (click)="exportJson()">↓ バックアップ保存</button>
+    <button class="toolbar-btn" (click)="triggerImport()">↑ JSONから取り込み</button>
+  </div>
+  <input #fileInput type="file" accept=".json" style="display:none" (change)="onFileSelected($event)">
+
   @if (sessions().length === 0) {
     <div class="empty">
       <p>まだ添削履歴がありません。</p>
