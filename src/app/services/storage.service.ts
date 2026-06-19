@@ -1,9 +1,15 @@
+/**
+ * @file LocalStorage への永続化と Gemini プロンプト構築を担うサービス。
+ * セッション管理（CRUD）・設定管理・ミス統計集計・プロンプト生成を一元管理する。
+ * コンポーネントから直接 localStorage を操作せず、必ずこのサービスを経由すること。
+ */
 import { Injectable } from '@angular/core';
 import { CorrectionSession, Mistake } from '../models/session.model';
 
 const SESSIONS_KEY = 'correction_sessions';
 const SETTINGS_KEY = 'app_settings';
 
+// ── 設定型・デフォルト値 ──────────────────────────────────────────
 export interface AppSettings {
   apiKey: string;
   model: string;
@@ -24,6 +30,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
 };
 
+// ── プロンプト構築: AppSettings の機能トグルに応じてプロンプトを動的生成 ─
 export function buildPrompt(settings: AppSettings): string {
   const sections: string[] = [];
 
@@ -74,6 +81,7 @@ export function buildPrompt(settings: AppSettings): string {
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
+  // ── セッション管理 ────────────────────────────────────────────────
   getSessions(): CorrectionSession[] {
     const raw = localStorage.getItem(SESSIONS_KEY);
     if (!raw) return [];
@@ -95,6 +103,7 @@ export class StorageService {
     localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
   }
 
+  // ── 設定管理 ──────────────────────────────────────────────────────
   getSettings(): AppSettings {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return { ...DEFAULT_SETTINGS };
@@ -109,6 +118,7 @@ export class StorageService {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   }
 
+  // ── インポート / エクスポート ──────────────────────────────────────
   importSessions(incoming: CorrectionSession[]): CorrectionSession[] {
     const existing = this.getSessions();
     const existingIds = new Set(existing.map(s => s.id));
@@ -123,6 +133,7 @@ export class StorageService {
     return JSON.stringify(this.getSessions(), null, 2);
   }
 
+  // ── ミス統計集計 ──────────────────────────────────────────────────
   getMistakeStats(): { category: string; count: number }[] {
     const sessions = this.getSessions();
     const counts: Record<string, number> = {};

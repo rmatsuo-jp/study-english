@@ -1,3 +1,7 @@
+/**
+ * @file 過去の添削セッション一覧ページ。
+ * セッションの表示・削除・展開、JSON インポート/エクスポートを提供する。
+ */
 import { Component, ElementRef, ViewChild, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
@@ -10,6 +14,7 @@ import { CorrectionSession } from '../../models/session.model';
   styleUrl: './history.scss',
 })
 export class History {
+  // ── 状態管理（signal） ────────────────────────────────────────────
   sessions = signal<CorrectionSession[]>([]);
   expandedId = signal<string | null>(null);
 
@@ -46,6 +51,7 @@ export class History {
     });
   }
 
+  // ── インポート / エクスポート ──────────────────────────────────────
   triggerImport() {
     this.fileInput.nativeElement.click();
   }

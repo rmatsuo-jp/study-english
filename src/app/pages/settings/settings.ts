@@ -1,3 +1,7 @@
+/**
+ * @file 設定ページ。API キー・モデル選択・機能トグル・テーマ切り替えを管理する。
+ * プロンプトのリアルタイムプレビューと、過去英作文の JSON 変換ツールも提供する。
+ */
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { StorageService, AppSettings, buildPrompt } from '../../services/storage.service';
@@ -10,6 +14,7 @@ import { CorrectionSession } from '../../models/session.model';
   styleUrl: './settings.scss',
 })
 export class Settings {
+  // ── 状態管理（signal） ────────────────────────────────────────────
   settings = signal<AppSettings>({ apiKey: '', model: 'gemini-3.5-flash', includeNaturalExpressions: true, includeGrammarTendency: true, includeCefrEvaluation: true, includeLevelUpSuggestion: true, theme: 'dark' });
   promptPreview = signal('');
   saved = signal(false);
@@ -49,6 +54,7 @@ export class Settings {
     setTimeout(() => this.saved.set(false), 2000);
   }
 
+  // ── テキスト→JSON 変換ツール ──────────────────────────────────────
   addEntry() {
     this.convertTexts.set([...this.convertTexts(), '']);
   }

@@ -1,3 +1,8 @@
+/**
+ * @file 英作文入力・添削結果表示ページ。
+ * ユーザーが入力した英文を GeminiService に送信し、添削結果（Markdown）とミスリストを表示する。
+ * 添削成功時は StorageService にセッションを保存する。
+ */
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -13,6 +18,7 @@ import { CorrectionSession, Mistake } from '../../models/session.model';
   styleUrl: './practice.scss',
 })
 export class Practice {
+  // ── 状態管理（signal） ────────────────────────────────────────────
   userText = signal('');
   loading = signal(false);
   error = signal('');
@@ -29,6 +35,7 @@ export class Practice {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
+  // ── 添削実行: Gemini API 呼び出し → 結果表示 → セッション保存 ───
   async submit() {
     const text = this.userText().trim();
     if (!text) return;

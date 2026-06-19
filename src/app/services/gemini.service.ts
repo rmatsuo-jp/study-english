@@ -1,3 +1,7 @@
+/**
+ * @file Google Gemini API との通信を担うサービス。
+ * correct() でプロンプトを送信し、レスポンスから添削文と mistakes JSON を分離して返す。
+ */
 import { Injectable } from '@angular/core';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Mistake } from '../models/session.model';
@@ -9,6 +13,7 @@ export interface CorrectionResult {
 
 @Injectable({ providedIn: 'root' })
 export class GeminiService {
+  // ── API 呼び出し ─────────────────────────────────────────────────
   async correct(apiKey: string, model: string, prompt: string, userText: string): Promise<CorrectionResult> {
     const genAI = new GoogleGenerativeAI(apiKey);
     const genModel = genAI.getGenerativeModel({ model });
@@ -23,6 +28,7 @@ export class GeminiService {
     return { corrected, mistakes };
   }
 
+  // ── レスポンス解析: <mistakes>...</mistakes> タグから JSON を抽出 ─
   private parseMistakes(text: string): Mistake[] {
     const match = text.match(/<mistakes>([\s\S]*?)<\/mistakes>/);
     if (!match) return [];

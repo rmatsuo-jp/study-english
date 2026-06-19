@@ -1,3 +1,7 @@
+/**
+ * @file 遅延ロード（loadComponent）を使ったルーティング設定。
+ * デフォルトは /practice にリダイレクト。ルートは practice / history / mistakes / settings の 4 つ。
+ */
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [

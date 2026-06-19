@@ -1,3 +1,7 @@
+/**
+ * @file ミス傾向分析ページ。
+ * 全セッションのミスをカテゴリ別に集計し、頻度バーと頻出ミスリストを表示する。
+ */
 import { Component, signal } from '@angular/core';
 import { StorageService } from '../../services/storage.service';
 import { Mistake } from '../../models/session.model';
@@ -8,6 +12,7 @@ import { Mistake } from '../../models/session.model';
   styleUrl: './mistakes.scss',
 })
 export class Mistakes {
+  // ── 状態管理（signal） ────────────────────────────────────────────
   stats = signal<{ category: string; count: number }[]>([]);
   frequent = signal<(Mistake & { count: number })[]>([]);
   maxCount = signal(1);

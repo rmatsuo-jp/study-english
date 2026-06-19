@@ -1,3 +1,7 @@
+/**
+ * @file ルートコンポーネント。アプリ起動時に StorageService から theme 設定を読み取り
+ * document ルートの data-theme 属性に反映する。
+ */
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { StorageService } from './services/storage.service';
