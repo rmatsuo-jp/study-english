@@ -6,6 +6,9 @@
     @if (!selectionMode()) {
       <button class="toolbar-btn" (click)="exportJson()">↓ バックアップ保存</button>
       <button class="toolbar-btn" (click)="triggerImport()">↑ JSONから取り込み</button>
+      <button class="toolbar-btn sort-btn" (click)="toggleSort()">
+        日付 {{ sortOrder() === 'desc' ? '↓' : '↑' }}
+      </button>
       <button class="toolbar-btn select-btn" (click)="toggleSelectionMode()">選択</button>
     } @else {
       <button class="toolbar-btn" (click)="toggleSelectionMode()">キャンセル</button>
@@ -26,7 +29,7 @@
   }
 
   <div class="sessions-list">
-    @for (session of sessions(); track session.id) {
+    @for (session of sortedSessions(); track session.id) {
       <div class="session-card"
            [class.selected]="isSelected(session.id)"
            (click)="selectionMode() ? toggleSelect(session.id, $event) : toggle(session.id)">

@@ -1,8 +1,8 @@
 /**
  * @file 過去の添削セッション一覧ページ。
- * セッションの表示・複数選択削除・展開、JSON インポート/エクスポートを提供する。
+ * セッションの表示・複数選択削除・展開、日付ソート、JSON インポート/エクスポートを提供する。
  */
-import { Component, ElementRef, ViewChild, signal } from '@angular/core';
+import { Component, ElementRef, ViewChild, computed, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import { StorageService } from '../../services/storage.service';
@@ -19,6 +19,14 @@ export class History {
   expandedId = signal<string | null>(null);
   selectionMode = signal(false);
   selectedIds = signal<Set<string>>(new Set());
+  sortOrder = signal<'asc' | 'desc'>('desc');
+
+  sortedSessions = computed(() =>
+    [...this.sessions()].sort((a, b) => {
+      const diff = a.date.localeCompare(b.date);
+      return this.sortOrder() === 'asc' ? diff : -diff;
+    })
+  );
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -37,6 +45,10 @@ export class History {
   toggle(id: string) {
     if (this.selectionMode()) return;
     this.expandedId.set(this.expandedId() === id ? null : id);
+  }
+
+  toggleSort() {
+    this.sortOrder.set(this.sortOrder() === 'desc' ? 'asc' : 'desc');
   }
 
   toggleSelectionMode() {
