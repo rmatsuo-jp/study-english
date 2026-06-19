@@ -35,7 +35,7 @@ export class Practice {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
-  // ── 添削実行: Gemini API 呼び出し → 結果表示 → セッション保存 ───
+  // ── 添削実行: Gemini API 呼び出し → 結果表示 → セッション保存（gemini-3.5-flash エラー時は gemini-2.5-flash にフォールバック） ───
   async submit() {
     const text = this.userText().trim();
     if (!text) return;
@@ -51,7 +51,18 @@ export class Practice {
     this.result.set(null);
 
     try {
-      const res = await this.gemini.correct(settings.apiKey, settings.model, buildPrompt(settings), text);
+      let res;
+      const prompt = buildPrompt(settings);
+      try {
+        res = await this.gemini.correct(settings.apiKey, settings.model, prompt, text);
+      } catch (firstError) {
+        // gemini-3.5-flash でエラーが発生した場合、gemini-2.5-flash にフォールバック
+        if (settings.model === 'gemini-3.5-flash') {
+          res = await this.gemini.correct(settings.apiKey, 'gemini-2.5-flash', prompt, text);
+        } else {
+          throw firstError;
+        }
+      }
       this.result.set(res);
 
       const session: CorrectionSession = {
