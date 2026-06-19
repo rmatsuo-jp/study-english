@@ -1,6 +1,6 @@
 /**
  * @file 過去の添削セッション一覧ページ。
- * セッションの表示・削除・展開、JSON インポート/エクスポートを提供する。
+ * セッションの表示・複数選択削除・展開、JSON インポート/エクスポートを提供する。
  */
 import { Component, ElementRef, ViewChild, signal } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -17,6 +17,8 @@ export class History {
   // ── 状態管理（signal） ────────────────────────────────────────────
   sessions = signal<CorrectionSession[]>([]);
   expandedId = signal<string | null>(null);
+  selectionMode = signal(false);
+  selectedIds = signal<Set<string>>(new Set());
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -33,13 +35,39 @@ export class History {
   }
 
   toggle(id: string) {
+    if (this.selectionMode()) return;
     this.expandedId.set(this.expandedId() === id ? null : id);
   }
 
-  delete(id: string, event: Event) {
+  toggleSelectionMode() {
+    const next = !this.selectionMode();
+    this.selectionMode.set(next);
+    if (!next) this.selectedIds.set(new Set());
+  }
+
+  toggleSelect(id: string, event: Event) {
     event.stopPropagation();
-    this.storage.deleteSession(id);
+    const ids = new Set(this.selectedIds());
+    if (ids.has(id)) {
+      ids.delete(id);
+    } else {
+      ids.add(id);
+    }
+    this.selectedIds.set(ids);
+  }
+
+  isSelected(id: string): boolean {
+    return this.selectedIds().has(id);
+  }
+
+  deleteSelected() {
+    const ids = this.selectedIds();
+    if (ids.size === 0) return;
+    if (!confirm(`${ids.size}件の履歴を削除しますか？この操作は元に戻せません。`)) return;
+    ids.forEach(id => this.storage.deleteSession(id));
     this.sessions.set(this.storage.getSessions());
+    this.selectedIds.set(new Set());
+    this.selectionMode.set(false);
   }
 
   formatDate(iso: string): string {

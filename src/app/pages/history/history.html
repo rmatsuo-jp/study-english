@@ -1,10 +1,20 @@
-<!-- @file History ページテンプレート。セッション一覧・展開表示・削除、JSON インポート/エクスポートボタンを含む。 -->
+<!-- @file History ページテンプレート。セッション一覧・展開表示・複数選択削除、JSON インポート/エクスポートボタンを含む。 -->
 <div class="page">
   <h1 class="page-title">履歴</h1>
 
   <div class="toolbar">
-    <button class="toolbar-btn" (click)="exportJson()">↓ バックアップ保存</button>
-    <button class="toolbar-btn" (click)="triggerImport()">↑ JSONから取り込み</button>
+    @if (!selectionMode()) {
+      <button class="toolbar-btn" (click)="exportJson()">↓ バックアップ保存</button>
+      <button class="toolbar-btn" (click)="triggerImport()">↑ JSONから取り込み</button>
+      <button class="toolbar-btn select-btn" (click)="toggleSelectionMode()">選択</button>
+    } @else {
+      <button class="toolbar-btn" (click)="toggleSelectionMode()">キャンセル</button>
+      <button class="toolbar-btn delete-selected-btn"
+              [disabled]="selectedIds().size === 0"
+              (click)="deleteSelected()">
+        削除{{ selectedIds().size > 0 ? '（' + selectedIds().size + '件）' : '' }}
+      </button>
+    }
   </div>
   <input #fileInput type="file" accept=".json" style="display:none" (change)="onFileSelected($event)">
 
@@ -17,22 +27,28 @@
 
   <div class="sessions-list">
     @for (session of sessions(); track session.id) {
-      <div class="session-card" (click)="toggle(session.id)">
+      <div class="session-card"
+           [class.selected]="isSelected(session.id)"
+           (click)="selectionMode() ? toggleSelect(session.id, $event) : toggle(session.id)">
         <div class="session-header">
           <div class="session-meta">
+            @if (selectionMode()) {
+              <span class="checkbox-icon">{{ isSelected(session.id) ? '☑' : '☐' }}</span>
+            }
             <span class="session-date">{{ formatDate(session.date) }}</span>
             @if (session.mistakes.length > 0) {
               <span class="mistake-count">ミス {{ session.mistakes.length }}件</span>
             }
           </div>
           <div class="session-actions">
-            <button class="delete-btn" (click)="delete(session.id, $event)" aria-label="削除">✕</button>
-            <span class="chevron" [class.open]="expandedId() === session.id">›</span>
+            @if (!selectionMode()) {
+              <span class="chevron" [class.open]="expandedId() === session.id">›</span>
+            }
           </div>
         </div>
         <p class="session-preview">{{ session.original }}</p>
 
-        @if (expandedId() === session.id) {
+        @if (!selectionMode() && expandedId() === session.id) {
           <div class="session-detail">
             <h3 class="detail-title">元の英作文</h3>
             <pre class="detail-text original">{{ session.original }}</pre>

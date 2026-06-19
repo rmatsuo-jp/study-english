@@ -89,26 +89,43 @@
   font-weight: 600;
 }
 
+.select-btn {
+  margin-left: auto;
+}
+
+.delete-selected-btn {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+
+  &:hover:not(:disabled) {
+    background: #fecaca;
+    border-color: #ef4444;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.session-card {
+  &.selected {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light, #ede9fe);
+  }
+}
+
+.checkbox-icon {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
 .session-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.delete-btn {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  font-size: 0.875rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  transition: color 0.2s, background 0.2s;
-
-  &:hover {
-    color: #ef4444;
-    background: #fee2e2;
-  }
 }
 
 .chevron {
