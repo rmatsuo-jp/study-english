@@ -19,6 +19,22 @@
   margin-bottom: 0.5rem;
 }
 
+.input {
+  padding: 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+}
+
 .date-row {
   margin-bottom: 1rem;
 }
