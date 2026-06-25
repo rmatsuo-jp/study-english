@@ -11,6 +11,7 @@ UI 言語: 日本語。対象ユーザー: 英語学習者。
 ## エージェント向け基本ルール
 
 - **会話言語**: Claude Code はすべての返答・説明・質問を**日本語**で行うこと。
+- **学習目的の教授ルール**: ユーザーがスクリプト作成やコード変更を依頼した際、エージェントは単に実装するのではなく、Claude Code 上で同時に「なぜそのファイルをどう変更するとその挙動になるのか」を日本語で解説すること。目的は、ユーザー自身が今後 Angular のコードを自力で修正できるレベルまで精通すること。実装と解説を必ずセットで行う。
 
 ---
 
@@ -42,14 +43,17 @@ src/
     ├── app.routes.ts                # 遅延ロードルーティング設定
     ├── app.config.ts                # Angular DI / Service Worker 設定
     ├── models/
-    │   └── session.model.ts         # Mistake / CorrectionSession 型定義
+    │   └── session.model.ts         # Mistake / CefrEvaluation / CorrectionSession 型定義
     ├── services/
-    │   ├── gemini.service.ts        # Gemini API 呼び出し・レスポンス解析
-    │   └── storage.service.ts       # LocalStorage 永続化・プロンプト構築
+    │   ├── gemini.service.ts        # Gemini API 呼び出し・レスポンス解析（mistakes/cefr）
+    │   └── storage.service.ts       # LocalStorage 永続化・統計集計（streak/CEFR推移）
+    ├── utils/
+    │   └── prompt.util.ts           # buildPrompt() プロンプト動的生成（純粋関数）
     └── pages/
         ├── practice/                # 英文入力・添削結果表示
-        ├── history/                 # 過去セッション一覧・インポート/エクスポート
-        ├── mistakes/                # ミス傾向分析ダッシュボード
+        ├── drill/                   # 弱点克服ドリル（頻出ミス出題・自動採点）
+        ├── history/                 # 過去セッション一覧・検索・インポート/エクスポート
+        ├── mistakes/                # 学習統計・ミス傾向・CEFR推移ダッシュボード
         └── settings/                # API キー・モデル・機能トグル・テーマ設定
 ```
 
@@ -59,14 +63,14 @@ src/
 
 ```
 [Practice ページ]
-    ↓ userText
+    ↓ buildPrompt(settings) + userText
 [GeminiService.correct()]
-    ↓ Gemini API (buildPrompt + userText)
-[レスポンス: Markdown + <mistakes>JSON</mistakes>]
-    ↓ parseMistakes() で分離
+    ↓ Gemini API
+[レスポンス: Markdown + <mistakes>JSON</mistakes> + <cefr>JSON</cefr>]
+    ↓ parseMistakes() / parseCefr() で分離
 [StorageService.saveSession()] → LocalStorage
     ↓
-[History ページ]  [Mistakes ページ]
+[History ページ(検索)]  [Mistakes ページ(統計/CEFR推移)]  [Drill ページ(頻出ミス出題)]
 ```
 
 ---
@@ -81,12 +85,19 @@ interface Mistake {
   explanation: string; // 日本語解説
 }
 
+interface CefrEvaluation {
+  grammar: string;     // 文法面 (A1〜C2)
+  vocabulary: string;  // 語彙面 (A1〜C2)
+  content: string;     // 内容面 (A1〜C2)
+}
+
 interface CorrectionSession {
-  id: string;          // Date.now().toString()
-  date: string;        // ISO 8601
+  id: string;          // 一意ID（日付非依存。同日複数添削でも衝突しない）
+  date: string;        // ISO 8601（選択日付）
   original: string;    // ユーザーが入力した英文
   corrected: string;   // Gemini が返した添削済み Markdown
   mistakes: Mistake[];
+  cefr?: CefrEvaluation; // 任意。CEFR評価が有効なセッションのみ持つ
 }
 ```
 
@@ -110,7 +121,7 @@ npm test         # Vitest 実行
 - **コンポーネント**: Standalone（`imports: []` で直接インポート）。
 - **永続化**: `StorageService` 経由のみ。コンポーネントから直接 `localStorage` を操作しない。
 - **API 呼び出し**: `GeminiService` 経由のみ。
-- **プロンプト構築**: `buildPrompt(settings)` で一元管理（storage.service.ts）。
+- **プロンプト構築**: `buildPrompt(settings)` で一元管理（utils/prompt.util.ts）。
 - **スタイル**: SCSS ファイルはコンポーネントと同名で同ディレクトリに配置。
 
 ---

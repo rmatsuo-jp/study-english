@@ -1,6 +1,30 @@
-<!-- @file Settings ページテンプレート。テーマ・API キー・モデル・添削オプション・プロンプトプレビューを含む。 -->
+<!-- @file Settings ページテンプレート。アカウント（Google SSO 同期）・テーマ・API キー・モデル・添削オプション・プロンプトプレビューを含む。 -->
 <div class="page">
   <h1 class="page-title">設定</h1>
+
+  <!-- ── アカウント（Google ログインでデータを複数端末で共有） ─────────── -->
+  <div class="form-group">
+    <label class="label">アカウント（データ同期）</label>
+    <p class="hint">Google でログインすると、添削データを他の端末と共有できます。</p>
+    @if (user(); as u) {
+      <div class="account-card">
+        @if (u.photoURL) {
+          <img class="account-avatar" [src]="u.photoURL" alt="" referrerpolicy="no-referrer" />
+        }
+        <div class="account-info">
+          <strong>{{ u.displayName || 'ログイン中' }}</strong>
+          <span class="account-email">{{ u.email }}</span>
+        </div>
+        <button class="btn-secondary" (click)="logout()" [disabled]="authBusy()" type="button">
+          ログアウト
+        </button>
+      </div>
+    } @else {
+      <button class="btn-primary" (click)="login()" [disabled]="authBusy()" type="button">
+        @if (authBusy()) { 処理中… } @else { Google でログイン }
+      </button>
+    }
+  </div>
 
   <div class="form-group">
     <label class="label">外観テーマ</label>
