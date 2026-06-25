@@ -1,10 +1,11 @@
 /**
- * @file 設定ページ。API キー・モデル選択・機能トグル・テーマ切り替えを管理する。
+ * @file 設定ページ。アカウント（Google SSO ログイン/同期）・API キー・モデル選択・機能トグル・テーマ切り替えを管理する。
  * promptPreview は computed() で settings signal から自動生成される。
  */
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { StorageService, AppSettings } from '../../services/storage.service';
+import { AuthService } from '../../services/auth.service';
 import { buildPrompt } from '../../utils/prompt.util';
 
 @Component({
@@ -15,6 +16,31 @@ import { buildPrompt } from '../../utils/prompt.util';
 })
 export class Settings {
   private storage = inject(StorageService);
+  private auth = inject(AuthService);
+
+  // ── アカウント（Google SSO） ──────────────────────────────────────
+  readonly user = this.auth.user;
+  authBusy = signal(false);
+
+  async login() {
+    this.authBusy.set(true);
+    try {
+      await this.auth.login();
+    } catch (err) {
+      console.error('[Settings] ログインに失敗:', err);
+    } finally {
+      this.authBusy.set(false);
+    }
+  }
+
+  async logout() {
+    this.authBusy.set(true);
+    try {
+      await this.auth.logout();
+    } finally {
+      this.authBusy.set(false);
+    }
+  }
 
   readonly models = [
     { value: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash' },

@@ -2,10 +2,20 @@
  * @file LocalStorage への永続化を担うサービス。
  * セッション管理（CRUD）・設定管理・ミス統計集計・学習統計（streak等）を一元管理する。
  * sessions signal でリアクティブなキャッシュを提供する。
+ * ログイン中（AuthService）は Firestore とも双方向同期し、複数端末でセッションを共有する。
  * コンポーネントから直接 localStorage を操作せず、必ずこのサービスを経由すること。
  */
-import { Injectable, signal } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc,
+} from 'firebase/firestore';
 import { CefrEvaluation, CorrectionSession, Mistake } from '../models/session.model';
+import { AuthService } from './auth.service';
+import { firestore } from './firebase.init';
 
 // CEFR レベルを数値化（グラフ描画用）。未知の値は 0 として扱う。
 export const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
@@ -53,6 +63,21 @@ export class StorageService {
   private _sessions = signal<CorrectionSession[]>(this.loadFromStorage());
   readonly sessions = this._sessions.asReadonly();
 
+  private auth = inject(AuthService);
+
+  constructor() {
+    // ログイン状態を監視し、ログインした瞬間にクラウドと双方向同期する。
+    // ログアウト時（user が null）はローカルキャッシュをそのまま残す。
+    effect(() => {
+      const user = this.auth.user();
+      if (user) {
+        this.syncFromCloud(user.uid).catch(err =>
+          console.error('[StorageService] クラウド同期に失敗:', err)
+        );
+      }
+    });
+  }
+
   private loadFromStorage(): CorrectionSession[] {
     const raw = localStorage.getItem(SESSIONS_KEY);
     if (!raw) return [];
@@ -71,10 +96,68 @@ export class StorageService {
   // ── セッション管理 ────────────────────────────────────────────────
   saveSession(session: CorrectionSession): void {
     this.persist([session, ...this._sessions()]);
+    // ログイン中なら該当 1 件だけクラウドへ反映（fire-and-forget）。
+    const uid = this.auth.user()?.uid;
+    if (uid) {
+      setDoc(this.sessionDoc(uid, session.id), this.toDocData(session)).catch(err =>
+        console.error('[StorageService] セッション保存の同期に失敗:', err)
+      );
+    }
   }
 
   deleteSession(id: string): void {
     this.persist(this._sessions().filter(s => s.id !== id));
+    const uid = this.auth.user()?.uid;
+    if (uid) {
+      deleteDoc(this.sessionDoc(uid, id)).catch(err =>
+        console.error('[StorageService] セッション削除の同期に失敗:', err)
+      );
+    }
+  }
+
+  // ── Firestore 同期 ────────────────────────────────────────────────
+  // apps/study_english/users/{uid}/sessions/{sessionId} のドキュメント参照を返す。
+  // 先頭の apps/study_english は、同一 Firebase プロジェクトに別アプリを追加しても衝突しないための名前空間。
+  private sessionDoc(uid: string, sessionId: string) {
+    return doc(firestore, 'apps', 'study_english', 'users', uid, 'sessions', sessionId);
+  }
+
+  // apps/study_english/users/{uid}/sessions コレクション参照を返す
+  private sessionsCol(uid: string) {
+    return collection(firestore, 'apps', 'study_english', 'users', uid, 'sessions');
+  }
+
+  // Firestore は undefined を受け付けないため、cefr が無い場合はフィールドごと除外する
+  private toDocData(session: CorrectionSession): CorrectionSession | Omit<CorrectionSession, 'cefr'> {
+    if (session.cefr === undefined) {
+      const { cefr, ...rest } = session;
+      return rest;
+    }
+    return session;
+  }
+
+  // ログイン直後に呼ぶ双方向同期:
+  //   1. クラウドのセッションを取得しローカルへマージ（ID重複は既存を優先）
+  //   2. ローカルにしか無いセッションをクラウドへ push
+  async syncFromCloud(uid: string): Promise<void> {
+    const snap = await getDocs(this.sessionsCol(uid));
+    const cloud = snap.docs.map(d => d.data() as CorrectionSession);
+
+    const local = this._sessions();
+    const localIds = new Set(local.map(s => s.id));
+    const cloudIds = new Set(cloud.map(s => s.id));
+
+    // 1. クラウド→ローカル: ローカルに無い分を追加し、日付降順で整列
+    const merged = [...local, ...cloud.filter(s => !localIds.has(s.id))].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    this.persist(merged);
+
+    // 2. ローカル→クラウド: クラウドに無い分を push
+    const toPush = local.filter(s => !cloudIds.has(s.id));
+    await Promise.all(
+      toPush.map(s => setDoc(this.sessionDoc(uid, s.id), this.toDocData(s)))
+    );
   }
 
   // ── 設定管理 ──────────────────────────────────────────────────────
@@ -96,9 +179,17 @@ export class StorageService {
   importSessions(incoming: CorrectionSession[]): void {
     const existing = this._sessions();
     const existingIds = new Set(existing.map(s => s.id));
-    const merged = [...existing, ...incoming.filter(s => !existingIds.has(s.id))]
+    const added = incoming.filter(s => !existingIds.has(s.id));
+    const merged = [...existing, ...added]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     this.persist(merged);
+    // ログイン中なら新規取り込み分をクラウドへも反映
+    const uid = this.auth.user()?.uid;
+    if (uid) {
+      Promise.all(
+        added.map(s => setDoc(this.sessionDoc(uid, s.id), this.toDocData(s)))
+      ).catch(err => console.error('[StorageService] インポートの同期に失敗:', err));
+    }
   }
 
   exportSessions(): string {
