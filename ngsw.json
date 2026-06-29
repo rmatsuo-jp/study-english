@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1782637300956,
+  "timestamp": 1782773448886,
   "index": "/study-english/index.html",
   "assetGroups": [
     {
@@ -11,19 +11,19 @@
         "ignoreVary": true
       },
       "urls": [
-        "/study-english/chunk-5gKgjfC7.js",
-        "/study-english/chunk-BhKghtld.js",
-        "/study-english/chunk-CqXelVwe.js",
-        "/study-english/chunk-D24eTUSI.js",
-        "/study-english/chunk-MPiWUFtB.js",
-        "/study-english/chunk-WUm0XyOX.js",
-        "/study-english/chunk-ZXOnxWHg.js",
-        "/study-english/chunk-w7Gckb8a.js",
+        "/study-english/chunk-7mQPrWe2.js",
+        "/study-english/chunk-BefLEDJ_.js",
+        "/study-english/chunk-CKuLKB3W.js",
+        "/study-english/chunk-D04uXuA-.js",
+        "/study-english/chunk-DCywzeXG.js",
+        "/study-english/chunk-DsqiNPk0.js",
+        "/study-english/chunk-o5d4KwcY.js",
+        "/study-english/chunk-xS3nP1kg.js",
         "/study-english/favicon.ico",
         "/study-english/index.html",
-        "/study-english/main-JUYSZY7K.js",
+        "/study-english/main-NCSDEXGL.js",
         "/study-english/manifest.webmanifest",
-        "/study-english/styles-H3UOU3I7.css"
+        "/study-english/styles-RXOPA5TC.css"
       ],
       "patterns": []
     },
@@ -50,14 +50,14 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "/study-english/chunk-5gKgjfC7.js": "d6474c5522623a685d0d42c44409c70463b0876f",
-    "/study-english/chunk-BhKghtld.js": "9b9c4789e49b0e85efdaf87946fafcd395419d30",
-    "/study-english/chunk-CqXelVwe.js": "c8e36c3712d5e736c3b609a7123b79aa35315057",
-    "/study-english/chunk-D24eTUSI.js": "c799270bb6e055ee6493486f4a8d589c91b6869f",
-    "/study-english/chunk-MPiWUFtB.js": "bf4fb2d90552e84fb2dadbae7e98a31c7821bb34",
-    "/study-english/chunk-WUm0XyOX.js": "bc5778e81d3186470571d3b1eb785aa10a718a44",
-    "/study-english/chunk-ZXOnxWHg.js": "eeee06f76763d378eff00dac42784cbe60648b57",
-    "/study-english/chunk-w7Gckb8a.js": "507b4916607c27769d2a077b6f4bf80f38774ee5",
+    "/study-english/chunk-7mQPrWe2.js": "99f4dfb8c62d28f0bdb7c16b1ac289e9b52d99e1",
+    "/study-english/chunk-BefLEDJ_.js": "ad2fc440d9a5d45ed2bcb96edc4465b2574ca41b",
+    "/study-english/chunk-CKuLKB3W.js": "6204f426039d78e74ec1240fa0da1119fb821257",
+    "/study-english/chunk-D04uXuA-.js": "952e47daf1928f9cc7a83d729a38aad86a4a8981",
+    "/study-english/chunk-DCywzeXG.js": "958765d6d9fb819b3a97a5c855a4814d62890079",
+    "/study-english/chunk-DsqiNPk0.js": "d545a07f8d863bf86d54a5f93693c9dcecae4426",
+    "/study-english/chunk-o5d4KwcY.js": "486d5b71a7289b4372c4908255b61e9d417dd827",
+    "/study-english/chunk-xS3nP1kg.js": "4f2e3165bdb17d1c96632821d0191709d3c79367",
     "/study-english/favicon.ico": "87b39818e5f6ced949ec4139b20e1d74c0723bf4",
     "/study-english/favicon.svg": "32debe78ba85f83ec391345935cdf0cc5c731ae4",
     "/study-english/icons/icon-128x128.png": "686d591e25645f99c237c3952f5be0988f6b3dc0",
@@ -68,10 +68,10 @@
     "/study-english/icons/icon-512x512.png": "746df2ee114cef44b64f657aa46a38b9199da28c",
     "/study-english/icons/icon-72x72.png": "4c75860ec2a92f1b853c0ebf81f215a25381c9f0",
     "/study-english/icons/icon-96x96.png": "5206dd9b31f68564fd3dc135f881c04948c75ef8",
-    "/study-english/index.html": "51ea813b316fc6f21fe93ec6b374b645aef28458",
-    "/study-english/main-JUYSZY7K.js": "2bd27d12cb61aed25d77f1d3c1d78fec69108f47",
+    "/study-english/index.html": "4f3326ba5912fd56ed42658cffbb37d8826fa3c4",
+    "/study-english/main-NCSDEXGL.js": "a81cd2788163a0967c09766d0a2c22604cf4cd76",
     "/study-english/manifest.webmanifest": "a8425d3f66fd4cd294c11c8359d40848173b6bdd",
-    "/study-english/styles-H3UOU3I7.css": "197305cb9d4047dceb4ef390ee2e787efbc6c8cd"
+    "/study-english/styles-RXOPA5TC.css": "e049a2f6d60637672ac0d876eff1849df0ac0179"
   },
   "navigationUrls": [
     {
