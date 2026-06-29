@@ -145,6 +145,16 @@
   padding: 1rem;
 }
 
+.original-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  white-space: pre-wrap;   // 入力時の改行を保持
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
 // Markdown 本文のタイポグラフィは src/styles.scss の グローバル `.markdown-body` で一元管理。
 // （[innerHTML] 注入要素にはコンポーネントのスコープスタイルが届かないため）
 
