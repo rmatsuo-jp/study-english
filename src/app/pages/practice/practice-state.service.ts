@@ -81,7 +81,7 @@ export class PracticeState {
         original: text,
         corrected: res.corrected,
         mistakes: res.mistakes,
-        cefr: res.cefr,
+        evaluation: res.evaluation,
         reviewItems: res.reviewItems,
       };
       this.storage.saveSession(session);

@@ -92,8 +92,8 @@
           [checked]="settings().includeCefrEvaluation"
           (change)="update('includeCefrEvaluation', $any($event.target).checked)" />
         <span>
-          <strong>CEFR基準による評価</strong>
-          <span class="option-desc">文法・語彙・内容の3観点で客観的なレベル評価（A1〜C2）</span>
+          <strong>定量評価（スコア＋CEFR）</strong>
+          <span class="option-desc">文法・語彙・内容を10点満点で採点し、エラー密度と暫定CEFR（A1〜C2）も提示</span>
         </span>
       </label>
       <label class="option-item">
