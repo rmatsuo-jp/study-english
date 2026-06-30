@@ -26,7 +26,7 @@ describe('buildPrompt', () => {
     expect(p).toContain('<mistakes>');
     // OFF の項目は現れない
     expect(p).not.toContain('【自然な表現の提案】');
-    expect(p).not.toContain('<cefr>');
+    expect(p).not.toContain('<evaluation>');
     expect(p).not.toContain('<review>');
     // 末尾はプレースホルダ
     expect(p.endsWith('英作文:\n{USER_TEXT}')).toBe(true);
@@ -55,8 +55,16 @@ describe('buildPrompt', () => {
     }));
     expect(p).toContain('【自然な表現の提案】');
     expect(p).toContain('【文法のミスの傾向】');
-    expect(p).toContain('<cefr>');
+    expect(p).toContain('<evaluation>');
     expect(p).toContain('【レベルアップした表現の提案】');
     expect(p).toContain('<review>');
+  });
+
+  it('includeCefrEvaluation ON で定量ルーブリック（10点満点・エラー密度）が追加される', () => {
+    const p = buildPrompt(settings({ includeCefrEvaluation: true }));
+    expect(p).toContain('【定量評価（10点満点・0.5刻み）】');
+    expect(p).toContain('エラー密度');
+    expect(p).toContain('<evaluation>');
+    expect(p).toContain('"overallScore"');
   });
 });

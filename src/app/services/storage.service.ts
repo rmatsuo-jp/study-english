@@ -13,7 +13,7 @@ import {
   getDocs,
   setDoc,
 } from 'firebase/firestore';
-import { CefrEvaluation, CorrectionSession, Mistake, ReviewItem } from '../models/session.model';
+import { CorrectionSession, Mistake, ReviewItem, WritingEvaluation } from '../models/session.model';
 import { AuthService } from './auth.service';
 import { firestore } from './firebase.init';
 
@@ -140,10 +140,10 @@ export class StorageService {
     return collection(firestore, 'apps', 'study_english', 'users', uid, 'sessions');
   }
 
-  // Firestore は undefined を受け付けないため、値が undefined の任意フィールド（cefr / reviewItems）を
+  // Firestore は undefined を受け付けないため、値が undefined の任意フィールド（evaluation / reviewItems）を
   // フィールドごと除外する。任意フィールドが増えても OPTIONAL_FIELDS に足すだけで対応できる。
   private toDocData(session: CorrectionSession): Record<string, unknown> {
-    const OPTIONAL_FIELDS: (keyof CorrectionSession)[] = ['cefr', 'reviewItems'];
+    const OPTIONAL_FIELDS: (keyof CorrectionSession)[] = ['evaluation', 'reviewItems'];
     const data: Record<string, unknown> = { ...session };
     for (const field of OPTIONAL_FIELDS) {
       if (data[field] === undefined) delete data[field];
@@ -268,16 +268,17 @@ export class StorageService {
     return { totalSessions, totalMistakes, avgMistakes, currentStreak, last7DaysCount };
   }
 
-  // ── CEFR 推移: cefr を持つセッションを日付昇順で返す（同一日付は最新を採用） ─
-  getCefrHistory(): { date: string; cefr: CefrEvaluation }[] {
-    const byDay = new Map<string, { date: string; cefr: CefrEvaluation }>();
+  // ── 評価推移: evaluation を持つセッションを日付昇順で返す（同一日付は最新を採用） ─
+  // スコア推移グラフ・CEFR推移グラフの両方がこの履歴を参照する。
+  getEvaluationHistory(): { date: string; evaluation: WritingEvaluation }[] {
+    const byDay = new Map<string, { date: string; evaluation: WritingEvaluation }>();
     for (const s of this.activeSessions()) {
-      if (!s.cefr) continue;
+      if (!s.evaluation) continue;
       const key = this.toDayKey(s.date);
       const existing = byDay.get(key);
       // 同一日付は date（ISO）が新しい方を採用
       if (!existing || s.date > existing.date) {
-        byDay.set(key, { date: s.date, cefr: s.cefr });
+        byDay.set(key, { date: s.date, evaluation: s.evaluation });
       }
     }
     return [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date));

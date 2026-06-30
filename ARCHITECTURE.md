@@ -19,8 +19,8 @@ graph TD
             end
 
             subgraph Services["サービス（providedIn: root）"]
-                GeminiSvc["GeminiService\ncorrect() / parseMistakes() / parseCefr()"]
-                StorageSvc["StorageService\nセッション CRUD / 設定管理\n統計集計(streak/CEFR推移) / インポート・エクスポート"]
+                GeminiSvc["GeminiService\ncorrect() / parseMistakes() / parseEvaluation()"]
+                StorageSvc["StorageService\nセッション CRUD / 設定管理\n統計集計(streak/スコア・CEFR推移) / インポート・エクスポート"]
                 BuildPrompt["buildPrompt()\nプロンプト動的生成（純粋関数）"]
             end
 
@@ -41,7 +41,7 @@ graph TD
     LocalStorage -->|JSON| StorageSvc
     StorageSvc -->|sessions / 検索フィルタ| History
     StorageSvc -->|getFrequentMistakes| Drill
-    StorageSvc -->|getStudyStats / getMistakeStats / getCefrHistory| Mistakes
+    StorageSvc -->|getStudyStats / getMistakeStats / getEvaluationHistory| Mistakes
     StorageSvc -->|getSettings / saveSettings| Settings
     BuildPrompt -.->|使用| Practice
     SW -->|オフラインキャッシュ| PWA
@@ -66,9 +66,9 @@ sequenceDiagram
     P->>P: buildPrompt(settings) で完全プロンプト生成
     P->>G: correct(apiKey, model, prompt, userText)
     G->>API: generateContent(fullPrompt)
-    API-->>G: テキスト（Markdown + <mistakes>/<cefr> JSON）
-    G->>G: parseMistakes() / parseCefr() で JSON 抽出
-    G-->>P: CorrectionResult { corrected, mistakes, cefr? }
+    API-->>G: テキスト（Markdown + <mistakes>/<evaluation> JSON）
+    G->>G: parseMistakes() / parseEvaluation() で JSON 抽出
+    G-->>P: CorrectionResult { corrected, mistakes, evaluation? }
     P->>S: saveSession(CorrectionSession)
     S->>LS: JSON.stringify して保存
     P-->>User: 添削結果を表示

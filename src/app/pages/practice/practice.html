@@ -1,4 +1,4 @@
-<!-- @file Practice ページテンプレート。日付選択・入力エリア・エラー表示・送信ボタン・添削結果（Markdown + ミスリスト）を含む。 -->
+<!-- @file Practice ページテンプレート。日付選択・入力エリア・エラー表示・送信ボタン・添削結果（元の英作文 + Markdown + ミスリスト）を含む。 -->
 <div class="page">
   <h1 class="page-title">英作文添削</h1>
 
@@ -37,6 +37,9 @@
 
   @if (state.result()) {
     <div class="result-section">
+      <h2 class="section-title">元の英作文</h2>
+      <div class="original-box">{{ state.result()!.original }}</div>
+
       <h2 class="section-title">添削結果</h2>
       <div class="result-box markdown-body" [innerHTML]="toHtml(state.result()!.corrected)"></div>
 

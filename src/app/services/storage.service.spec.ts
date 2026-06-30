@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { StorageService, cefrToNumber } from './storage.service';
 import { AuthService } from './auth.service';
-import { CorrectionSession } from '../models/session.model';
+import { CorrectionSession, WritingEvaluation } from '../models/session.model';
 
 // テスト用セッション生成ヘルパ
 function makeSession(partial: Partial<CorrectionSession>): CorrectionSession {
@@ -12,7 +12,16 @@ function makeSession(partial: Partial<CorrectionSession>): CorrectionSession {
     original: partial.original ?? '',
     corrected: partial.corrected ?? '',
     mistakes: partial.mistakes ?? [],
-    cefr: partial.cefr,
+    evaluation: partial.evaluation,
+  };
+}
+
+// テスト用 WritingEvaluation 生成ヘルパ（overall系を基準に最小指定）
+function makeEval(overrides: Partial<WritingEvaluation> = {}): WritingEvaluation {
+  return {
+    grammarScore: 7, vocabularyScore: 6, contentScore: 7, overallScore: 6.5, errorDensity: 3,
+    grammarCefr: 'B1', vocabularyCefr: 'B1', contentCefr: 'B1', overallCefr: 'B1',
+    ...overrides,
   };
 }
 
@@ -86,15 +95,15 @@ describe('StorageService', () => {
     });
   });
 
-  describe('getCefrHistory', () => {
-    it('cefr を持つセッションのみ日付昇順で返す', () => {
-      service.saveSession(makeSession({ id: '1', date: daysAgo(2), cefr: { grammar: 'A2', vocabulary: 'A2', content: 'B1' } }));
-      service.saveSession(makeSession({ id: '2', date: daysAgo(1) })); // cefr なし
-      service.saveSession(makeSession({ id: '3', date: daysAgo(0), cefr: { grammar: 'B1', vocabulary: 'B1', content: 'B2' } }));
-      const hist = service.getCefrHistory();
+  describe('getEvaluationHistory', () => {
+    it('evaluation を持つセッションのみ日付昇順で返す', () => {
+      service.saveSession(makeSession({ id: '1', date: daysAgo(2), evaluation: makeEval({ grammarScore: 4, grammarCefr: 'A2' }) }));
+      service.saveSession(makeSession({ id: '2', date: daysAgo(1) })); // evaluation なし
+      service.saveSession(makeSession({ id: '3', date: daysAgo(0), evaluation: makeEval({ grammarScore: 7, grammarCefr: 'B1' }) }));
+      const hist = service.getEvaluationHistory();
       expect(hist.length).toBe(2);
-      expect(hist[0].cefr.grammar).toBe('A2'); // 古い方が先頭
-      expect(hist[1].cefr.grammar).toBe('B1');
+      expect(hist[0].evaluation.grammarScore).toBe(4); // 古い方が先頭
+      expect(hist[1].evaluation.grammarScore).toBe(7);
     });
   });
 });

@@ -1,16 +1,16 @@
 /**
  * @file Google Gemini API との通信を担うサービス。
- * correct() でプロンプトを送信し、レスポンスから添削文・mistakes JSON・CEFR評価・復習カードを分離して返す。
+ * correct() でプロンプトを送信し、レスポンスから添削文・mistakes JSON・定量評価(WritingEvaluation)・復習カードを分離して返す。
  * gemini-3.5-flash でエラーが発生した場合、gemini-2.5-flash に自動フォールバックする。
  */
 import { Injectable } from '@angular/core';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { CefrEvaluation, Mistake, ReviewItem } from '../models/session.model';
+import { Mistake, ReviewItem, WritingEvaluation } from '../models/session.model';
 
 export interface CorrectionResult {
   corrected: string;
   mistakes: Mistake[];
-  cefr?: CefrEvaluation;
+  evaluation?: WritingEvaluation;
   reviewItems?: ReviewItem[];
 }
 
@@ -37,15 +37,15 @@ export class GeminiService {
     const text = result.response.text();
 
     const mistakes = this.parseMistakes(text);
-    const cefr = this.parseCefr(text);
+    const evaluation = this.parseEvaluation(text);
     const reviewItems = this.parseReview(text);
     const corrected = text
       .replace(/<mistakes>[\s\S]*?<\/mistakes>/g, '')
-      .replace(/<cefr>[\s\S]*?<\/cefr>/g, '')
+      .replace(/<evaluation>[\s\S]*?<\/evaluation>/g, '')
       .replace(/<review>[\s\S]*?<\/review>/g, '')
       .trim();
 
-    return { corrected, mistakes, cefr, reviewItems };
+    return { corrected, mistakes, evaluation, reviewItems };
   }
 
   // ── レスポンス解析: <mistakes>...</mistakes> タグから JSON を抽出 ─
@@ -60,14 +60,31 @@ export class GeminiService {
     }
   }
 
-  // ── レスポンス解析: <cefr>...</cefr> タグから CEFR 評価を抽出（失敗時 undefined） ─
-  private parseCefr(text: string): CefrEvaluation | undefined {
-    const match = text.match(/<cefr>([\s\S]*?)<\/cefr>/);
+  // ── レスポンス解析: <evaluation>...</evaluation> タグから定量評価を抽出（失敗時 undefined） ─
+  // スコア5項目（数値）とCEFR4項目（文字列）が型まで揃う時のみ採用する。
+  private parseEvaluation(text: string): WritingEvaluation | undefined {
+    const match = text.match(/<evaluation>([\s\S]*?)<\/evaluation>/);
     if (!match) return undefined;
     try {
-      const json = JSON.parse(match[1].trim()) as Partial<CefrEvaluation>;
-      if (json.grammar && json.vocabulary && json.content) {
-        return { grammar: json.grammar, vocabulary: json.vocabulary, content: json.content };
+      const json = JSON.parse(match[1].trim()) as Partial<WritingEvaluation>;
+      const num = (v: unknown): v is number => typeof v === 'number' && !Number.isNaN(v);
+      const str = (v: unknown): v is string => typeof v === 'string' && v.length > 0;
+      if (
+        num(json.grammarScore) && num(json.vocabularyScore) && num(json.contentScore) &&
+        num(json.overallScore) && num(json.errorDensity) &&
+        str(json.grammarCefr) && str(json.vocabularyCefr) && str(json.contentCefr) && str(json.overallCefr)
+      ) {
+        return {
+          grammarScore: json.grammarScore,
+          vocabularyScore: json.vocabularyScore,
+          contentScore: json.contentScore,
+          overallScore: json.overallScore,
+          errorDensity: json.errorDensity,
+          grammarCefr: json.grammarCefr,
+          vocabularyCefr: json.vocabularyCefr,
+          contentCefr: json.contentCefr,
+          overallCefr: json.overallCefr,
+        };
       }
       return undefined;
     } catch {

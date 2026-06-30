@@ -1,5 +1,5 @@
 /**
- * @file アプリ全体で使うドメイン型定義。Mistake（1件のミス情報）・CefrEvaluation（CEFR評価）・
+ * @file アプリ全体で使うドメイン型定義。Mistake（1件のミス情報）・WritingEvaluation（定量評価＝スコア＋CEFR）・
  * ReviewItem（穴埋め復習カード）と CorrectionSession（1回の添削セッション）を定義する。
  */
 
@@ -22,11 +22,19 @@ export interface ReviewItem {
   choices: string[];   // 4択（正解を1つ含む）
 }
 
-// ── CefrEvaluation: CEFR の3観点レベル（CEFR推移トラッキングで使用） ─
-export interface CefrEvaluation {
-  grammar: string;     // 例 "B1"
-  vocabulary: string;
-  content: string;
+// ── WritingEvaluation: 1回の添削の定量評価（スコア＋暫定CEFR） ─────
+// スコアは各10点満点（0.5刻み）。errorDensity は 100語あたりのエラー数。
+// xxxCefr は各スコアに対応する暫定CEFR（A1〜C2）。推移グラフ（スコア／CEFR）で使用する。
+export interface WritingEvaluation {
+  grammarScore: number;      // 文法 0〜10
+  vocabularyScore: number;   // 語彙 0〜10
+  contentScore: number;      // 内容 0〜10
+  overallScore: number;      // 総合平均 0〜10
+  errorDensity: number;      // 100語あたりのエラー数
+  grammarCefr: string;       // 文法の暫定CEFR
+  vocabularyCefr: string;    // 語彙の暫定CEFR
+  contentCefr: string;       // 内容の暫定CEFR
+  overallCefr: string;       // 総合の暫定CEFR
 }
 
 // ── CorrectionSession: 1回の添削セッション（LocalStorage に保存される単位） ─
@@ -36,7 +44,7 @@ export interface CorrectionSession {
   original: string;
   corrected: string;
   mistakes: Mistake[];
-  cefr?: CefrEvaluation;   // 任意。CEFR評価が有効なセッションのみ持つ（後方互換）
+  evaluation?: WritingEvaluation; // 任意。定量評価が有効なセッションのみ持つ
   reviewItems?: ReviewItem[]; // 任意。復習カード生成が有効なセッションのみ持つ（後方互換）
   deleted?: boolean;       // 論理削除フラグ。true は表示・集計から除外し、クラウドにも tombstone として残す（削除の多端末同期用）
 }

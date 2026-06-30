@@ -43,17 +43,17 @@ src/
     ├── app.routes.ts                # 遅延ロードルーティング設定
     ├── app.config.ts                # Angular DI / Service Worker 設定
     ├── models/
-    │   └── session.model.ts         # Mistake / CefrEvaluation / CorrectionSession 型定義
+    │   └── session.model.ts         # Mistake / WritingEvaluation / CorrectionSession 型定義
     ├── services/
-    │   ├── gemini.service.ts        # Gemini API 呼び出し・レスポンス解析（mistakes/cefr）
-    │   └── storage.service.ts       # LocalStorage 永続化・統計集計（streak/CEFR推移）
+    │   ├── gemini.service.ts        # Gemini API 呼び出し・レスポンス解析（mistakes/evaluation）
+    │   └── storage.service.ts       # LocalStorage 永続化・統計集計（streak/スコア・CEFR推移）
     ├── utils/
     │   └── prompt.util.ts           # buildPrompt() プロンプト動的生成（純粋関数）
     └── pages/
         ├── practice/                # 英文入力・添削結果表示
         ├── drill/                   # 弱点克服ドリル（頻出ミス出題・自動採点）
         ├── history/                 # 過去セッション一覧・検索・インポート/エクスポート
-        ├── mistakes/                # 学習統計・ミス傾向・CEFR推移ダッシュボード
+        ├── mistakes/                # 学習統計・ミス傾向・スコア/CEFR推移ダッシュボード
         └── settings/                # API キー・モデル・機能トグル・テーマ設定
 ```
 
@@ -66,11 +66,11 @@ src/
     ↓ buildPrompt(settings) + userText
 [GeminiService.correct()]
     ↓ Gemini API
-[レスポンス: Markdown + <mistakes>JSON</mistakes> + <cefr>JSON</cefr>]
-    ↓ parseMistakes() / parseCefr() で分離
+[レスポンス: Markdown + <mistakes>JSON</mistakes> + <evaluation>JSON</evaluation>]
+    ↓ parseMistakes() / parseEvaluation() で分離
 [StorageService.saveSession()] → LocalStorage
     ↓
-[History ページ(検索)]  [Mistakes ページ(統計/CEFR推移)]  [Drill ページ(頻出ミス出題)]
+[History ページ(検索)]  [Mistakes ページ(統計/スコア・CEFR推移)]  [Drill ページ(頻出ミス出題)]
 ```
 
 ---
@@ -85,10 +85,16 @@ interface Mistake {
   explanation: string; // 日本語解説
 }
 
-interface CefrEvaluation {
-  grammar: string;     // 文法面 (A1〜C2)
-  vocabulary: string;  // 語彙面 (A1〜C2)
-  content: string;     // 内容面 (A1〜C2)
+interface WritingEvaluation {
+  grammarScore: number;      // 文法 0〜10（0.5刻み）
+  vocabularyScore: number;   // 語彙 0〜10
+  contentScore: number;      // 内容 0〜10
+  overallScore: number;      // 総合平均 0〜10
+  errorDensity: number;      // 100語あたりのエラー数
+  grammarCefr: string;       // 文法の暫定CEFR (A1〜C2)
+  vocabularyCefr: string;    // 語彙の暫定CEFR
+  contentCefr: string;       // 内容の暫定CEFR
+  overallCefr: string;       // 総合の暫定CEFR
 }
 
 interface CorrectionSession {
@@ -97,7 +103,7 @@ interface CorrectionSession {
   original: string;    // ユーザーが入力した英文
   corrected: string;   // Gemini が返した添削済み Markdown
   mistakes: Mistake[];
-  cefr?: CefrEvaluation; // 任意。CEFR評価が有効なセッションのみ持つ
+  evaluation?: WritingEvaluation; // 任意。定量評価が有効なセッションのみ持つ
 }
 ```
 
@@ -114,6 +120,26 @@ npm start        # 開発サーバー起動（localhost:4200）
 npm run build    # 本番ビルド（dist/ へ出力、Service Worker 有効）
 npm test         # Vitest 実行
 ```
+
+---
+
+## バージョン運用
+
+バージョンは **Conventional Commits + semantic-release** で自動採番する。手動で `package.json` の
+`version` を編集しない。main への push をトリガに GitHub Actions が最新タグ以降のコミット種別を解析し、
+バージョンを上げてタグ・GitHub Release・`CHANGELOG.md` を生成する。
+
+| コミット種別 | バージョン上昇 | 例 |
+|---|---|---|
+| `fix:` / `perf:` | PATCH | 1.0.0 → 1.0.1 |
+| `feat:` | MINOR | 1.0.0 → 1.1.0 |
+| `feat!:` / 本文に `BREAKING CHANGE:` | MAJOR | 1.0.0 → 2.0.0 |
+| `docs:` `chore:` `refactor:` `style:` `test:` `ci:` | 上昇なし | — |
+
+- `src/version.ts`（`APP_VERSION` / `RELEASE_DATE`）は **リリース時のみ** semantic-release が
+  `scripts/generate-version.mjs` を実行して更新し、version 更新コミットに含める。
+  普段の `npm start` / `npm run build` では再生成されない（= 日付差分が紛れ込まない）。
+- 設定（`.releaserc.json`）とリリースフローは3プロジェクト共通。
 
 ---
 

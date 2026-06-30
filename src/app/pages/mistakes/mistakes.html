@@ -1,4 +1,4 @@
-<!-- @file Mistakes ページテンプレート。学習統計ダッシュボード・カテゴリ別ミス頻度バー・頻出ミスリストを表示する。 -->
+<!-- @file Mistakes ページテンプレート。学習統計ダッシュボード・スコア推移グラフ・CEFR推移グラフ・カテゴリ別ミス頻度バー・頻出ミスリストを表示する。 -->
 <div class="page">
   <h1 class="page-title">ミス傾向</h1>
 
@@ -34,8 +34,43 @@
       </div>
     </section>
 
+    <!-- ── スコア推移（10点満点） ── -->
+    @if (evalHistory().length > 0) {
+    <section class="section">
+      <h2 class="section-title">スコア推移（10点満点）</h2>
+      @if (scoreChart().length > 0) {
+        <div class="cefr-chart">
+          <svg [attr.viewBox]="'0 0 ' + chartBox.w + ' ' + chartBox.h" preserveAspectRatio="xMidYMid meet">
+            <!-- y軸グリッド -->
+            @for (g of scoreLevels; track g.label) {
+              <line class="grid-line" [attr.x1]="chartBox.padL" [attr.x2]="chartBox.w - chartBox.padR"
+                    [attr.y1]="g.y" [attr.y2]="g.y" />
+              <text class="grid-label" [attr.x]="2" [attr.y]="g.y + 3">{{ g.label }}</text>
+            }
+            <!-- 系列 -->
+            @for (s of scoreChart(); track s.name) {
+              <polyline [attr.points]="s.line" fill="none" [attr.stroke]="s.color" stroke-width="2" />
+              @for (d of s.dots; track $index) {
+                <circle [attr.cx]="d.x" [attr.cy]="d.y" r="2.5" [attr.fill]="s.color" />
+              }
+            }
+          </svg>
+          <div class="cefr-legend">
+            @for (s of scoreChart(); track s.name) {
+              <span class="legend-item">
+                <span class="legend-dot" [style.background]="s.color"></span>{{ s.name }}
+              </span>
+            }
+          </div>
+        </div>
+      } @else {
+        <p class="chart-note">推移を表示するには、評価付きの添削が2回以上必要です。</p>
+      }
+    </section>
+    }
+
     <!-- ── CEFR レベル推移 ── -->
-    @if (cefrHistory().length > 0) {
+    @if (evalHistory().length > 0) {
     <section class="section">
       <h2 class="section-title">CEFRレベル推移</h2>
       @if (cefrChart().length > 0) {
@@ -64,7 +99,7 @@
           </div>
         </div>
       } @else {
-        <p class="chart-note">推移を表示するには、CEFR評価付きの添削が2回以上必要です。</p>
+        <p class="chart-note">推移を表示するには、評価付きの添削が2回以上必要です。</p>
       }
     </section>
     }
