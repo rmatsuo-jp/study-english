@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/rmatsuo-jp/study-english/compare/v1.1.0...v1.2.0) (2026-06-30)
+
+
+### Features
+
+* スコア推移・CEFR推移グラフの横軸に添削日付を表示 ([0f425e8](https://github.com/rmatsuo-jp/study-english/commit/0f425e8465f86158beab6efb3c5f3b379a862eaf))
+* 添削オプションのトグルを廃止し全項目を常時有効化 ([aa9781e](https://github.com/rmatsuo-jp/study-english/commit/aa9781e9af5c3123d2ac30112f000c136e7b2293))
+
 # [1.1.0](https://github.com/rmatsuo-jp/study-english/compare/v1.0.0...v1.1.0) (2026-06-30)
 
 
