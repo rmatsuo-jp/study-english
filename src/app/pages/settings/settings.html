@@ -1,4 +1,4 @@
-<!-- @file Settings ページテンプレート。アカウント（Google SSO 同期）・テーマ・API キー・モデル・プロンプトプレビューを含む。 -->
+<!-- @file Settings ページテンプレート。アカウント（Google SSO 同期）・テーマ・API キー・モデル優先順位（ドラッグ&ドロップ）・プロンプトプレビューを含む。 -->
 <div class="page">
   <h1 class="page-title">設定</h1>
 
@@ -57,12 +57,23 @@
   </div>
 
   <div class="form-group">
-    <label class="label">モデル</label>
-    <select class="select" [value]="settings().model" (change)="update('model', $any($event.target).value)">
-      @for (m of models; track m.value) {
-        <option [value]="m.value">{{ m.label }}</option>
+    <label class="label">モデルの優先順位（フォールバック順）</label>
+    <p class="hint">上から順に試行します。API送信に失敗した場合、次のモデルに自動的に切り替わります。ドラッグして並び替えできます。</p>
+    <ul class="model-priority-list">
+      @for (modelId of settings().modelPriority; track modelId; let i = $index) {
+        <li
+          class="model-priority-item"
+          draggable="true"
+          (dragstart)="onDragStart(i)"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop(i)"
+        >
+          <span class="priority-rank">{{ i + 1 }}</span>
+          <span class="priority-label">{{ modelLabel(modelId) }}</span>
+          <span class="drag-handle">⠿</span>
+        </li>
       }
-    </select>
+    </ul>
   </div>
 
   <div class="form-group">

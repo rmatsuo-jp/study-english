@@ -1,5 +1,5 @@
 /**
- * @file 設定ページ。アカウント（Google SSO ログイン/同期）・API キー・モデル選択・テーマ切り替えを管理する。
+ * @file 設定ページ。アカウント（Google SSO ログイン/同期）・API キー・モデル優先順位（ドラッグ&ドロップ）・テーマ切り替えを管理する。
  * promptPreview は computed() で buildPrompt() から自動生成される（添削項目は全て常時有効）。
  */
 import { Component, computed, inject, signal } from '@angular/core';
@@ -49,7 +49,10 @@ export class Settings {
 
   readonly models = [
     { value: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
+    { value: 'gemini-3-flash', label: 'Gemini 3 Flash' },
     { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+    { value: 'gemini-3.1-flash-lite', label: 'Gemini 3.1 Flash Lite' },
+    { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
   ];
 
   // ── 状態管理（signal） ────────────────────────────────────────────
@@ -58,12 +61,41 @@ export class Settings {
   saved = signal(false);
   showKey = signal(false);
 
+  // ── モデル優先順位のドラッグ&ドロップ並び替え ────────────────────
+  private dragIndex = signal<number | null>(null);
+
   private initSettings(): AppSettings {
     const saved = this.storage.getSettings();
-    if (!this.models.find(m => m.value === saved.model)) {
-      saved.model = this.models[0].value;
-    }
+    const validIds = this.models.map(m => m.value);
+    // 保存済み優先順位から未知のモデルIDを除外し、models にあって欠落しているIDを末尾に補完する。
+    const known = saved.modelPriority.filter(id => validIds.includes(id));
+    const missing = validIds.filter(id => !known.includes(id));
+    saved.modelPriority = [...known, ...missing];
     return saved;
+  }
+
+  modelLabel(modelId: string): string {
+    return this.models.find(m => m.value === modelId)?.label ?? modelId;
+  }
+
+  onDragStart(index: number) {
+    this.dragIndex.set(index);
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  onDrop(index: number) {
+    const from = this.dragIndex();
+    this.dragIndex.set(null);
+    if (from === null || from === index) return;
+    this.settings.update(s => {
+      const modelPriority = [...s.modelPriority];
+      const [moved] = modelPriority.splice(from, 1);
+      modelPriority.splice(index, 0, moved);
+      return { ...s, modelPriority };
+    });
   }
 
   update(field: keyof AppSettings, value: string | boolean) {
