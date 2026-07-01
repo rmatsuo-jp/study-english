@@ -1,6 +1,6 @@
 /**
  * @file 遅延ロード（loadComponent）を使ったルーティング設定。
- * デフォルトは /practice にリダイレクト。ルートは practice / drill / history / mistakes / settings の 5 つ。
+ * デフォルトは /practice にリダイレクト。ルートは practice / drill / history / mistakes / settings / dev の 6 つ。
  */
 import { Routes } from '@angular/router';
 
@@ -25,5 +25,9 @@ export const routes: Routes = [
   {
     path: 'settings',
     loadComponent: () => import('./pages/settings/settings').then(m => m.Settings),
+  },
+  {
+    path: 'dev',
+    loadComponent: () => import('./pages/dev/dev').then(m => m.Dev),
   },
 ];
