@@ -1,4 +1,5 @@
-<!-- @file Practice ページテンプレート。日付選択・入力エリア・エラー表示・送信ボタン・添削結果（元の英作文 + 評価スコアパネル + 添削解説Markdown + ミスリスト）を含む。 -->
+<!-- @file Practice ページテンプレート。日付選択・入力エリア・エラー表示・送信ボタン・添削結果（元の英作文 + 評価スコアパネル + 添削解説Markdown + ミスリスト）に加え、
+     JSONテンプレートで複数日分の英作文をまとめてアップロード・一括添削・進捗表示する一括添削セクションを含む。 -->
 <div class="page">
   <h1 class="page-title">英作文添削</h1>
 
@@ -94,4 +95,62 @@
       }
     </div>
   }
+
+  <!-- ── 一括添削: JSONテンプレートで複数日分の英作文をまとめて添削・保存する ── -->
+  <div class="bulk-section">
+    <h2 class="section-title">一括添削（複数の英文をまとめて送信）</h2>
+    <p class="bulk-hint">日付と英文をまとめたJSONファイルをアップロードすると、1件ずつ順番に添削して自動保存します。</p>
+
+    <div class="bulk-actions">
+      <button class="btn-secondary" (click)="downloadTemplate()">テンプレートをダウンロード</button>
+      <button class="btn-secondary" (click)="downloadHistoryAsTemplate()">履歴からテンプレートを作成してダウンロード</button>
+      <button class="btn-secondary" (click)="triggerBulkUpload()">JSONファイルを選択</button>
+      <input #bulkFileInput type="file" accept=".json" hidden (change)="onBulkFileSelected($event)" />
+    </div>
+
+    @if (state.bulkEntries().length > 0) {
+      <div class="bulk-preview">
+        <h3 class="bulk-subtitle">アップロード内容（{{ state.bulkEntries().length }}件）</h3>
+        <div class="bulk-list">
+          @for (e of state.bulkEntries(); track e.date + e.text) {
+            <div class="bulk-item">
+              <span class="bulk-date">{{ e.date }}</span>
+              <span class="bulk-text">{{ e.text.slice(0, 40) }}{{ e.text.length > 40 ? '…' : '' }}</span>
+            </div>
+          }
+        </div>
+        <div class="actions">
+          <button class="btn-primary" (click)="runBulk()" [disabled]="state.bulkRunning()">
+            @if (state.bulkRunning()) {
+              <span class="spinner"></span> 一括添削中...
+            } @else {
+              一括添削を実行
+            }
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (state.bulkProgress().length > 0) {
+      <div class="bulk-progress">
+        <h3 class="bulk-subtitle">進捗</h3>
+        @for (p of state.bulkProgress(); track p.date + p.text) {
+          <div class="bulk-progress-item" [class]="'status-' + p.status">
+            <span class="bulk-date">{{ p.date }}</span>
+            <span class="bulk-status-badge">
+              @switch (p.status) {
+                @case ('pending') { 待機中 }
+                @case ('loading') { 処理中... }
+                @case ('success') { 成功 }
+                @case ('error') { 失敗 }
+              }
+            </span>
+            @if (p.errorMessage) {
+              <span class="bulk-error-message">{{ p.errorMessage }}</span>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
 </div>

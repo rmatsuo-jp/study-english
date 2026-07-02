@@ -272,6 +272,95 @@
   text-align: center;
 }
 
+// ── 一括添削（JSONテンプレートで複数日分を順番に添削・保存） ─────────────
+.bulk-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.bulk-hint {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0 0 1rem;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bulk-subtitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 1rem 0 0.5rem;
+}
+
+.bulk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.bulk-item,
+.bulk-progress-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.bulk-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bulk-date {
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.bulk-text {
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bulk-status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.status-error .bulk-status-badge {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-success .bulk-status-badge {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.bulk-error-message {
+  font-size: 0.75rem;
+  color: #b91c1c;
+}
+
 // ── PC レイアウト（768px 以上）────────────────────────────────────
 @media (min-width: 768px) {
   .page {

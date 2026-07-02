@@ -5,11 +5,15 @@
  * 送信中に別タブへ移動しても中断されない。
  * notice signal は「処理中／完了／エラー」をルートコンポーネントのグローバルバナーへ伝え、
  * どのタブにいても添削の状況が分かるようにする。
+ * 一括添削（bulkEntries/bulkProgress/submitBulk）は JSON テンプレートでアップロードした複数日分の
+ * 英作文を1件ずつ順番に添削・保存する正式機能。セッション組み立ては buildSession() に共通化し、
+ * 単発添削（submit）と一括添削（submitBulk）の両方から使う。
  */
 import { Injectable, inject, signal } from '@angular/core';
-import { GeminiService } from '../../services/gemini.service';
+import { GeminiService, CorrectionResult } from '../../services/gemini.service';
 import { StorageService } from '../../services/storage.service';
 import { buildPrompt } from '../../utils/prompt.util';
+import { BulkEntry } from '../../utils/bulk-import.util';
 import { CorrectionSession, Mistake, ReviewItem, WritingEvaluation } from '../../models/session.model';
 
 // ── 日付ユーティリティ ───────────────────────────────────────────
@@ -70,20 +74,7 @@ export class PracticeState {
       this.result.set({ original: text, ...res });
       this.notice.set({ status: 'success', message: '添削が完了しました' });
 
-      // 'YYYY-MM-DD' を new Date() に渡すと UTC 0時扱いになりずれるため、
-      // ローカル正午で生成して選択日付を確実に保持する。
-      const [y, m, day] = this.selectedDate().split('-').map(Number);
-      const sessionDate = new Date(y, m - 1, day, 12);
-      const session: CorrectionSession = {
-        // 日付に依存しない一意 ID（同日に複数回添削しても衝突しない）
-        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        date: sessionDate.toISOString(),
-        original: text,
-        corrected: res.corrected,
-        mistakes: res.mistakes,
-        evaluation: res.evaluation,
-        reviewItems: res.reviewItems,
-      };
+      const session = this.buildSession(this.selectedDate(), text, res);
       this.storage.saveSession(session);
       // 添削が成功して初めて入力欄をクリアする。
       this.userText.set('');
@@ -99,5 +90,86 @@ export class PracticeState {
     this.userText.set('');
     this.result.set(null);
     this.error.set('');
+  }
+
+  // ── CorrectionSession 組み立て（単発添削・一括添削の両方から使う共通処理） ─
+  // 'YYYY-MM-DD' を new Date() に渡すと UTC 0時扱いになりずれるため、
+  // ローカル正午で生成して指定日付を確実に保持する。
+  private buildSession(date: string, text: string, res: CorrectionResult): CorrectionSession {
+    const [y, m, day] = date.split('-').map(Number);
+    const sessionDate = new Date(y, m - 1, day, 12);
+    return {
+      // 日付に依存しない一意 ID（同日に複数回添削しても衝突しない）
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      date: sessionDate.toISOString(),
+      original: text,
+      corrected: res.corrected,
+      mistakes: res.mistakes,
+      evaluation: res.evaluation,
+      reviewItems: res.reviewItems,
+    };
+  }
+
+  // ── 一括添削: JSONテンプレートからアップロードした複数の英作文を順番に添削する ─
+  bulkEntries = signal<BulkEntry[]>([]);
+  bulkProgress = signal<
+    { date: string; text: string; status: 'pending' | 'loading' | 'success' | 'error'; errorMessage?: string }[]
+  >([]);
+  bulkRunning = signal(false);
+
+  setBulkEntries(entries: BulkEntry[]) {
+    this.bulkEntries.set(entries);
+    this.bulkProgress.set([]);
+  }
+
+  async submitBulk() {
+    if (this.bulkRunning()) return; // 二重実行防止
+    const entries = this.bulkEntries();
+    if (entries.length === 0) return;
+
+    const settings = this.storage.getSettings();
+    if (!settings.apiKey) {
+      this.error.set('設定ページで Gemini API キーを入力してください。');
+      this.notice.set({ status: 'error', message: this.error() });
+      return;
+    }
+
+    this.bulkRunning.set(true);
+    this.bulkProgress.set(entries.map(e => ({ date: e.date, text: e.text, status: 'pending' as const })));
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      this.updateBulkStatus(i, 'loading');
+      this.notice.set({ status: 'loading', message: `一括添削中 (${i + 1}/${entries.length})` });
+      try {
+        const res = await this.gemini.correct(settings.apiKey, settings.modelPriority, buildPrompt(), entry.text);
+        const session = this.buildSession(entry.date, entry.text, res);
+        this.storage.saveSession(session);
+        this.updateBulkStatus(i, 'success');
+        successCount++;
+      } catch (e) {
+        this.updateBulkStatus(i, 'error', e instanceof Error ? e.message : String(e));
+        errorCount++;
+      }
+    }
+
+    this.bulkRunning.set(false);
+    this.notice.set({
+      status: errorCount > 0 ? 'error' : 'success',
+      message: `一括添削が完了しました（成功: ${successCount}件 / 失敗: ${errorCount}件）`,
+    });
+  }
+
+  private updateBulkStatus(
+    index: number,
+    status: 'pending' | 'loading' | 'success' | 'error',
+    errorMessage?: string
+  ) {
+    const progress = [...this.bulkProgress()];
+    progress[index] = { ...progress[index], status, errorMessage };
+    this.bulkProgress.set(progress);
   }
 }
