@@ -14,6 +14,7 @@ export interface AppSettings {
   apiKey: string;
   modelPriority: string[]; // API送信の試行順（先頭が最優先、失敗したら次のモデルへフォールバック）
   theme: 'light' | 'dark';
+  consentAcceptedAt?: string; // プライバシーポリシー・利用規約への同意日時（ISO 8601）。未同意なら undefined。
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -40,5 +41,10 @@ export class SettingsStoreService {
 
   saveSettings(settings: AppSettings): void {
     writeJson(SETTINGS_KEY, settings);
+  }
+
+  // 設定ページの未保存編集（isDirty）とは独立に、同意日時だけを直接書き込む。
+  acceptConsent(): void {
+    this.saveSettings({ ...this.getSettings(), consentAcceptedAt: new Date().toISOString() });
   }
 }

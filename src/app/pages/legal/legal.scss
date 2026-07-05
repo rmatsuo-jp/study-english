@@ -1,0 +1,28 @@
+.legal-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+
+  a {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text-secondary, inherit);
+    background: var(--surface, transparent);
+
+    &.active {
+      color: var(--accent, inherit);
+      font-weight: bold;
+    }
+  }
+}
+
+.legal-content {
+  line-height: 1.7;
+
+  ::ng-deep h1,
+  ::ng-deep h2 {
+    margin-top: 1.5em;
+  }
+}

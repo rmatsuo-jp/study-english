@@ -5,6 +5,44 @@
   background: var(--color-bg);
 }
 
+// ── 初回同意モーダル（プライバシーポリシー・利用規約への同意） ────────
+.consent-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200; // bottom-nav(100)・global-notice(101) より前面
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.consent-dialog {
+  max-width: 480px;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  h2 {
+    margin: 0 0 0.75rem;
+  }
+
+  p {
+    margin: 0 0 0.75rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .consent-links a {
+    color: var(--color-primary);
+  }
+
+  button {
+    width: 100%;
+  }
+}
+
 .app-content {
   flex: 1;
   overflow-y: auto;
