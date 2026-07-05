@@ -1,7 +1,8 @@
 /**
  * @file アプリ全体で使うドメイン型定義。Mistake（1件のミス情報）・WritingEvaluation（定量評価＝スコア＋CEFR）・
  * ReviewItem（穴埋め復習カード）・LevelUpItem（レベルアップ例文タイピング用）・
- * DrillProgress（ドリルの習熟度）と CorrectionSession（1回の添削セッション）を定義する。
+ * DrillProgress（ドリルの習熟度）・LevelUpItemProgress（レベルアップ・タイピングのマスク段階進捗）と
+ * CorrectionSession（1回の添削セッション）を定義する。
  */
 
 // ── Mistake: Gemini が返す1件のミス情報 ─────────────────────────
@@ -40,6 +41,14 @@ export interface LevelUpItem {
 export interface DrillProgress {
   correctStreak: number;  // 連続正解数
   lastAttemptAt: string;  // 直近に解答した日時（ISO 8601）
+}
+
+// ── LevelUpItemProgress: レベルアップ・タイピング1文分の進捗 ─────
+// セッション（日付）単位でまとめて保持し、途中再開・完了判定に使う。
+// maskLevel: 現在のマスク段階（0=全文表示 〜 maxLevel=全単語マスク）。completed: maxLevelで正解済みか。
+export interface LevelUpItemProgress {
+  maskLevel: number;
+  completed: boolean;
 }
 
 // ── WritingEvaluation: 1回の添削の定量評価（スコア＋暫定CEFR） ─────

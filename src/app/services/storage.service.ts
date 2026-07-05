@@ -5,6 +5,8 @@
  * ドリルの出題元（getFrequentMistakes/getReviewItems）は直近 RECENT_SESSION_LIMIT 件のみを対象にするが、
  * レベルアップ・タイピング（getSessionsWithLevelUp）は日付単位で1セッションを選ぶ方式のため全期間を対象にする。
  * 各問題の正誤履歴は drillProgress signal（DRILL_PROGRESS_KEY）で正解ストリークとして永続化する。
+ * レベルアップ・タイピングのマスク段階進捗は levelUpProgress signal（LEVELUP_PROGRESS_KEY）で
+ * セッションID単位に永続化し、日付選択画面での再開・完了表示に使う。
  * ログイン中（AuthService）は Firestore とも双方向同期し、複数端末でセッションを共有する。
  * 削除は物理削除せず deleted フラグ（tombstone）で表現し、削除も多端末へ伝播させる。
  * コンポーネントから直接 localStorage を操作せず、必ずこのサービスを経由すること。
@@ -17,7 +19,7 @@ import {
   getDocs,
   setDoc,
 } from 'firebase/firestore';
-import { CorrectionSession, DrillProgress, Mistake, ReviewItem, WritingEvaluation } from '../models/session.model';
+import { CorrectionSession, DrillProgress, LevelUpItemProgress, Mistake, ReviewItem, WritingEvaluation } from '../models/session.model';
 import { AuthService } from './auth.service';
 import { firestore } from './firebase.init';
 import { toDayKey } from '../utils/date.util';
@@ -51,6 +53,7 @@ export function normalizeCategory(category: string): string {
 const SESSIONS_KEY = 'correction_sessions';
 const SETTINGS_KEY = 'app_settings';
 const DRILL_PROGRESS_KEY = 'study-english-drill-progress';
+const LEVELUP_PROGRESS_KEY = 'study-english-levelup-progress';
 // ドリルの出題元（頻出ミス・復習カード）に使う直近セッション件数。
 // 古いセッションのミスは今のレベルではもう犯していないことが多いため、直近分に絞って「今の弱点」を優先出題する。
 const RECENT_SESSION_LIMIT = 15;
@@ -106,6 +109,9 @@ export class StorageService {
 
   // ── ドリル習熟度キャッシュ（key = normalizeDrillKey の結果） ─────────
   private drillProgress = signal<Record<string, DrillProgress>>(this.loadDrillProgress());
+
+  // ── レベルアップ・タイピング進捗キャッシュ（sessionId → itemKey → 進捗） ─
+  private levelUpProgress = signal<Record<string, Record<string, LevelUpItemProgress>>>(this.loadLevelUpProgress());
 
   private auth = inject(AuthService);
 
@@ -166,6 +172,36 @@ export class StorageService {
     };
     localStorage.setItem(DRILL_PROGRESS_KEY, JSON.stringify(updated));
     this.drillProgress.set(updated);
+  }
+
+  // ── レベルアップ・タイピング進捗の永続化 ──────────────────────────
+  private loadLevelUpProgress(): Record<string, Record<string, LevelUpItemProgress>> {
+    const raw = localStorage.getItem(LEVELUP_PROGRESS_KEY);
+    if (!raw) return {};
+    try {
+      return JSON.parse(raw) as Record<string, Record<string, LevelUpItemProgress>>;
+    } catch {
+      return {};
+    }
+  }
+
+  // セッション（日付）1件分の進捗（itemKey → maskLevel/completed）を返す。未着手なら空オブジェクト。
+  getLevelUpProgress(sessionId: string): Record<string, LevelUpItemProgress> {
+    return this.levelUpProgress()[sessionId] ?? {};
+  }
+
+  // 1文分の進捗を更新して保存する。maskLevel は現在のマスク段階、completed は maxLevel で正解済みかどうか。
+  setLevelUpItemProgress(sessionId: string, itemKey: string, maskLevel: number, completed: boolean): void {
+    const current = this.levelUpProgress();
+    const updated: Record<string, Record<string, LevelUpItemProgress>> = {
+      ...current,
+      [sessionId]: {
+        ...current[sessionId],
+        [itemKey]: { maskLevel, completed },
+      },
+    };
+    localStorage.setItem(LEVELUP_PROGRESS_KEY, JSON.stringify(updated));
+    this.levelUpProgress.set(updated);
   }
 
   // ── セッション管理 ────────────────────────────────────────────────

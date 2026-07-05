@@ -1,6 +1,6 @@
 {
-  "name": "英作文添削",
-  "short_name": "英作文添削",
+  "name": "英作文ラボ",
+  "short_name": "英作文ラボ",
   "description": "Geminiを使った英作文添削アプリ",
   "display": "standalone",
   "scope": "./",

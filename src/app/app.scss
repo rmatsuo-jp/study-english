@@ -8,6 +8,8 @@
 .app-content {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   padding-bottom: calc(4rem + env(safe-area-inset-bottom));
 }
 
@@ -107,6 +109,11 @@
   }
 }
 
+// ── サイドバーヘッダー（タイトル+格納ボタン。モバイルの下部タブバーでは不要なので既定は非表示） ──
+.sidebar-header {
+  display: none;
+}
+
 // ── PC レイアウト（768px 以上）────────────────────────────────────
 @media (min-width: 768px) {
   .app-shell {
@@ -126,6 +133,68 @@
     border-top: none;
     border-right: 1px solid var(--color-border);
     padding-bottom: 0;
+    transition: width 0.2s ease;
+
+    &.collapsed {
+      width: 64px;
+
+      .nav-item {
+        justify-content: center;
+        padding: 0.875rem 0;
+
+        span {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+
+    .collapsed & {
+      justify-content: center;
+      padding: 0.75rem 0;
+    }
+  }
+
+  .sidebar-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+
+    .collapsed & {
+      display: none;
+    }
+  }
+
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: 0.375rem;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+
+    svg {
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .collapsed & svg {
+      transform: rotate(180deg);
+    }
   }
 
   .nav-item {
@@ -141,11 +210,22 @@
     padding-bottom: 1rem;
     margin-left: 220px;
     width: calc(100% - 220px);
+    transition: margin-left 0.2s ease, width 0.2s ease;
+  }
+
+  .app-shell.sidebar-collapsed .app-content {
+    margin-left: 64px;
+    width: calc(100% - 64px);
   }
 
   .global-notice {
     left: 220px;
     bottom: 1rem;
     margin: 0 1.5rem;
+    transition: left 0.2s ease;
+  }
+
+  .app-shell.sidebar-collapsed .global-notice {
+    left: 64px;
   }
 }
