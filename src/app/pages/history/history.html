@@ -1,4 +1,4 @@
-<!-- @file History ページテンプレート。セッション一覧・展開表示（元の英作文 + 評価スコアパネル + 添削解説 + ミスリスト）・複数選択削除・キーワード検索、JSON インポート/エクスポートボタンを含む。 -->
+<!-- @file History ページテンプレート。セッション一覧・展開表示（元の英作文 + 評価スコアパネル + 添削解説 + ミスリスト）・複数選択削除（すべて選択/解除ボタン付き）・キーワード検索、JSON インポート/エクスポートボタンを含む。 -->
 <div class="page">
   <h1 class="page-title">履歴</h1>
 
@@ -12,6 +12,8 @@
       <button class="toolbar-btn select-btn" (click)="toggleSelectionMode()">選択</button>
     } @else {
       <button class="toolbar-btn" (click)="toggleSelectionMode()">キャンセル</button>
+      <button class="toolbar-btn" (click)="selectAll()">すべて選択</button>
+      <button class="toolbar-btn" (click)="deselectAll()">すべて解除</button>
       <button class="toolbar-btn delete-selected-btn"
               [disabled]="selectedIds().length === 0"
               (click)="deleteSelected()">

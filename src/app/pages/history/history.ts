@@ -7,6 +7,7 @@ import { Component, ElementRef, ViewChild, computed, inject, signal } from '@ang
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { renderSafeMarkdown } from '../../utils/markdown.util';
+import { formatTimestampForFilename } from '../../utils/date.util';
 import { StorageService } from '../../services/storage.service';
 import { CorrectionSession } from '../../models/session.model';
 
@@ -92,6 +93,14 @@ export class History {
     return this.selectedIds().includes(id);
   }
 
+  selectAll() {
+    this.selectedIds.set(this.filteredSessions().map(s => s.id));
+  }
+
+  deselectAll() {
+    this.selectedIds.set([]);
+  }
+
   deleteSelected() {
     const ids = this.selectedIds();
     if (ids.length === 0) return;
@@ -146,7 +155,7 @@ export class History {
     const blob = new Blob([this.storage.exportSessions()], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `history_${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `history_${formatTimestampForFilename()}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   }
