@@ -1,3 +1,17 @@
+# [1.5.0](https://github.com/rmatsuo-jp/study-english/compare/v1.4.0...v1.5.0) (2026-07-05)
+
+
+### Bug Fixes
+
+* 履歴の展開領域でテキスト選択・コピーができない不具合を修正 ([fe7068c](https://github.com/rmatsuo-jp/study-english/commit/fe7068c0f84355c8196307266f90380d1f4dbbb0))
+* 履歴の展開領域でドラッグ選択が解除される/範囲外解放で閉じる不具合を修正 ([0a4260d](https://github.com/rmatsuo-jp/study-english/commit/0a4260d7b95bbe601ce9cbc69e313f0dc32fdce8))
+
+
+### Features
+
+* 添削タブに一括添削機能を追加 ([59cc008](https://github.com/rmatsuo-jp/study-english/commit/59cc008d5fa7cb814ee1bad5f57cd2d90634193d))
+* 添削プロンプトにレベル別学習法を追加しドリル出題を頻度・習熟度で重み付け ([89feeaa](https://github.com/rmatsuo-jp/study-english/commit/89feeaa96ea9797d52e86fd183ac4bdeba531c7f))
+
 # [1.4.0](https://github.com/rmatsuo-jp/study-english/compare/v1.3.0...v1.4.0) (2026-07-02)
 
 
