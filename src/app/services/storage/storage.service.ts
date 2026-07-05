@@ -34,15 +34,17 @@ export class StorageService {
   readonly sessions = this.sessionStore.sessions;
 
   // ── セッション管理 ────────────────────────────────────────────────
+  // 以下3メソッドはローカル保存に加えFirestoreへのpushも行う。ローカル書き込みを追加する際は
+  // firestoreSync.pushSessions() の呼び出しも忘れないこと（クラウド側が乖離する）。
   saveSession(session: CorrectionSession): void {
     this.sessionStore.saveSession(session);
-    this.firestoreSync.pushSession(session);
+    this.firestoreSync.pushSessions([session]);
   }
 
   deleteSession(id: string): void {
     this.sessionStore.deleteSession(id);
     const target = this.sessionStore.allSessions().find(s => s.id === id);
-    if (target) this.firestoreSync.pushSession(target);
+    if (target) this.firestoreSync.pushSessions([target]);
   }
 
   importSessions(incoming: CorrectionSession[]): void {

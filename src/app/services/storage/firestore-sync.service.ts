@@ -56,16 +56,8 @@ export class FirestoreSyncService {
     return data;
   }
 
-  // セッション保存/削除の直後に呼び、ログイン中なら該当1件だけクラウドへ反映する（fire-and-forget）。
-  pushSession(session: CorrectionSession): void {
-    const uid = this.auth.user()?.uid;
-    if (!uid) return;
-    setDoc(this.sessionDoc(uid, session.id), this.toDocData(session)).catch(err =>
-      console.error('[FirestoreSyncService] セッション同期に失敗:', err)
-    );
-  }
-
-  // インポートで新規追加された分をまとめてクラウドへ反映する。
+  // セッション保存/削除/インポートの直後に呼び、ログイン中なら該当分だけクラウドへ反映する（fire-and-forget）。
+  // 単数・複数どちらの呼び出し元もこのメソッド1本に集約する。
   pushSessions(sessions: CorrectionSession[]): void {
     const uid = this.auth.user()?.uid;
     if (!uid || sessions.length === 0) return;
