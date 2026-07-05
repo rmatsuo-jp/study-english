@@ -16,10 +16,12 @@ export interface DevLogEntry {
   rawResponse: string; // Gemini の生レスポンステキスト（タグ除去前）
   parsed: {
     corrected: string;
+    correctedText?: string;
     mistakes: Mistake[];
     evaluation?: WritingEvaluation;
     reviewItems?: ReviewItem[];
     levelUpItems?: LevelUpItem[];
+    levelUpText?: string;
   };
   parseWarnings?: string[]; // レスポンス解析（<mistakes>等のタグ）が失敗した項目のログ（正常時は空）
 }

@@ -1,8 +1,8 @@
 /**
- * @file Gemini レスポンスの `<tag>...</tag>` ブロックから JSON を抽出する共通ヘルパー。
- * gemini.service.ts の parseMistakes/parseEvaluation/parseLevelUp/parseReview が個別に持っていた
- * 「タグ抽出 → コードフェンス除去 → JSON.parse → 型検証」を1関数に集約し、失敗理由を onError で通知できるようにする。
- * 新しいタグ付きJSON項目を追加する場合も、validate関数を1つ書いて extractTaggedJson を呼ぶだけでよい。
+ * @file Gemini レスポンスの `<tag>...</tag>` ブロックを抽出する共通ヘルパー。
+ * 構造化データ用の extractTaggedJson（タグ抽出 → コードフェンス除去 → JSON.parse → 型検証）と、
+ * 自由記述の英文・Markdown用の extractTaggedText（タグ抽出のみ、JSON化しない）の2種類を提供する。
+ * 新しいタグ付き項目を追加する場合も、対応する関数を呼ぶだけでよい。
  */
 
 export type ParseFailureStage = 'no-tag' | 'json-parse' | 'validation';
@@ -41,4 +41,18 @@ export function extractTaggedJson<T>(
     onError?.('validation', `<${tag}> の内容がスキーマを満たしません`);
   }
   return result;
+}
+
+// ── タグ抽出のみ（JSON化しない自由記述の英文・Markdown用） ────────────
+export function extractTaggedText(
+  text: string,
+  tag: string,
+  onError?: (stage: 'no-tag', detail: unknown) => void
+): string | undefined {
+  const match = text.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
+  if (!match) {
+    onError?.('no-tag', `<${tag}> タグが見つかりません`);
+    return undefined;
+  }
+  return match[1].trim();
 }

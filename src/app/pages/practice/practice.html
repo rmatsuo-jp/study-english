@@ -1,4 +1,5 @@
-<!-- @file Practice ページテンプレート。日付選択・入力エリア・エラー表示・送信ボタン・添削結果（元の英作文 + 評価スコアパネル + 添削解説Markdown + ミスリスト）に加え、
+<!-- @file Practice ページテンプレート。日付選択・入力エリア・エラー表示・送信ボタン・添削結果（元の英作文 + 評価スコアパネル +
+     添削後の英文Markdown + レベルアップした英文Markdown + 添削解説Markdown + ミスリスト）に加え、
      JSONテンプレートで複数日分の英作文をまとめてアップロード・一括添削・進捗表示する一括添削セクションを含む。 -->
 <div class="page">
   <h1 class="page-title">添削</h1>
@@ -69,6 +70,16 @@
           </div>
           <div class="eval-density">エラー密度（100語あたり）: <strong>{{ ev.errorDensity }}</strong></div>
         </div>
+      }
+
+      @if (state.result()!.correctedText; as correctedText) {
+        <h2 class="section-title">添削後の英文</h2>
+        <div class="result-box markdown-body" [innerHTML]="toHtml(correctedText)"></div>
+      }
+
+      @if (state.result()!.levelUpText; as levelUpText) {
+        <h2 class="section-title">レベルアップした英文</h2>
+        <div class="result-box markdown-body" [innerHTML]="toHtml(levelUpText)"></div>
       }
 
       <h2 class="section-title">添削解説</h2>
