@@ -1,3 +1,17 @@
+# [0.4.0](https://github.com/rmatsuo-jp/study-english/compare/v0.3.0...v0.4.0) (2026-07-06)
+
+
+### Bug Fixes
+
+* SW更新を自動検知してアクティベート・リロードするよう修正 ([f5bbf1c](https://github.com/rmatsuo-jp/study-english/commit/f5bbf1c22cb11baddc484f877c1c9627c90aefba))
+* 添削解説から評価スコア等と重複する見出しを除去 ([03ba60d](https://github.com/rmatsuo-jp/study-english/commit/03ba60dc22ef2f0d4a45e5a872f9a252dabcf018))
+
+
+### Features
+
+* プライバシーポリシー・利用規約への導線と初回同意モーダルを追加 ([106b13f](https://github.com/rmatsuo-jp/study-english/commit/106b13f813c14ed25a02b692c8f5c7404eadd657))
+* 添削後の英文・レベルアップした英文を独立項目として追加 ([5348083](https://github.com/rmatsuo-jp/study-english/commit/5348083217f8bc5dc58f67ac6248e5705eae288e))
+
 # [0.3.0](https://github.com/rmatsuo-jp/study-english/compare/v0.2.0...v0.3.0) (2026-07-05)
 
 
