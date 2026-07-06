@@ -2,8 +2,28 @@
      各ナビ項目は routerLinkActive を #rlaN で参照して aria-current="page" を付与し、通知バナーは
      tabindex/role/keydown.enter でキーボードからも開けるようにしている。
      PCレイアウト（サイドバー表示時）では nav 先頭にアプリタイトル（sidebar-title）を表示し、
-     続く sidebar-toggle ボタンで格納/展開を切り替えられる（app.ts の sidebarCollapsed signal に連動）。 -->
+     続く sidebar-toggle ボタンで格納/展開を切り替えられる（app.ts の sidebarCollapsed signal に連動）。
+     初回起動時は showConsent signal に応じて同意モーダルを最前面に表示する（app.ts 参照）。 -->
 <div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed()">
+  @if (showConsent()) {
+    <div class="consent-overlay">
+      <div class="consent-dialog">
+        <h2>ご利用にあたって</h2>
+        <p>
+          本アプリは、入力した英文を添削のために <strong>Google Gemini API</strong> へ送信します。
+          ログインした場合は添削データが Firebase（Google）に保存されます。詳細は下記をご確認のうえ、
+          同意いただける場合のみご利用ください。
+        </p>
+        <p class="consent-links">
+          <a routerLink="/legal/privacy">プライバシーポリシー</a> ・
+          <a routerLink="/legal/terms">利用規約</a> ・
+          <a routerLink="/legal/disclaimer">免責事項</a>
+        </p>
+        <button class="btn-primary" type="button" (click)="acceptConsent()">同意して続ける</button>
+      </div>
+    </div>
+  }
+
   <main class="app-content">
     <router-outlet />
   </main>

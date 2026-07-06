@@ -1,0 +1,16 @@
+<!-- @file 法的文書ページテンプレート。上部に3文書を切り替えるタブリンク、下部にMarkdownレンダリング結果を表示する。 -->
+<div class="page">
+  <h1 class="page-title">{{ title() }}</h1>
+
+  <nav class="legal-tabs">
+    <a routerLink="/legal/privacy" routerLinkActive="active">プライバシーポリシー</a>
+    <a routerLink="/legal/terms" routerLinkActive="active">利用規約</a>
+    <a routerLink="/legal/disclaimer" routerLinkActive="active">免責事項</a>
+  </nav>
+
+  @if (html(); as content) {
+    <div class="legal-content" [innerHTML]="content"></div>
+  } @else {
+    <p class="hint">読み込み中…</p>
+  }
+</div>

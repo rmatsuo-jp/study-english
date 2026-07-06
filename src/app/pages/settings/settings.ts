@@ -2,9 +2,11 @@
  * @file 設定ページ。アカウント（Google SSO ログイン/同期）・API キー・モデル優先順位（ドラッグ&ドロップ）・テーマ切り替えを管理する。
  * 未保存の変更は isDirty で検知し、保存ボタンの強調表示と離脱時の確認ダイアログ（settings.guard.ts）に使う。
  * 選択可能なモデル一覧は gemini-models.constants.ts を共用する（settings-store.service.ts のデフォルト優先順位と同一ソース）。
+ * 末尾に法的情報（プライバシーポリシー・利用規約・免責事項、pages/legal）への導線を持つ。
  */
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { StorageService, AppSettings } from '../../services/storage/storage.service';
 import { AuthService } from '../../services/firebase/auth.service';
 import { GEMINI_MODELS } from '../../services/gemini/gemini-models.constants';
@@ -12,7 +14,7 @@ import { APP_VERSION, RELEASE_DATE } from '../../../version';
 
 @Component({
   selector: 'app-settings',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',
 })

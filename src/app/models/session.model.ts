@@ -1,8 +1,9 @@
 /**
  * @file アプリ全体で使うドメイン型定義。Mistake（1件のミス情報）・WritingEvaluation（定量評価＝スコア＋CEFR）・
- * ReviewItem（穴埋め復習カード）・LevelUpItem（レベルアップ例文タイピング用）・
+ * ReviewItem（穴埋め復習カード）・LevelUpItem（レベルアップ例文タイピング用、1文単位）・
  * DrillProgress（ドリルの習熟度）・LevelUpItemProgress（レベルアップ・タイピングのマスク段階進捗）と
- * CorrectionSession（1回の添削セッション）を定義する。
+ * CorrectionSession（1回の添削セッション。corrected=添削解説プローズ、correctedText=添削後の全文、
+ * levelUpText=レベルアップ後の全文）を定義する。
  */
 
 // ── Mistake: Gemini が返す1件のミス情報 ─────────────────────────
@@ -71,10 +72,12 @@ export interface CorrectionSession {
   id: string;
   date: string;
   original: string;
-  corrected: string;
+  corrected: string; // 添削解説プローズ（文法解説・自然な表現の提案・傾向・CEFR根拠・学習法など）
+  correctedText?: string; // 任意。添削後の完成版の全文（corrected＝解説文とは別に、修正後の英文そのもの。後方互換）
   mistakes: Mistake[];
   evaluation?: WritingEvaluation; // 任意。定量評価が有効なセッションのみ持つ
   reviewItems?: ReviewItem[]; // 任意。復習カード生成が有効なセッションのみ持つ（後方互換）
-  levelUpItems?: LevelUpItem[]; // 任意。レベルアップ例文タイピング用（後方互換）
+  levelUpItems?: LevelUpItem[]; // 任意。レベルアップ例文タイピング用（1文単位、Drill専用。後方互換）
+  levelUpText?: string; // 任意。レベルアップ後の全文（levelUpItemsとは別に、日記全体を通した1本の文章。後方互換）
   deleted?: boolean;       // 論理削除フラグ。true は表示・集計から除外し、クラウドにも tombstone として残す（削除の多端末同期用）
 }

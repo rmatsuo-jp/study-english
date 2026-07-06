@@ -3,6 +3,8 @@
  * document ルートの data-theme 属性に反映する。
  * PracticeState.notice を購読し、どのタブにいても添削の処理中／完了／エラーを
  * グローバルバナーで表示する（タップで添削タブへ遷移）。
+ * 初回起動時（consentAcceptedAt 未設定）は、英文がGemini APIへ送信される旨を伝える
+ * 同意モーダルを表示し、「同意して続ける」で StorageService.acceptConsent() を呼ぶ。
  */
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
@@ -19,6 +21,7 @@ import { PracticeState } from './pages/practice/practice-state.service';
 export class App {
   protected practiceState = inject(PracticeState);
   private router = inject(Router);
+  private storage = inject(StorageService);
 
   // ── サイドバー（PCレイアウト時のみ）の格納状態。既定値 false = 表示中 ──
   protected sidebarCollapsed = signal(false);
@@ -26,9 +29,17 @@ export class App {
   // ── 開発用ナビ項目の表示可否（本番ビルドでは /dev ルート自体が存在しないため非表示にする） ─
   protected isDev = !environment.production;
 
+  // ── 初回同意モーダルの表示可否 ───────────────────────────────────
+  protected showConsent = signal(!this.storage.getSettings().consentAcceptedAt);
+
   constructor() {
-    const theme = inject(StorageService).getSettings().theme;
+    const theme = this.storage.getSettings().theme;
     document.documentElement.dataset['theme'] = theme;
+  }
+
+  acceptConsent() {
+    this.storage.acceptConsent();
+    this.showConsent.set(false);
   }
 
   // ── バナータップ: 添削タブへ遷移して通知を閉じる ───────────────

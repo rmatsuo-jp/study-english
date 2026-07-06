@@ -1,6 +1,7 @@
 /**
  * @file 遅延ロード（loadComponent）を使ったルーティング設定。
- * デフォルトは /practice にリダイレクト。ルートは practice / drill / history / mistakes / settings / dev の 6 つ。
+ * デフォルトは /practice にリダイレクト。ルートは practice / drill / history / mistakes / settings /
+ * legal/:doc / dev の7つ。
  * dev ルートは environment.production が true の場合はルート自体を登録しない（本番ビルドの route table・
  * lazy chunk から dev ページを除外し、APIキー等が見える開発用画面が本番に出荷されないようにする）。
  */
@@ -30,6 +31,10 @@ export const routes: Routes = [
     path: 'settings',
     loadComponent: () => import('./pages/settings/settings').then(m => m.Settings),
     canDeactivate: [settingsCanDeactivateGuard],
+  },
+  {
+    path: 'legal/:doc',
+    loadComponent: () => import('./pages/legal/legal').then(m => m.Legal),
   },
   // ── 開発用ページ（本番ビルドでは非搭載） ────────────────────────
   ...(environment.production

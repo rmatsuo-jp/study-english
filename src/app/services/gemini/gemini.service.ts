@@ -1,26 +1,33 @@
 /**
  * @file Google Gemini API との通信を担うサービス。
- * correct() でプロンプトを送信し、レスポンスから添削文・mistakes JSON・定量評価(WritingEvaluation)・
- * 復習カード・レベルアップ例文（LevelUpItem、構造化JSON）を分離して返す。
+ * correct() でプロンプトを送信し、レスポンスから添削解説(corrected)・添削後の英文(correctedText)・
+ * mistakes JSON・定量評価(WritingEvaluation)・復習カード・レベルアップ例文（LevelUpItem、構造化JSON）・
+ * レベルアップ全文(levelUpText)を分離して返す。
  * 定量評価は AI の3観点スコア＋errorDensity を受け取り、総合スコア・CEFR は evaluation.util で算出して補完する。
  * モデル優先順位配列（AppSettings.modelPriority）を先頭から順に試し、失敗したら次のモデルへフォールバックする。
  * 成功した呼び出しは DevLogService に生プロンプト・生レスポンス・解析警告を記録し、開発タブ（pages/dev）で確認できるようにする。
- * レスポンス解析（<mistakes>等のタグ抽出＋JSON検証）は utils/gemini-parse.util.ts の extractTaggedJson に集約し、
- * 各 parseX メソッドはタグ名とスキーマ検証関数を渡すだけの薄い呼び出しにする。
+ * レスポンス解析は utils/gemini-parse.util.ts に集約する。構造化JSON（<mistakes>等）は extractTaggedJson、
+ * 自由記述の英文（<corrected-text>/<levelup-text>）は extractTaggedText を使い、それぞれ独立データとして抽出する。
+ * corrected（添削解説）は、correctedText・levelUpText を含む全ての既知タグを、対応する【】見出し行ごと
+ * 除去した残りの本文（文法解説・自然な表現の提案・ミスの傾向・CEFR根拠・学習法など）であり、従来の
+ * 「添削解説」の意味を維持する。見出しごと消すのは、タグの中身が評価スコア・添削後の英文・ミスリスト等
+ * 別コンポーネントで既に表示済みで、見出しだけが添削解説に空で残るのを防ぐため。
  */
 import { Injectable, inject } from '@angular/core';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { LevelUpItem, Mistake, ReviewItem, WritingEvaluation } from '../../models/session.model';
 import { buildEvaluation } from '../../utils/evaluation.util';
-import { extractTaggedJson, ParseFailureStage } from '../../utils/gemini-parse.util';
+import { extractTaggedJson, extractTaggedText, ParseFailureStage } from '../../utils/gemini-parse.util';
 import { DevLogService } from './dev-log.service';
 
 export interface CorrectionResult {
   corrected: string;
+  correctedText?: string;
   mistakes: Mistake[];
   evaluation?: WritingEvaluation;
   reviewItems?: ReviewItem[];
   levelUpItems?: LevelUpItem[];
+  levelUpText?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -61,12 +68,22 @@ export class GeminiService {
     const mistakes = this.parseMistakes(text, warn('mistakes'));
     const evaluation = this.parseEvaluation(text, warn('evaluation'));
     const levelUpItems = this.parseLevelUp(text, warn('levelup'));
+    const levelUpText = extractTaggedText(text, 'levelup-text', warn('levelup-text'));
+    const correctedText = extractTaggedText(text, 'corrected-text', warn('corrected-text'));
     const reviewItems = this.parseReview(text, warn('review'));
+    // corrected（添削解説）は、独立タグとして抽出済みの correctedText・levelUpText を含む
+    // 既知タグを全部除去した残りの本文（文法解説・自然な表現の提案・傾向・CEFR根拠・学習法など）。
+    // タグ本体だけでなく、対応する【】見出し行〜閉じタグまでを一括除去する。見出しだけをタグの手前に
+    // 残すと、内容が別コンポーネント（評価スコア・添削後の英文・ミスリスト等）で既に表示済みにも関わらず
+    // 添削解説に空見出しが残ってしまうため。
     const corrected = text
-      .replace(/<mistakes>[\s\S]*?<\/mistakes>/g, '')
-      .replace(/<evaluation>[\s\S]*?<\/evaluation>/g, '')
-      .replace(/<levelup>[\s\S]*?<\/levelup>/g, '')
-      .replace(/<review>[\s\S]*?<\/review>/g, '')
+      .replace(/【添削後の全文】[\s\S]*?<\/corrected-text>/g, '')
+      .replace(/【ミス一覧（JSON）】[\s\S]*?<\/mistakes>/g, '')
+      .replace(/【定量評価（10点満点・0.5刻み）】[\s\S]*?<\/evaluation>/g, '')
+      // 【レベルアップした表現の提案】の後は <levelup> → 説明文 → <levelup-text> の順で続くため、
+      // 最後の </levelup-text> まで一括で除去する
+      .replace(/【レベルアップした表現の提案】[\s\S]*?<\/levelup-text>/g, '')
+      .replace(/【復習用カードの生成】[\s\S]*?<\/review>/g, '')
       .trim();
 
     if (parseWarnings.length > 0) {
@@ -78,11 +95,11 @@ export class GeminiService {
       fullPrompt,
       userText,
       rawResponse: text,
-      parsed: { corrected, mistakes, evaluation, reviewItems, levelUpItems },
+      parsed: { corrected, correctedText, mistakes, evaluation, reviewItems, levelUpItems, levelUpText },
       parseWarnings,
     });
 
-    return { corrected, mistakes, evaluation, reviewItems, levelUpItems };
+    return { corrected, correctedText, mistakes, evaluation, reviewItems, levelUpItems, levelUpText };
   }
 
   // ── レスポンス解析: <mistakes>...</mistakes> タグから JSON を抽出（失敗時は空配列） ─

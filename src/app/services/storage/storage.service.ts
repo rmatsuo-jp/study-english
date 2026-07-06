@@ -65,6 +65,10 @@ export class StorageService {
     this.settingsStore.saveSettings(settings);
   }
 
+  acceptConsent(): void {
+    this.settingsStore.acceptConsent();
+  }
+
   // ── ドリル習熟度・レベルアップ進捗 ───────────────────────────────
   getDrillProgress(key: string): DrillProgress | undefined {
     return this.drillProgressStore.getDrillProgress(key);

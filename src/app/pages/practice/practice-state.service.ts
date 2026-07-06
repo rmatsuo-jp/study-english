@@ -28,7 +28,7 @@ export class PracticeState {
   selectedDate = signal(toDayKey(new Date().toISOString()));
   loading = signal(false);
   error = signal('');
-  result = signal<{ original: string; corrected: string; mistakes: Mistake[]; evaluation?: WritingEvaluation; reviewItems?: ReviewItem[]; levelUpItems?: LevelUpItem[] } | null>(null);
+  result = signal<{ original: string; corrected: string; correctedText?: string; mistakes: Mistake[]; evaluation?: WritingEvaluation; reviewItems?: ReviewItem[]; levelUpItems?: LevelUpItem[]; levelUpText?: string } | null>(null);
 
   // ── グローバル通知（ルートのバナーが購読） ────────────────────────
   // null = 非表示。完了/エラーはユーザーが閉じるか添削タブ遷移で消す。
@@ -92,10 +92,12 @@ export class PracticeState {
       date: sessionDate.toISOString(),
       original: text,
       corrected: res.corrected,
+      correctedText: res.correctedText,
       mistakes: res.mistakes,
       evaluation: res.evaluation,
       reviewItems: res.reviewItems,
       levelUpItems: res.levelUpItems,
+      levelUpText: res.levelUpText,
     };
   }
 
