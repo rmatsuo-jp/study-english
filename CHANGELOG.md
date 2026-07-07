@@ -1,3 +1,15 @@
+# [0.5.0](https://github.com/rmatsuo-jp/study-english/compare/v0.4.2...v0.5.0) (2026-07-07)
+
+
+### Bug Fixes
+
+* SW更新チェックの30秒遅延をなくし旧バージョン残存を解消 ([4e3d7be](https://github.com/rmatsuo-jp/study-english/commit/4e3d7beddd80bcd39eae9ff914d59d2e6a6ba1a4))
+
+
+### Features
+
+* ドリル進捗（習熟度・レベルアップ進捗）をFirestoreに同期 ([3828587](https://github.com/rmatsuo-jp/study-english/commit/38285879b6b6f1414b012dea7e1ee1745634af7d))
+
 ## [0.4.2](https://github.com/rmatsuo-jp/study-english/compare/v0.4.1...v0.4.2) (2026-07-07)
 
 
