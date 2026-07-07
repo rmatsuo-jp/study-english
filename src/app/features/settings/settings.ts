@@ -24,6 +24,8 @@ export class Settings {
 
   // ── アカウント（Google SSO） ──────────────────────────────────────
   readonly user = this.auth.user;
+  // 非許可ユーザーのログイン拒否メッセージ（ホワイトリスト制。auth.service.ts が設定）
+  readonly loginError = this.auth.loginError;
   authBusy = signal(false);
 
   async login() {

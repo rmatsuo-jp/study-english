@@ -2,6 +2,9 @@
  * @file Google SSO 認証を担うサービス。
  * Firebase Auth の onAuthStateChanged を signal に流し込み、ログイン状態をリアクティブに公開する。
  * login()（Google: popup→redirect フォールバック）・logout() を提供する。同期処理は FirestoreSyncService が user signal を監視して実行する。
+ * クラウド同期はホワイトリスト制（auth.constants.ts）: 非許可メールのログインは即サインアウトし、
+ * loginError signal に理由を流す（user signal には載せないため同期も発火しない）。
+ * 真の防御は firestore.rules 側で行われ、ここはあくまで UX（分かりやすい拒否表示）を担う。
  */
 import { Injectable, signal } from '@angular/core';
 import {
@@ -14,6 +17,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth } from './firebase.init';
+import { isAllowedSyncUser } from './auth.constants';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -25,9 +29,28 @@ export class AuthService {
   private _ready = signal(false);
   readonly ready = this._ready.asReadonly();
 
+  // ── ログイン拒否メッセージ（非許可ユーザーに表示。許可ログイン/ログアウトでクリア） ──
+  private _loginError = signal<string | null>(null);
+  readonly loginError = this._loginError.asReadonly();
+
   constructor() {
     // Firebase 管理外で発火するコールバックを signal に反映する（NgZone 不要）
+    // popup・redirect どちらのログインもここを通るため、ホワイトリスト検査はこの1箇所で行う。
     onAuthStateChanged(auth, user => {
+      if (user && !isAllowedSyncUser(user.email)) {
+        // 非許可ユーザー: user signal に載せず（= 同期を発火させず）即サインアウトする
+        this._loginError.set(
+          'このアプリのクラウド同期は許可されたユーザーのみ利用できます。ログインなしでもローカル保存で全機能を利用できます。'
+        );
+        signOut(auth).catch(err =>
+          console.error('[AuthService] 非許可ユーザーのサインアウトに失敗:', err)
+        );
+        this._ready.set(true);
+        return;
+      }
+      if (user) {
+        this._loginError.set(null);
+      }
       this._user.set(user);
       this._ready.set(true);
     });
@@ -53,6 +76,7 @@ export class AuthService {
 
   // ── ログアウト ────────────────────────────────────────────────────
   async logout(): Promise<void> {
+    this._loginError.set(null);
     await signOut(auth);
   }
 }
