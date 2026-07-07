@@ -330,6 +330,19 @@
   white-space: nowrap;
 }
 
+// ── ホワイトリスト制の注記・ログイン拒否メッセージ ────────────────
+.auth-note {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0.5rem 0 0;
+}
+
+.auth-error {
+  font-size: 0.8125rem;
+  color: #dc2626; // app.scss のエラー表示（.is-error）と同色
+  margin: 0.5rem 0 0;
+}
+
 // ── PC レイアウト（768px 以上）────────────────────────────────────
 @media (min-width: 768px) {
   .page {

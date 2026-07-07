@@ -23,6 +23,14 @@
       <button class="btn-primary" (click)="login()" [disabled]="authBusy()" type="button">
         @if (authBusy()) { 処理中… } @else { Google でログイン }
       </button>
+      <!-- クラウド同期はホワイトリスト制であることの常時表示注記 -->
+      <p class="auth-note">
+        クラウド同期は許可されたユーザー（ホワイトリスト制）のみ利用できます。ログインなしでもローカル保存で全機能を利用できます。
+      </p>
+    }
+    <!-- 非許可ユーザーがログインを試みたときの拒否メッセージ -->
+    @if (loginError(); as msg) {
+      <p class="auth-error">{{ msg }}</p>
     }
   </div>
 

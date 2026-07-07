@@ -1,21 +1,32 @@
 rules_version = '2';
 
 // Firestore セキュリティルール。
-// 本人 UID のサブツリーのみ読み書きを許可し、それ以外（未マッチパス）はすべて拒否する。
-// クラウド同期するのは study-english のセッションとドリル進捗のみ。
+// クラウド同期はホワイトリスト制: 許可メールアドレスのユーザーのみ、本人 UID のサブツリーを
+// 読み書きできる。それ以外（未マッチパス・非許可ユーザー）はすべて拒否する。
+// 目的: アプリは GitHub Pages で公開されており誰でもログインを試せるため、
+//       第三者によるオーナーの Firebase 無料枠消費を防ぐ。
+// メール追加時はクライアント側の src/app/core/firebase/auth.constants.ts と必ず同期させること。
 // 反映方法: firebase deploy --only firestore:rules
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 許可ユーザー判定: Google SSO の ID トークンに含まれるメールがホワイトリストにあり、
+    // かつメール所有が検証済み（email_verified）であること。
+    function isAllowedUser() {
+      return request.auth != null
+        && request.auth.token.email in ['dreamskyryou@gmail.com']
+        && request.auth.token.email_verified == true;
+    }
+
     // apps/study_english/users/{uid}/sessions/{sessionId}
-    // ログイン済みかつ本人の UID のドキュメントだけを許可。
+    // 許可ユーザーかつ本人の UID のドキュメントだけを許可。
     match /apps/study_english/users/{uid}/sessions/{sessionId} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if isAllowedUser() && request.auth.uid == uid;
     }
 
     // apps/study_english/users/{uid}/drillProgress/{docId}
-    // ドリル習熟度・レベルアップ進捗（単一ドキュメント "data"）。同じく本人 UID のみ許可。
+    // ドリル習熟度・レベルアップ進捗（単一ドキュメント "data"）。同じく許可ユーザー本人のみ。
     match /apps/study_english/users/{uid}/drillProgress/{docId} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if isAllowedUser() && request.auth.uid == uid;
     }
   }
 }
