@@ -28,6 +28,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "*.md",
+                "input": "docs/legal",
+                "output": "legal"
               }
             ],
             "styles": ["src/styles.scss"]
