@@ -2,8 +2,8 @@
  * @file 法的文書（プライバシーポリシー・利用規約・免責事項）表示ページ。
  * ルートパラメータ :doc（privacy | terms | disclaimer）に応じて public/legal/{doc}.md を
  * HttpClient で取得し、history.ts と同じく renderSafeMarkdown() → bypassSecurityTrustHtml() を
- * 経由して表示する。文書の原本は docs/legal/ にあり、内容を変更する際は public/legal/ にも
- * 同期すること（ビルド時に public/ のみが dist/ へコピーされるため）。
+ * 経由して表示する。文書の原本は docs/legal/ の1箇所のみ。angular.json の assets 設定により
+ * ビルド時に docs/legal/*.md が dist/legal/ へ自動コピーされる（手動同期は不要）。
  */
 import { Component, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
