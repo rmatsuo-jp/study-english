@@ -31,6 +31,9 @@ const ja = {
 
   'notice.close': '閉じる',
 
+  'feedback.buttonText': '💬 ご意見・ご要望',
+  'feedback.buttonLabel': 'アプリへのご意見・ご要望・不具合報告をお聞かせください',
+
   // ── practice ──
   'practice.title': '添削',
   'practice.date': '日付',
@@ -250,6 +253,9 @@ const en: Record<TranslationKey, string> = {
   'consent.accept': 'Agree and Continue',
 
   'notice.close': 'Close',
+
+  'feedback.buttonText': '💬 Feedback',
+  'feedback.buttonLabel': 'Share your feedback, requests, or bug reports',
 
   // ── practice ──
   'practice.title': 'Correction',
