@@ -79,16 +79,16 @@ export class Settings {
 
   private initSettings(): AppSettings {
     const saved = this.settingsStore.getSettings();
-    const validIds = this.models.map(m => m.value);
+    const validIds = this.models.map((m) => m.value);
     // 保存済み優先順位から未知のモデルIDを除外し、models にあって欠落しているIDを末尾に補完する。
-    const known = saved.modelPriority.filter(id => validIds.includes(id));
-    const missing = validIds.filter(id => !known.includes(id));
+    const known = saved.modelPriority.filter((id) => validIds.includes(id));
+    const missing = validIds.filter((id) => !known.includes(id));
     saved.modelPriority = [...known, ...missing];
     return saved;
   }
 
   modelLabel(modelId: string): string {
-    return this.models.find(m => m.value === modelId)?.label ?? modelId;
+    return this.models.find((m) => m.value === modelId)?.label ?? modelId;
   }
 
   onDragStart(index: number) {
@@ -103,7 +103,7 @@ export class Settings {
     const from = this.dragIndex();
     this.dragIndex.set(null);
     if (from === null || from === index) return;
-    this.settings.update(s => {
+    this.settings.update((s) => {
       const modelPriority = [...s.modelPriority];
       const [moved] = modelPriority.splice(from, 1);
       modelPriority.splice(index, 0, moved);
@@ -115,14 +115,14 @@ export class Settings {
   // ── テーマ（即時保存。DOM への反映と永続化を同時に行う） ──────────
   updateTheme(theme: AppSettings['theme']) {
     document.documentElement.dataset['theme'] = theme;
-    this.settings.update(s => ({ ...s, theme }));
+    this.settings.update((s) => ({ ...s, theme }));
     this.persist();
   }
 
   // ── 表示言語（即時保存。I18nService への反映と永続化を同時に行う） ──
   updateLanguage(language: AppSettings['language']) {
     this.i18n.setLang(language);
-    this.settings.update(s => ({ ...s, language }));
+    this.settings.update((s) => ({ ...s, language }));
     this.persist();
   }
 
@@ -134,7 +134,7 @@ export class Settings {
   }
 
   saveApiKey() {
-    this.settings.update(s => ({ ...s, apiKey: this.apiKeyDraft() }));
+    this.settings.update((s) => ({ ...s, apiKey: this.apiKeyDraft() }));
     this.persist();
     this.saved.set(true);
     setTimeout(() => this.saved.set(false), 2000);

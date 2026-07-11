@@ -27,7 +27,8 @@ function extractFirstJsonObject(text: string): string | undefined {
   for (let i = start; i < text.length; i++) {
     const ch = text[i];
     if (inString) {
-      if (ch === '\\') i++; // エスケープ文字は次の1文字ごと読み飛ばす
+      if (ch === '\\')
+        i++; // エスケープ文字は次の1文字ごと読み飛ばす
       else if (ch === '"') inString = false;
     } else if (ch === '"') {
       inString = true;
@@ -46,7 +47,7 @@ export function extractTaggedJson<T>(
   text: string,
   tag: string,
   validate: (json: unknown) => T | undefined,
-  onError?: (stage: ParseFailureStage, detail: unknown) => void
+  onError?: (stage: ParseFailureStage, detail: unknown) => void,
 ): T | undefined {
   const match = text.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
   if (!match) {
@@ -81,7 +82,7 @@ export function extractTaggedJson<T>(
 export function extractTaggedText(
   text: string,
   tag: string,
-  onError?: (stage: 'no-tag', detail: unknown) => void
+  onError?: (stage: 'no-tag', detail: unknown) => void,
 ): string | undefined {
   const match = text.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`));
   if (!match) {

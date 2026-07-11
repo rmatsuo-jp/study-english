@@ -35,8 +35,10 @@ export function toUserMessage(e: unknown): string {
     return 'API キーが拒否されました。キーが有効であること、および Gemini API が利用可能な状態かを確認してください。';
   }
   if (status === 429) {
-    return '利用上限（レート制限または無料枠）に達しました。時間をおいて再試行してください。'
-      + '継続して利用する場合、Google 側の課金設定により料金が発生することがあります。';
+    return (
+      '利用上限（レート制限または無料枠）に達しました。時間をおいて再試行してください。' +
+      '継続して利用する場合、Google 側の課金設定により料金が発生することがあります。'
+    );
   }
   if (status !== undefined && status >= 500 && status < 600) {
     return 'Gemini 側で一時的なエラーが発生しました。時間をおいて再試行してください。';

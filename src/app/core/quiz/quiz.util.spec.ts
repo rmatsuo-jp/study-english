@@ -9,7 +9,13 @@ import {
 describe('buildClozeQuiz', () => {
   it('復習カードをQuizへ正規化する', () => {
     const quiz = buildClozeQuiz(
-      { sentence: 'I ___ to school.', answer: 'go', hint: '現在形', translation: '私は学校へ行く', choices: ['go', 'went', 'gone', 'going'] },
+      {
+        sentence: 'I ___ to school.',
+        answer: 'go',
+        hint: '現在形',
+        translation: '私は学校へ行く',
+        choices: ['go', 'went', 'gone', 'going'],
+      },
       'key2',
       1,
     );
@@ -32,7 +38,10 @@ describe('buildLevelUpQuiz', () => {
   });
 
   it('単語数が3未満でもmaxLevelは3を下回らない', () => {
-    const quiz = buildLevelUpQuiz({ leveledUp: 'Go now', original: 'Go', translation: '今行け' }, 'key4');
+    const quiz = buildLevelUpQuiz(
+      { leveledUp: 'Go now', original: 'Go', translation: '今行け' },
+      'key4',
+    );
     expect(quiz.maxLevel).toBe(3);
   });
 
@@ -46,7 +55,10 @@ describe('buildLevelUpQuiz', () => {
 });
 
 describe('classifyMistake', () => {
-  const item = buildLevelUpQuiz({ leveledUp: 'This is a short sentence', original: 'x', translation: 'y' }, 'k');
+  const item = buildLevelUpQuiz(
+    { leveledUp: 'This is a short sentence', original: 'x', translation: 'y' },
+    'k',
+  );
 
   it('単語数が一致しない場合はgapと判定する', () => {
     expect(classifyMistake(item, 'This is short', 0)).toBe('gap');

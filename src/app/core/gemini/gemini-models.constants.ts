@@ -18,4 +18,4 @@ export const GEMINI_MODELS: GeminiModelOption[] = [
   { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
 ];
 
-export const DEFAULT_MODEL_PRIORITY: string[] = GEMINI_MODELS.map(m => m.value);
+export const DEFAULT_MODEL_PRIORITY: string[] = GEMINI_MODELS.map((m) => m.value);

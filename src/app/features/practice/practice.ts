@@ -20,11 +20,20 @@ import { RouterLink } from '@angular/router';
 import { SettingsStoreService } from '@core/settings/settings-store.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { renderSafeMarkdown } from '@shared/utils/markdown.util';
-import { buildBulkTemplateJson, buildBulkTemplateFromSessions, parseBulkImportJson } from './bulk-import.util';
+import {
+  buildBulkTemplateJson,
+  buildBulkTemplateFromSessions,
+  parseBulkImportJson,
+} from './bulk-import.util';
 import { formatTimestampForFilename } from '@shared/utils/date.util';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
 import { I18nService } from '@core/i18n/i18n.service';
-import { localizedCategory, localizedExplanation, localizedField, localizedProse } from '@core/i18n/localized-session.util';
+import {
+  localizedCategory,
+  localizedExplanation,
+  localizedField,
+  localizedProse,
+} from '@core/i18n/localized-session.util';
 import { Mistake } from '@core/models/session.model';
 import { PROSE_FIELDS, ProseSource } from '@core/i18n/prose-fields.util';
 import { GEMINI_MODELS } from '@core/gemini/gemini-models.constants';

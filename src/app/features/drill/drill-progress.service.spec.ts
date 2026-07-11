@@ -60,7 +60,7 @@ describe('DrillProgressService', () => {
 
     service.persist(
       { 'new-key': { correctStreak: 5, lastAttemptAt: new Date().toISOString() } },
-      { 'session-x': { 'item-x': { maskLevel: 1, completed: false } } }
+      { 'session-x': { 'item-x': { maskLevel: 1, completed: false } } },
     );
 
     expect(service.allDrillProgress()).toEqual({

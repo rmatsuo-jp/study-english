@@ -17,7 +17,12 @@
 import { Injectable, signal } from '@angular/core';
 import { DEFAULT_MODEL_PRIORITY } from '../gemini/gemini-models.constants';
 import { readJson, writeJson } from '@shared/utils/local-storage.util';
-import { decryptText, encryptText, getOrCreateAesKey, isCryptoSupported } from '@shared/utils/crypto.util';
+import {
+  decryptText,
+  encryptText,
+  getOrCreateAesKey,
+  isCryptoSupported,
+} from '@shared/utils/crypto.util';
 import { Lang } from '@core/i18n/lang.model';
 
 const SETTINGS_KEY = 'app_settings';
@@ -34,7 +39,7 @@ export interface AppSettings {
   theme: 'light' | 'dark';
   language: Lang; // UI表示言語・添削結果の表示言語切替に使う
   consentAcceptedAt?: string; // プライバシーポリシー・利用規約への同意日時（ISO 8601）。未同意なら undefined。
-  consentVersion?: number;    // 同意した文言のバージョン。未設定（旧データ）は 1 とみなす。
+  consentVersion?: number; // 同意した文言のバージョン。未設定（旧データ）は 1 とみなす。
 }
 
 // localStorage 上の保存形式。apiKey（平文・旧形式）と apiKeyEnc（暗号文・新形式）の両方を持ち得る。
@@ -88,11 +93,15 @@ export class SettingsStoreService {
   // `modelPriority` が無く `model` のみ持つ場合、その値を先頭に置きデフォルト順で残りを埋める。
   getSettings(): AppSettings {
     const parsed = readJson<StoredSettings>(SETTINGS_KEY, {});
-    const merged: AppSettings = { ...DEFAULT_SETTINGS, ...parsed, apiKey: parsed.apiKey ?? this.apiKeyCache };
+    const merged: AppSettings = {
+      ...DEFAULT_SETTINGS,
+      ...parsed,
+      apiKey: parsed.apiKey ?? this.apiKeyCache,
+    };
     if (!parsed.modelPriority && parsed.model) {
       merged.modelPriority = [
         parsed.model,
-        ...DEFAULT_MODEL_PRIORITY.filter(m => m !== parsed.model),
+        ...DEFAULT_MODEL_PRIORITY.filter((m) => m !== parsed.model),
       ];
     }
     return merged;
@@ -103,8 +112,8 @@ export class SettingsStoreService {
   saveSettings(settings: AppSettings): void {
     this.apiKeyCache = settings.apiKey;
     this.hasApiKey.set(!!this.apiKeyCache);
-    this.persist(settings).catch(e =>
-      console.error('[SettingsStoreService] 設定の保存に失敗しました:', e)
+    this.persist(settings).catch((e) =>
+      console.error('[SettingsStoreService] 設定の保存に失敗しました:', e),
     );
   }
 

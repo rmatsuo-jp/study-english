@@ -35,7 +35,9 @@
   font-size: 0.875rem;
   padding: 0.4rem 0.875rem;
   border-radius: 0.5rem;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 
   &:hover {
     background: var(--color-primary-light, #ede9fe);
@@ -59,8 +61,13 @@
   padding: 0.55rem 2.25rem 0.55rem 0.875rem;
   border-radius: 0.5rem;
 
-  &:focus { outline: none; border-color: var(--color-primary); }
-  &::placeholder { color: var(--color-text-muted); }
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
 }
 
 .search-clear {
@@ -387,7 +394,9 @@
   color: var(--color-text);
   font-size: 0.875rem;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 
   &:hover {
     border-color: var(--color-primary);

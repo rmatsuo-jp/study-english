@@ -23,13 +23,19 @@
           [class.correct]="selected() !== null && c === current().answer"
           [disabled]="selected() !== null"
           (click)="choose(c)"
-        >{{ c }}</button>
+        >
+          {{ c }}
+        </button>
       }
     </div>
 
     @if (selected() !== null) {
       <div class="quiz-feedback" [class.ng]="!isCorrect()">
-        {{ isCorrect() ? i18n.t('quiz.waiting.correct') : i18n.t('quiz.waiting.wrong', { answer: current().answer }) }}
+        {{
+          isCorrect()
+            ? i18n.t('quiz.waiting.correct')
+            : i18n.t('quiz.waiting.wrong', { answer: current().answer })
+        }}
       </div>
       <p class="quiz-translation">{{ current().translation }}</p>
       @if (state.loading()) {

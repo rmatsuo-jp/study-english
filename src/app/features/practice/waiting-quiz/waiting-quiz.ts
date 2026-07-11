@@ -38,8 +38,9 @@ export class WaitingQuiz {
   // 添削中に新しいセッションが保存されて出題が入れ替わることを避けるため、signal ではなく固定配列で持つ。
   // weight は一律 1（習熟度を参照しないため）で、shuffleByWeight は純粋なランダム並べ替えとして働く。
   private readonly quizzes = shuffleByWeight(
-    (this.isSample ? SAMPLE_REVIEW_ITEMS : getReviewItems(this.repository.sessions()))
-      .map(r => buildClozeQuiz(r, normalizeDrillKey(r.sentence), 1, this.i18n.lang()))
+    (this.isSample ? SAMPLE_REVIEW_ITEMS : getReviewItems(this.repository.sessions())).map((r) =>
+      buildClozeQuiz(r, normalizeDrillKey(r.sentence), 1, this.i18n.lang()),
+    ),
   );
 
   hasQuiz = this.quizzes.length > 0;
@@ -65,6 +66,6 @@ export class WaitingQuiz {
   next() {
     if (!this.state.loading()) return;
     this.selected.set(null);
-    this.index.update(i => i + 1);
+    this.index.update((i) => i + 1);
   }
 }

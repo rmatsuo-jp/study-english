@@ -29,11 +29,21 @@ describe('PracticeState', () => {
       ],
     });
     service = TestBed.inject(PracticeState);
-    TestBed.inject(SettingsStoreService).saveSettings({ apiKey: 'key', modelPriority: ['m1'], theme: 'dark', language: 'ja' });
+    TestBed.inject(SettingsStoreService).saveSettings({
+      apiKey: 'key',
+      modelPriority: ['m1'],
+      theme: 'dark',
+      language: 'ja',
+    });
   });
 
   it('APIキー未設定なら送信せずエラー通知を出す', async () => {
-    TestBed.inject(SettingsStoreService).saveSettings({ apiKey: '', modelPriority: ['m1'], theme: 'dark', language: 'ja' });
+    TestBed.inject(SettingsStoreService).saveSettings({
+      apiKey: '',
+      modelPriority: ['m1'],
+      theme: 'dark',
+      language: 'ja',
+    });
     service.userText.set('hello');
     await service.submit();
     expect(correctMock).not.toHaveBeenCalled();
@@ -86,6 +96,6 @@ describe('PracticeState', () => {
 
     expect(correctMock).toHaveBeenCalledTimes(2);
     expect(TestBed.inject(SessionRepositoryService).sessions().length).toBe(2);
-    expect(service.bulkProgress().every(p => p.status === 'success')).toBe(true);
+    expect(service.bulkProgress().every((p) => p.status === 'success')).toBe(true);
   });
 });

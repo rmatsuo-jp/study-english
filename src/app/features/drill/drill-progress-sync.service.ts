@@ -39,9 +39,11 @@ export class DrillProgressSyncService {
       if (user) {
         this.syncFromCloud(user.uid)
           .then(() => this._syncError.set(null))
-          .catch(err => {
+          .catch((err) => {
             console.error('[DrillProgressSyncService] クラウド同期に失敗:', err);
-            this._syncError.set('ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。');
+            this._syncError.set(
+              'ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。',
+            );
           });
       }
     });
@@ -62,7 +64,12 @@ export class DrillProgressSyncService {
     this.pushProgress();
   }
 
-  setLevelUpItemProgress(sessionId: string, itemKey: string, maskLevel: number, completed: boolean): void {
+  setLevelUpItemProgress(
+    sessionId: string,
+    itemKey: string,
+    maskLevel: number,
+    completed: boolean,
+  ): void {
     this.store.setLevelUpItemProgress(sessionId, itemKey, maskLevel, completed);
     this.pushProgress();
   }
@@ -83,9 +90,11 @@ export class DrillProgressSyncService {
     };
     setDoc(this.progressDoc(uid), data)
       .then(() => this._syncError.set(null))
-      .catch(err => {
+      .catch((err) => {
         console.error('[DrillProgressSyncService] 同期に失敗:', err);
-        this._syncError.set('ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。');
+        this._syncError.set(
+          'ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。',
+        );
       });
   }
 
@@ -110,21 +119,27 @@ export class DrillProgressSyncService {
       JSON.stringify(mergedDrill) !== JSON.stringify(cloudDrill) ||
       JSON.stringify(mergedLevelUp) !== JSON.stringify(cloudLevelUp);
     if (changed) {
-      await setDoc(this.progressDoc(uid), { drillProgress: mergedDrill, levelUpProgress: mergedLevelUp });
+      await setDoc(this.progressDoc(uid), {
+        drillProgress: mergedDrill,
+        levelUpProgress: mergedLevelUp,
+      });
     }
   }
 
   // キーごとに lastAttemptAt が新しい方を採用する。
   private mergeDrillProgress(
     local: Record<string, DrillProgress>,
-    cloud: Record<string, DrillProgress>
+    cloud: Record<string, DrillProgress>,
   ): Record<string, DrillProgress> {
     const keys = new Set([...Object.keys(local), ...Object.keys(cloud)]);
     const merged: Record<string, DrillProgress> = {};
     for (const key of keys) {
       const l = local[key];
       const c = cloud[key];
-      merged[key] = !c || (l && new Date(l.lastAttemptAt).getTime() >= new Date(c.lastAttemptAt).getTime()) ? l : c;
+      merged[key] =
+        !c || (l && new Date(l.lastAttemptAt).getTime() >= new Date(c.lastAttemptAt).getTime())
+          ? l
+          : c;
     }
     return merged;
   }
@@ -132,7 +147,7 @@ export class DrillProgressSyncService {
   // sessionId → itemKey ごとに maskLevel が大きい方（進んでいる方）を採用する。
   private mergeLevelUpProgress(
     local: Record<string, Record<string, LevelUpItemProgress>>,
-    cloud: Record<string, Record<string, LevelUpItemProgress>>
+    cloud: Record<string, Record<string, LevelUpItemProgress>>,
   ): Record<string, Record<string, LevelUpItemProgress>> {
     const sessionIds = new Set([...Object.keys(local), ...Object.keys(cloud)]);
     const merged: Record<string, Record<string, LevelUpItemProgress>> = {};

@@ -37,7 +37,7 @@ describe('SettingsStoreService', () => {
   it('旧形式（平文apiKey）が残っている場合、init()で暗号化保存に移行し平文を除去する', async () => {
     localStorage.setItem(
       'app_settings',
-      JSON.stringify({ apiKey: 'legacy-plain-key', theme: 'light', language: 'ja' })
+      JSON.stringify({ apiKey: 'legacy-plain-key', theme: 'light', language: 'ja' }),
     );
 
     const service = new SettingsStoreService();
@@ -52,7 +52,7 @@ describe('SettingsStoreService', () => {
   it('暗号文が壊れている（復号失敗）場合はAPIキー未設定として扱う', async () => {
     localStorage.setItem(
       'app_settings',
-      JSON.stringify({ apiKeyEnc: 'not-a-valid-base64-cipher!!', theme: 'dark', language: 'ja' })
+      JSON.stringify({ apiKeyEnc: 'not-a-valid-base64-cipher!!', theme: 'dark', language: 'ja' }),
     );
 
     const service = new SettingsStoreService();
@@ -65,7 +65,7 @@ describe('SettingsStoreService', () => {
   it('旧バージョンの単一モデル文字列(model)からmodelPriorityへ移行する', () => {
     localStorage.setItem(
       'app_settings',
-      JSON.stringify({ model: 'gemini-1.5-pro', theme: 'dark', language: 'ja' })
+      JSON.stringify({ model: 'gemini-1.5-pro', theme: 'dark', language: 'ja' }),
     );
 
     const service = new SettingsStoreService();

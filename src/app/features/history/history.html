@@ -5,9 +5,21 @@
 
   <!-- ── カレンダー（常設・日付クリックで下の一覧を絞り込む） ── -->
   <div class="calendar-nav">
-    <button class="toolbar-btn" (click)="prevMonth()" [attr.aria-label]="i18n.t('history.prevMonth')">‹</button>
+    <button
+      class="toolbar-btn"
+      (click)="prevMonth()"
+      [attr.aria-label]="i18n.t('history.prevMonth')"
+    >
+      ‹
+    </button>
     <span class="calendar-month-label">{{ calendarMonthLabel() }}</span>
-    <button class="toolbar-btn" (click)="nextMonth()" [attr.aria-label]="i18n.t('history.nextMonth')">›</button>
+    <button
+      class="toolbar-btn"
+      (click)="nextMonth()"
+      [attr.aria-label]="i18n.t('history.nextMonth')"
+    >
+      ›
+    </button>
   </div>
 
   <div class="calendar-weekdays">
@@ -18,12 +30,14 @@
 
   <div class="calendar-grid">
     @for (cell of calendarCells(); track cell.dayKey) {
-      <button class="calendar-cell"
-              [class.other-month]="!cell.inMonth"
-              [class.today]="cell.isToday"
-              [class.selected]="selectedDate() === cell.dayKey"
-              [class.has-session]="cell.hasSession"
-              (click)="selectDay(cell.dayKey)">
+      <button
+        class="calendar-cell"
+        [class.other-month]="!cell.inMonth"
+        [class.today]="cell.isToday"
+        [class.selected]="selectedDate() === cell.dayKey"
+        [class.has-session]="cell.hasSession"
+        (click)="selectDay(cell.dayKey)"
+      >
         <span class="cell-day">{{ cell.date.getDate() }}</span>
         @if (cell.evaluation; as ev) {
           <span class="cell-eval-row">
@@ -40,7 +54,9 @@
   @if (selectedDate()) {
     <div class="date-filter-banner">
       <span>{{ i18n.t('history.dateFilterBanner', { date: formatDayKey(selectedDate()!) }) }}</span>
-      <button class="toolbar-btn" (click)="clearDateFilter()">{{ i18n.t('history.clearFilter') }}</button>
+      <button class="toolbar-btn" (click)="clearDateFilter()">
+        {{ i18n.t('history.clearFilter') }}
+      </button>
     </div>
   }
 
@@ -52,26 +68,52 @@
       <button class="toolbar-btn sort-btn" (click)="toggleSort()">
         {{ i18n.t('history.sort') }} {{ sortOrder() === 'desc' ? '↓' : '↑' }}
       </button>
-      <button class="toolbar-btn select-btn" (click)="toggleSelectionMode()">{{ i18n.t('history.select') }}</button>
+      <button class="toolbar-btn select-btn" (click)="toggleSelectionMode()">
+        {{ i18n.t('history.select') }}
+      </button>
     } @else {
-      <button class="toolbar-btn" (click)="toggleSelectionMode()">{{ i18n.t('history.cancel') }}</button>
+      <button class="toolbar-btn" (click)="toggleSelectionMode()">
+        {{ i18n.t('history.cancel') }}
+      </button>
       <button class="toolbar-btn" (click)="selectAll()">{{ i18n.t('history.selectAll') }}</button>
-      <button class="toolbar-btn" (click)="deselectAll()">{{ i18n.t('history.deselectAll') }}</button>
-      <button class="toolbar-btn delete-selected-btn"
-              [disabled]="selectedIds().length === 0"
-              (click)="deleteSelected()">
-        {{ i18n.t('history.delete', { count: selectedIds().length > 0 ? (i18n.lang() === 'en' ? ' (' + selectedIds().length + ')' : '（' + selectedIds().length + '件）') : '' }) }}
+      <button class="toolbar-btn" (click)="deselectAll()">
+        {{ i18n.t('history.deselectAll') }}
+      </button>
+      <button
+        class="toolbar-btn delete-selected-btn"
+        [disabled]="selectedIds().length === 0"
+        (click)="deleteSelected()"
+      >
+        {{
+          i18n.t('history.delete', {
+            count:
+              selectedIds().length > 0
+                ? i18n.lang() === 'en'
+                  ? ' (' + selectedIds().length + ')'
+                  : '（' + selectedIds().length + '件）'
+                : '',
+          })
+        }}
       </button>
     }
   </div>
-  <input #fileInput type="file" accept=".json" style="display:none" (change)="onFileSelected($event)">
+  <input
+    #fileInput
+    type="file"
+    accept=".json"
+    style="display: none"
+    (change)="onFileSelected($event)"
+  />
 
   @if (sessions().length > 0) {
     <!-- ── キーワード検索（元文・添削文・ミス表現を横断） ── -->
     <div class="search-box">
-      <input type="text" class="search-input"
-             [placeholder]="i18n.t('history.searchPlaceholder')"
-             [(ngModel)]="searchQuery">
+      <input
+        type="text"
+        class="search-input"
+        [placeholder]="i18n.t('history.searchPlaceholder')"
+        [(ngModel)]="searchQuery"
+      />
       @if (searchQuery()) {
         <button class="search-clear" (click)="searchQuery.set('')" aria-label="×">×</button>
       }
@@ -102,21 +144,25 @@
 
 <!-- ── セッションカード（リスト/カレンダー共用テンプレート） ── -->
 <ng-template #sessionCard let-session>
-  <div class="session-card"
-       [class.selected]="isSelected(session.id)"
-       [attr.tabindex]="selectionMode() ? 0 : -1"
-       [attr.role]="selectionMode() ? 'button' : null"
-       [attr.aria-pressed]="selectionMode() ? isSelected(session.id) : null"
-       (click)="selectionMode() && toggleSelect(session.id, $event)"
-       (keydown.enter)="selectionMode() && toggleSelect(session.id, $event)"
-       (keydown.space)="$event.preventDefault(); selectionMode() && toggleSelect(session.id, $event)">
-    <div class="session-header"
-         [attr.tabindex]="selectionMode() ? -1 : 0"
-         [attr.role]="selectionMode() ? null : 'button'"
-         [attr.aria-expanded]="selectionMode() ? null : expandedId() === session.id"
-         (click)="!selectionMode() && toggle(session.id)"
-         (keydown.enter)="!selectionMode() && toggle(session.id)"
-         (keydown.space)="$event.preventDefault(); !selectionMode() && toggle(session.id)">
+  <div
+    class="session-card"
+    [class.selected]="isSelected(session.id)"
+    [attr.tabindex]="selectionMode() ? 0 : -1"
+    [attr.role]="selectionMode() ? 'button' : null"
+    [attr.aria-pressed]="selectionMode() ? isSelected(session.id) : null"
+    (click)="selectionMode() && toggleSelect(session.id, $event)"
+    (keydown.enter)="selectionMode() && toggleSelect(session.id, $event)"
+    (keydown.space)="$event.preventDefault(); selectionMode() && toggleSelect(session.id, $event)"
+  >
+    <div
+      class="session-header"
+      [attr.tabindex]="selectionMode() ? -1 : 0"
+      [attr.role]="selectionMode() ? null : 'button'"
+      [attr.aria-expanded]="selectionMode() ? null : expandedId() === session.id"
+      (click)="!selectionMode() && toggle(session.id)"
+      (keydown.enter)="!selectionMode() && toggle(session.id)"
+      (keydown.space)="$event.preventDefault(); !selectionMode() && toggle(session.id)"
+    >
       <div class="session-meta">
         @if (selectionMode()) {
           <span class="checkbox-icon">{{ isSelected(session.id) ? '☑' : '☐' }}</span>
@@ -127,7 +173,9 @@
           <span class="score-cefr">{{ ev.overallCefr }}</span>
         }
         @if (session.mistakes.length > 0) {
-          <span class="mistake-count">{{ i18n.t('history.mistakeCount', { count: session.mistakes.length }) }}</span>
+          <span class="mistake-count">{{
+            i18n.t('history.mistakeCount', { count: session.mistakes.length })
+          }}</span>
         }
       </div>
       <div class="session-actions">
@@ -136,7 +184,9 @@
         }
       </div>
     </div>
-    <p class="session-preview" (click)="!selectionMode() && toggle(session.id)">{{ session.original }}</p>
+    <p class="session-preview" (click)="!selectionMode() && toggle(session.id)">
+      {{ session.original }}
+    </p>
 
     @if (!selectionMode() && expandedId() === session.id) {
       <div class="session-detail" (click)="$event.stopPropagation()">
@@ -144,7 +194,9 @@
         <pre class="detail-text original">{{ session.original }}</pre>
 
         @if (session.model) {
-          <p class="detail-model">{{ i18n.t('history.detailModel') }}: {{ modelLabel(session.model) }}</p>
+          <p class="detail-model">
+            {{ i18n.t('history.detailModel') }}: {{ modelLabel(session.model) }}
+          </p>
         }
 
         @if (session.evaluation; as ev) {
@@ -172,7 +224,9 @@
                 <span class="eval-cefr">{{ ev.contentCefr }}</span>
               </div>
             </div>
-            <div class="eval-density">{{ i18n.t('practice.errorDensity') }}: <strong>{{ ev.errorDensity }}</strong></div>
+            <div class="eval-density">
+              {{ i18n.t('practice.errorDensity') }}: <strong>{{ ev.errorDensity }}</strong>
+            </div>
           </div>
         }
 

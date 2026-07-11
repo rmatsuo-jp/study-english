@@ -20,7 +20,9 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    const labels = Array.from(compiled.querySelectorAll('.nav-item span')).map(el => el.textContent?.trim());
+    const labels = Array.from(compiled.querySelectorAll('.nav-item span')).map((el) =>
+      el.textContent?.trim(),
+    );
     expect(labels).toEqual(['添削', 'ドリル', '履歴', 'ミス傾向', '設定', '開発']);
   });
 });

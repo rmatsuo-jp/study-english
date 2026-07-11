@@ -25,9 +25,17 @@ import { Injectable, inject } from '@angular/core';
 import { EnhancedGenerateContentResponse, GoogleGenerativeAI } from '@google/generative-ai';
 import { LevelUpItem, Mistake, ReviewItem, WritingEvaluation } from '@core/models/session.model';
 import { buildEvaluation } from '@core/gemini/evaluation.util';
-import { extractTaggedJson, extractTaggedText, ParseFailureStage } from '@core/gemini/gemini-parse.util';
+import {
+  extractTaggedJson,
+  extractTaggedText,
+  ParseFailureStage,
+} from '@core/gemini/gemini-parse.util';
 import { GEMINI_LOGGER } from '@core/logging/gemini-log.token';
-import { computeProgress, getExpectedTotalChars, recordResponseLength } from '@core/gemini/stream-progress.util';
+import {
+  computeProgress,
+  getExpectedTotalChars,
+  recordResponseLength,
+} from '@core/gemini/stream-progress.util';
 import { GeminiBlockedError } from '@core/gemini/gemini-blocked.error';
 
 export interface CorrectionResult {
@@ -76,7 +84,7 @@ export class GeminiService {
     modelPriority: string[],
     prompt: string,
     userText: string,
-    onProgress?: (percent: number) => void
+    onProgress?: (percent: number) => void,
   ): Promise<CorrectionResult> {
     let lastError: unknown;
     for (const model of modelPriority) {
@@ -97,7 +105,7 @@ export class GeminiService {
     model: string,
     prompt: string,
     userText: string,
-    onProgress?: (percent: number) => void
+    onProgress?: (percent: number) => void,
   ): Promise<CorrectionResult> {
     const genAI = new GoogleGenerativeAI(apiKey);
     const genModel = genAI.getGenerativeModel({ model });
@@ -156,14 +164,20 @@ export class GeminiService {
     const prose: Record<string, string | undefined> = {};
     for (const section of PROSE_SECTIONS) {
       prose[section.id] = extractTaggedText(text, `${section.tag}-ja`, warn(`${section.tag}-ja`));
-      prose[`${section.id}En`] = extractTaggedText(text, `${section.tag}-en`, warn(`${section.tag}-en`));
+      prose[`${section.id}En`] = extractTaggedText(
+        text,
+        `${section.tag}-en`,
+        warn(`${section.tag}-en`),
+      );
     }
 
     // corrected/correctedEn（後方互換フィールド）は、抽出できた解説項目だけを見出し付きで結合して合成する。
     // 結合元は必ずタグ抽出済みのクリーンな文字列のみのため、生JSON等が紛れ込むことはない。
-    const corrected = this.buildLegacyProse(PROSE_SECTIONS.map((s) => ({ heading: s.heading, text: prose[s.id] })));
+    const corrected = this.buildLegacyProse(
+      PROSE_SECTIONS.map((s) => ({ heading: s.heading, text: prose[s.id] })),
+    );
     const correctedEn = this.buildLegacyProse(
-      PROSE_SECTIONS.map((s) => ({ heading: s.heading, text: prose[`${s.id}En`] }))
+      PROSE_SECTIONS.map((s) => ({ heading: s.heading, text: prose[`${s.id}En`] })),
     );
 
     if (parseWarnings.length > 0) {
@@ -192,7 +206,14 @@ export class GeminiService {
       levelUpText,
     };
 
-    this.logger.record({ model, fullPrompt, userText, rawResponse: text, parsed: correctionResult, parseWarnings });
+    this.logger.record({
+      model,
+      fullPrompt,
+      userText,
+      rawResponse: text,
+      parsed: correctionResult,
+      parseWarnings,
+    });
 
     return correctionResult;
   }
@@ -208,22 +229,30 @@ export class GeminiService {
   }
 
   // ── レスポンス解析: <mistakes>...</mistakes> タグから JSON を抽出（失敗時は空配列） ─
-  private parseMistakes(text: string, onError: (stage: ParseFailureStage, detail: unknown) => void): Mistake[] {
-    return extractTaggedJson<Mistake[]>(
-      text,
-      'mistakes',
-      (json) => {
-        const obj = json as { mistakes?: unknown };
-        return Array.isArray(obj.mistakes) ? (obj.mistakes as Mistake[]) : undefined;
-      },
-      onError
-    ) ?? [];
+  private parseMistakes(
+    text: string,
+    onError: (stage: ParseFailureStage, detail: unknown) => void,
+  ): Mistake[] {
+    return (
+      extractTaggedJson<Mistake[]>(
+        text,
+        'mistakes',
+        (json) => {
+          const obj = json as { mistakes?: unknown };
+          return Array.isArray(obj.mistakes) ? (obj.mistakes as Mistake[]) : undefined;
+        },
+        onError,
+      ) ?? []
+    );
   }
 
   // ── レスポンス解析: <evaluation>...</evaluation> タグから定量評価を抽出（失敗時 undefined） ─
   // 採用条件は3観点スコア＋errorDensity（数値）が揃うこと。CEFR4項目はAIの実判定値を優先採用し、
   // 欠落/不正時は buildEvaluation() 側で scoreToCefr にフォールバックする。総合スコアは常にコード算出。
-  private parseEvaluation(text: string, onError: (stage: ParseFailureStage, detail: unknown) => void): WritingEvaluation | undefined {
+  private parseEvaluation(
+    text: string,
+    onError: (stage: ParseFailureStage, detail: unknown) => void,
+  ): WritingEvaluation | undefined {
     return extractTaggedJson<WritingEvaluation>(
       text,
       'evaluation',
@@ -232,8 +261,10 @@ export class GeminiService {
         const num = (v: unknown): v is number => typeof v === 'number' && !Number.isNaN(v);
         const str = (v: unknown): v is string => typeof v === 'string' && v.length > 0;
         if (
-          num(obj.grammarScore) && num(obj.vocabularyScore) &&
-          num(obj.contentScore) && num(obj.errorDensity)
+          num(obj.grammarScore) &&
+          num(obj.vocabularyScore) &&
+          num(obj.contentScore) &&
+          num(obj.errorDensity)
         ) {
           return buildEvaluation({
             grammarScore: obj.grammarScore,
@@ -248,7 +279,7 @@ export class GeminiService {
         }
         return undefined;
       },
-      onError
+      onError,
     );
   }
 
@@ -256,7 +287,10 @@ export class GeminiService {
   // 必須フィールドが揃った項目だけを採用する。keyPhrases は leveledUp 内に実在するかまでは検証せず
   // （Drill 側の穴埋めロジックが該当フレーズを見つけられない場合はそのフレーズをスキップして防御的に扱う）、
   // 型の妥当性のみチェックする。不正な項目は除外し、1件も残らなければ undefined を返す。
-  private parseLevelUp(text: string, onError: (stage: ParseFailureStage, detail: unknown) => void): LevelUpItem[] | undefined {
+  private parseLevelUp(
+    text: string,
+    onError: (stage: ParseFailureStage, detail: unknown) => void,
+  ): LevelUpItem[] | undefined {
     return extractTaggedJson<LevelUpItem[]>(
       text,
       'levelup',
@@ -270,18 +304,21 @@ export class GeminiService {
             typeof item.leveledUp === 'string' &&
             typeof item.translation === 'string' &&
             Array.isArray(item.keyPhrases) &&
-            item.keyPhrases.every((p) => typeof p === 'string' && p.length > 0)
+            item.keyPhrases.every((p) => typeof p === 'string' && p.length > 0),
         );
         return valid.length > 0 ? valid : undefined;
       },
-      onError
+      onError,
     );
   }
 
   // ── レスポンス解析: <review>...</review> タグから復習カードを抽出 ─
   // 必須フィールドが揃い、choices が4要素かつ正解(answer)を含む項目だけを採用する。
   // 不正な項目は除外し、1件も残らなければ undefined を返す（保存・同期では undefined を持たせない）。
-  private parseReview(text: string, onError: (stage: ParseFailureStage, detail: unknown) => void): ReviewItem[] | undefined {
+  private parseReview(
+    text: string,
+    onError: (stage: ParseFailureStage, detail: unknown) => void,
+  ): ReviewItem[] | undefined {
     return extractTaggedJson<ReviewItem[]>(
       text,
       'review',
@@ -297,11 +334,11 @@ export class GeminiService {
             typeof r.translation === 'string' &&
             Array.isArray(r.choices) &&
             r.choices.length === 4 &&
-            r.choices.includes(r.answer)
+            r.choices.includes(r.answer),
         );
         return valid.length > 0 ? valid : undefined;
       },
-      onError
+      onError,
     );
   }
 }

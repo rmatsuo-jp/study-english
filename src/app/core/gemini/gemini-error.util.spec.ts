@@ -9,7 +9,9 @@ describe('toUserMessage', () => {
   });
 
   it('400 + API key not valid を無効キーの案内に変換する', () => {
-    const e = new Error('[GoogleGenerativeAI Error]: [400 Bad Request] API key not valid. Please pass a valid API key.');
+    const e = new Error(
+      '[GoogleGenerativeAI Error]: [400 Bad Request] API key not valid. Please pass a valid API key.',
+    );
     expect(toUserMessage(e)).toContain('API キーが無効です');
   });
 

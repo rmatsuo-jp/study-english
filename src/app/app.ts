@@ -25,7 +25,17 @@
  * syncError は FirestoreSyncService/DrillProgressSyncService のクラウド同期失敗を、practiceState.notice と
  * 同じグローバルバナー（.global-notice）で表示する（練習の添削通知が無い時のみ、優先度を下げて表示）。
  */
-import { Component, ElementRef, inject, signal, computed, effect, viewChild, afterNextRender, DestroyRef } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  computed,
+  effect,
+  viewChild,
+  afterNextRender,
+  DestroyRef,
+} from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { environment } from '../environments/environment';
 import { SettingsStoreService } from '@core/settings/settings-store.service';
@@ -54,7 +64,9 @@ export class App {
   // 閉じるボタンで syncErrorDismissed を立てるが、次回同期が成功して syncError が null に戻ると
   // effect() で自動的にリセットし、以後の失敗を再び通知できるようにする。
   private syncErrorDismissed = signal(false);
-  private rawSyncError = computed(() => this.firestoreSync.syncError() ?? this.drillProgressSync.syncError());
+  private rawSyncError = computed(
+    () => this.firestoreSync.syncError() ?? this.drillProgressSync.syncError(),
+  );
   protected syncError = computed(() => (this.syncErrorDismissed() ? null : this.rawSyncError()));
 
   private bottomNav = viewChild<ElementRef<HTMLElement>>('bottomNav');

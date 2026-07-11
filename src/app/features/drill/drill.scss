@@ -242,8 +242,12 @@
   font-size: 1.0625rem;
   margin-bottom: 0.75rem;
 
-  &.correct { color: #16a34a; }
-  &.wrong { color: #ef4444; }
+  &.correct {
+    color: #16a34a;
+  }
+  &.wrong {
+    color: #ef4444;
+  }
 }
 
 .correct-answer {

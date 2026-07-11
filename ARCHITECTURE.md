@@ -48,14 +48,14 @@ graph TD
 
 ### 各 feature が inject する core サービス
 
-| feature | 使用する core |
-|---|---|
-| practice | GeminiService / SessionRepositoryService / SettingsStoreService |
-| drill | SessionRepositoryService / stats（+ feature 内 DrillProgressService） |
-| history | SessionRepositoryService |
-| mistakes | SessionRepositoryService / stats |
-| settings | SettingsStoreService / AuthService / gemini-models.constants |
-| dev | SessionRepositoryService / SettingsStoreService / prompt.util（+ feature 内 DevLogService） |
+| feature  | 使用する core                                                                               |
+| -------- | ------------------------------------------------------------------------------------------- |
+| practice | GeminiService / SessionRepositoryService / SettingsStoreService                             |
+| drill    | SessionRepositoryService / stats（+ feature 内 DrillProgressService）                       |
+| history  | SessionRepositoryService                                                                    |
+| mistakes | SessionRepositoryService / stats                                                            |
+| settings | SettingsStoreService / AuthService / gemini-models.constants                                |
+| dev      | SessionRepositoryService / SettingsStoreService / prompt.util（+ feature 内 DevLogService） |
 
 ---
 

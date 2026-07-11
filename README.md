@@ -17,13 +17,13 @@ Gemini AI を使った英語添削 PWA アプリです。Angular で構築され
 
 ## 技術スタック
 
-| 項目 | 内容 |
-|------|------|
-| フレームワーク | Angular 22（Standalone, PWA） |
-| AI | Google Gemini API (`@google/generative-ai`) |
-| ストレージ | LocalStorage + Firestore 同期 |
-| スタイル | SCSS |
-| テスト | Vitest |
+| 項目           | 内容                                        |
+| -------------- | ------------------------------------------- |
+| フレームワーク | Angular 22（Standalone, PWA）               |
+| AI             | Google Gemini API (`@google/generative-ai`) |
+| ストレージ     | LocalStorage + Firestore 同期               |
+| スタイル       | SCSS                                        |
+| テスト         | Vitest                                      |
 
 ## セットアップ
 

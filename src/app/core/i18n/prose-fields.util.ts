@@ -20,9 +20,17 @@ export interface ProseSource {
   studyPlanEn?: string;
 }
 
-export const PROSE_FIELDS: { ja: keyof ProseSource; en: keyof ProseSource; headingKey: TranslationKey }[] = [
+export const PROSE_FIELDS: {
+  ja: keyof ProseSource;
+  en: keyof ProseSource;
+  headingKey: TranslationKey;
+}[] = [
   { ja: 'grammarNotes', en: 'grammarNotesEn', headingKey: 'practice.grammarNotes' },
-  { ja: 'naturalExpressions', en: 'naturalExpressionsEn', headingKey: 'practice.naturalExpressions' },
+  {
+    ja: 'naturalExpressions',
+    en: 'naturalExpressionsEn',
+    headingKey: 'practice.naturalExpressions',
+  },
   { ja: 'grammarTendency', en: 'grammarTendencyEn', headingKey: 'practice.grammarTendency' },
   { ja: 'cefrRationale', en: 'cefrRationaleEn', headingKey: 'practice.cefrRationale' },
   { ja: 'studyPlan', en: 'studyPlanEn', headingKey: 'practice.studyPlan' },

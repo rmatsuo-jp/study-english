@@ -14,10 +14,20 @@
  */
 import { Component, computed, inject, signal } from '@angular/core';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
-import { cefrToNumber, getEvaluationHistory, getFrequentMistakes, getMistakeStats, getStudyStats } from '@core/stats/session-stats.util';
+import {
+  cefrToNumber,
+  getEvaluationHistory,
+  getFrequentMistakes,
+  getMistakeStats,
+  getStudyStats,
+} from '@core/stats/session-stats.util';
 import { Mistake, WritingEvaluation } from '@core/models/session.model';
 import { I18nService } from '@core/i18n/i18n.service';
-import { localizedCategory, localizedExplanation, localizedNormalizedCategory } from '@core/i18n/localized-session.util';
+import {
+  localizedCategory,
+  localizedExplanation,
+  localizedNormalizedCategory,
+} from '@core/i18n/localized-session.util';
 
 // 推移グラフの寸法（SVG viewBox）。スコア・CEFR 両グラフで共用する。
 const CHART = { w: 300, h: 150, padL: 22, padR: 8, padT: 12, padB: 26 };
@@ -27,7 +37,7 @@ const JITTER_PX = 1.6;
 interface ChartSeries {
   name: string;
   color: string;
-  line: string;                                // polyline points 属性用
+  line: string; // polyline points 属性用
   dots: { x: number; y: number }[];
 }
 
@@ -56,7 +66,9 @@ export class Mistakes {
   studyStats = computed(() => getStudyStats(this.repository.sessions()));
   stats = computed(() => getMistakeStats(this.repository.sessions()));
   maxCount = computed(() => this.stats()[0]?.count ?? 1);
-  frequent = computed(() => getFrequentMistakes(this.repository.sessions()) as (Mistake & { count: number })[]);
+  frequent = computed(
+    () => getFrequentMistakes(this.repository.sessions()) as (Mistake & { count: number })[],
+  );
   evalHistory = computed(() => getEvaluationHistory(this.repository.sessions()));
 
   readonly chartBox = CHART;
@@ -65,14 +77,14 @@ export class Mistakes {
   highlightedSeries = signal<string | null>(null);
 
   toggleHighlight(name: string): void {
-    this.highlightedSeries.update(current => (current === name ? null : name));
+    this.highlightedSeries.update((current) => (current === name ? null : name));
   }
 
   // スコアグラフのY軸表示範囲。データの実際のスコア帯（多くは4〜6点付近に集中）に合わせて
   // 動的にズームすることで、0〜10固定スケールでは潰れて見えていた起伏を視認しやすくする。
   scoreDomain = computed<{ min: number; max: number }>(() => {
     const history = this.evalHistory();
-    const values = history.flatMap(h => [
+    const values = history.flatMap((h) => [
       h.evaluation.overallScore,
       h.evaluation.grammarScore,
       h.evaluation.vocabularyScore,
@@ -123,16 +135,24 @@ export class Mistakes {
     if (history.length < 2) return [];
     const n = history.length;
     const domain = this.scoreDomain();
-    const build = (name: string, color: string, seriesIndex: number, pick: (e: WritingEvaluation) => number): ChartSeries => {
+    const build = (
+      name: string,
+      color: string,
+      seriesIndex: number,
+      pick: (e: WritingEvaluation) => number,
+    ): ChartSeries => {
       const offset = (seriesIndex - 1.5) * JITTER_PX;
-      const dots = history.map((h, i) => ({ x: this.xFor(i, n), y: this.yForScore(pick(h.evaluation), domain) + offset }));
-      return { name, color, line: dots.map(d => `${d.x},${d.y}`).join(' '), dots };
+      const dots = history.map((h, i) => ({
+        x: this.xFor(i, n),
+        y: this.yForScore(pick(h.evaluation), domain) + offset,
+      }));
+      return { name, color, line: dots.map((d) => `${d.x},${d.y}`).join(' '), dots };
     };
     return [
-      build(this.i18n.t('practice.evalOverall'), '#60a5fa', 0, e => e.overallScore),
-      build(this.i18n.t('practice.evalGrammar'), '#a78bfa', 1, e => e.grammarScore),
-      build(this.i18n.t('practice.evalVocabulary'), '#34d399', 2, e => e.vocabularyScore),
-      build(this.i18n.t('practice.evalContent'), '#f59e0b', 3, e => e.contentScore),
+      build(this.i18n.t('practice.evalOverall'), '#60a5fa', 0, (e) => e.overallScore),
+      build(this.i18n.t('practice.evalGrammar'), '#a78bfa', 1, (e) => e.grammarScore),
+      build(this.i18n.t('practice.evalVocabulary'), '#34d399', 2, (e) => e.vocabularyScore),
+      build(this.i18n.t('practice.evalContent'), '#f59e0b', 3, (e) => e.contentScore),
     ];
   });
 
@@ -141,16 +161,24 @@ export class Mistakes {
     const history = this.evalHistory();
     if (history.length < 2) return [];
     const n = history.length;
-    const build = (name: string, color: string, seriesIndex: number, pick: (e: WritingEvaluation) => string): ChartSeries => {
+    const build = (
+      name: string,
+      color: string,
+      seriesIndex: number,
+      pick: (e: WritingEvaluation) => string,
+    ): ChartSeries => {
       const offset = (seriesIndex - 1.5) * JITTER_PX;
-      const dots = history.map((h, i) => ({ x: this.xFor(i, n), y: this.yForCefr(cefrToNumber(pick(h.evaluation))) + offset }));
-      return { name, color, line: dots.map(d => `${d.x},${d.y}`).join(' '), dots };
+      const dots = history.map((h, i) => ({
+        x: this.xFor(i, n),
+        y: this.yForCefr(cefrToNumber(pick(h.evaluation))) + offset,
+      }));
+      return { name, color, line: dots.map((d) => `${d.x},${d.y}`).join(' '), dots };
     };
     return [
-      build(this.i18n.t('practice.evalOverall'), '#60a5fa', 0, e => e.overallCefr),
-      build(this.i18n.t('practice.evalGrammar'), '#a78bfa', 1, e => e.grammarCefr),
-      build(this.i18n.t('practice.evalVocabulary'), '#34d399', 2, e => e.vocabularyCefr),
-      build(this.i18n.t('practice.evalContent'), '#f59e0b', 3, e => e.contentCefr),
+      build(this.i18n.t('practice.evalOverall'), '#60a5fa', 0, (e) => e.overallCefr),
+      build(this.i18n.t('practice.evalGrammar'), '#a78bfa', 1, (e) => e.grammarCefr),
+      build(this.i18n.t('practice.evalVocabulary'), '#34d399', 2, (e) => e.vocabularyCefr),
+      build(this.i18n.t('practice.evalContent'), '#f59e0b', 3, (e) => e.contentCefr),
     ];
   });
 
@@ -162,10 +190,11 @@ export class Mistakes {
     const n = history.length;
     // 表示するインデックスを選定（n<=5なら全点、それ超は先頭・末尾＋等間隔で計5点）
     const MAX = 5;
-    const indices = n <= MAX
-      ? history.map((_, i) => i)
-      : Array.from({ length: MAX }, (_, k) => Math.round((k / (MAX - 1)) * (n - 1)));
-    return [...new Set(indices)].map(i => {
+    const indices =
+      n <= MAX
+        ? history.map((_, i) => i)
+        : Array.from({ length: MAX }, (_, k) => Math.round((k / (MAX - 1)) * (n - 1)));
+    return [...new Set(indices)].map((i) => {
       const d = new Date(history[i].date);
       return {
         x: this.xFor(i, n),

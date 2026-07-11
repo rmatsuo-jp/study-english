@@ -36,14 +36,14 @@ export class AuthService {
   constructor() {
     // Firebase 管理外で発火するコールバックを signal に反映する（NgZone 不要）
     // popup・redirect どちらのログインもここを通るため、ホワイトリスト検査はこの1箇所で行う。
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, (user) => {
       if (user && !isAllowedSyncUser(user.email)) {
         // 非許可ユーザー: user signal に載せず（= 同期を発火させず）即サインアウトする
         this._loginError.set(
-          'このアプリのクラウド同期は許可されたユーザーのみ利用できます。ログインなしでもローカル保存で全機能を利用できます。'
+          'このアプリのクラウド同期は許可されたユーザーのみ利用できます。ログインなしでもローカル保存で全機能を利用できます。',
         );
-        signOut(auth).catch(err =>
-          console.error('[AuthService] 非許可ユーザーのサインアウトに失敗:', err)
+        signOut(auth).catch((err) =>
+          console.error('[AuthService] 非許可ユーザーのサインアウトに失敗:', err),
         );
         this._ready.set(true);
         return;
@@ -56,8 +56,8 @@ export class AuthService {
     });
     // リダイレクト方式でログインした場合、戻ってきた際に結果を回収する
     // （状態反映自体は onAuthStateChanged が担当。ここはエラー検知のため）
-    getRedirectResult(auth).catch(err =>
-      console.error('[AuthService] リダイレクトログインの結果取得に失敗:', err)
+    getRedirectResult(auth).catch((err) =>
+      console.error('[AuthService] リダイレクトログインの結果取得に失敗:', err),
     );
   }
 

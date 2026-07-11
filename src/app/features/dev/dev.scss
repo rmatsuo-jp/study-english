@@ -84,7 +84,9 @@
   white-space: nowrap;
   transition: border-color 0.2s;
 
-  &:hover { border-color: var(--color-primary); }
+  &:hover {
+    border-color: var(--color-primary);
+  }
 }
 
 .toggle-key,
@@ -99,7 +101,9 @@
   white-space: nowrap;
   transition: border-color 0.2s;
 
-  &:hover { border-color: var(--color-primary); }
+  &:hover {
+    border-color: var(--color-primary);
+  }
 }
 
 // ── a. 入出力ログ一覧 ──────────────────────────────────────────

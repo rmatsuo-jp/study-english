@@ -1,5 +1,11 @@
 import { vi } from 'vitest';
-import { extractTaggedJson, extractTaggedText, stripKnownBlocks, KNOWN_TAGS, HEADING_BLOCKS } from './gemini-parse.util';
+import {
+  extractTaggedJson,
+  extractTaggedText,
+  stripKnownBlocks,
+  KNOWN_TAGS,
+  HEADING_BLOCKS,
+} from './gemini-parse.util';
 
 describe('extractTaggedJson', () => {
   const validateArr = (json: unknown) => {
@@ -143,7 +149,8 @@ describe('stripKnownBlocks', () => {
   });
 
   it('extractTaggedText で解説タグの -ja/-en をそれぞれ独立して抽出できる', () => {
-    const text = '<grammar-notes-ja>日本語の解説</grammar-notes-ja><grammar-notes-en>English explanation</grammar-notes-en>';
+    const text =
+      '<grammar-notes-ja>日本語の解説</grammar-notes-ja><grammar-notes-en>English explanation</grammar-notes-en>';
     expect(extractTaggedText(text, 'grammar-notes-ja')).toBe('日本語の解説');
     expect(extractTaggedText(text, 'grammar-notes-en')).toBe('English explanation');
   });
@@ -164,8 +171,8 @@ describe('stripKnownBlocks', () => {
 
 describe('KNOWN_TAGS / HEADING_BLOCKS の整合性', () => {
   it('HEADING_BLOCKSの終了タグはすべてKNOWN_TAGSに含まれる（stripKnownBlocksの2段階除去の前提）', () => {
-    expect(
-      HEADING_BLOCKS.every(([, tag]) => (KNOWN_TAGS as readonly string[]).includes(tag))
-    ).toBe(true);
+    expect(HEADING_BLOCKS.every(([, tag]) => (KNOWN_TAGS as readonly string[]).includes(tag))).toBe(
+      true,
+    );
   });
 });

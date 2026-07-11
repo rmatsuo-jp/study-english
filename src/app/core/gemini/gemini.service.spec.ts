@@ -39,7 +39,9 @@ describe('GeminiService', () => {
 
   beforeEach(() => {
     generateContentStreamMock.mockReset();
-    getGenerativeModelMock.mockReset().mockReturnValue({ generateContentStream: generateContentStreamMock });
+    getGenerativeModelMock
+      .mockReset()
+      .mockReturnValue({ generateContentStream: generateContentStreamMock });
     TestBed.configureTestingModule({ providers: [GeminiService] });
     service = TestBed.inject(GeminiService);
   });
@@ -64,7 +66,9 @@ describe('GeminiService', () => {
     generateContentStreamMock
       .mockRejectedValueOnce(new Error('err-a'))
       .mockRejectedValueOnce(new Error('err-b'));
-    await expect(service.correct('key', ['model-a', 'model-b'], '{USER_TEXT}', 'hi')).rejects.toThrow('err-b');
+    await expect(
+      service.correct('key', ['model-a', 'model-b'], '{USER_TEXT}', 'hi'),
+    ).rejects.toThrow('err-b');
   });
 
   it('GeminiBlockedErrorはフォールバックせず即座に投げる（残りモデルを試さない）', async () => {
@@ -74,9 +78,9 @@ describe('GeminiService', () => {
       })(),
       response: Promise.reject({ response: { promptFeedback: { blockReason: 'SAFETY' } } }),
     });
-    await expect(service.correct('key', ['model-a', 'model-b'], '{USER_TEXT}', 'hi')).rejects.toBeInstanceOf(
-      GeminiBlockedError
-    );
+    await expect(
+      service.correct('key', ['model-a', 'model-b'], '{USER_TEXT}', 'hi'),
+    ).rejects.toBeInstanceOf(GeminiBlockedError);
     expect(getGenerativeModelMock).toHaveBeenCalledTimes(1);
   });
 
@@ -87,9 +91,9 @@ describe('GeminiService', () => {
       })(),
       response: Promise.resolve({ promptFeedback: { blockReason: 'SAFETY' } }),
     });
-    await expect(
-      service.correct('key', ['model-a'], '{USER_TEXT}', 'hi')
-    ).rejects.toBeInstanceOf(GeminiBlockedError);
+    await expect(service.correct('key', ['model-a'], '{USER_TEXT}', 'hi')).rejects.toBeInstanceOf(
+      GeminiBlockedError,
+    );
   });
 
   it('blockReasonが無ければstream中のエラーがそのまま再送出される', async () => {
@@ -99,7 +103,9 @@ describe('GeminiService', () => {
       })(),
       response: Promise.resolve({ promptFeedback: undefined }),
     });
-    await expect(service.correct('key', ['model-a'], '{USER_TEXT}', 'hi')).rejects.toThrow('transient stream error');
+    await expect(service.correct('key', ['model-a'], '{USER_TEXT}', 'hi')).rejects.toThrow(
+      'transient stream error',
+    );
   });
 
   it('解説項目の一部タグが欠けても他のフィールド抽出には影響しない', async () => {
@@ -109,8 +115,8 @@ describe('GeminiService', () => {
           `<corrected-text>Fixed text.</corrected-text>`,
           `<mistakes>{"mistakes":[]}</mistakes>`,
           // grammar-notes-ja/en は意図的に欠落させる
-        ].join('\n')
-      )
+        ].join('\n'),
+      ),
     );
     const result = await service.correct('key', ['model-a'], '{USER_TEXT}', 'hi');
     expect(result.grammarNotes).toBeUndefined();

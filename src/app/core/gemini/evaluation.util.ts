@@ -41,7 +41,11 @@ export interface EvaluationInput {
 }
 
 export function buildEvaluation(input: EvaluationInput): WritingEvaluation {
-  const overallScore = computeOverallScore(input.grammarScore, input.vocabularyScore, input.contentScore);
+  const overallScore = computeOverallScore(
+    input.grammarScore,
+    input.vocabularyScore,
+    input.contentScore,
+  );
   return {
     grammarScore: input.grammarScore,
     vocabularyScore: input.vocabularyScore,

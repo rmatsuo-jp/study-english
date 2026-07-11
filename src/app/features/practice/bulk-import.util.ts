@@ -25,7 +25,7 @@ export function buildBulkTemplateJson(): string {
 // date は ISO 文字列（UTC基準）のため、toDayKey() でローカルタイムゾーンの 'YYYY-MM-DD' に変換する
 // （toISOString().slice(0,10) は UTC 変換で日付がずれるため使わない）。
 export function buildBulkTemplateFromSessions(sessions: CorrectionSession[]): string {
-  const entries: BulkEntry[] = sessions.map(s => ({
+  const entries: BulkEntry[] = sessions.map((s) => ({
     date: toDayKey(s.date),
     text: s.original,
   }));

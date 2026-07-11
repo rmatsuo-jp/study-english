@@ -73,7 +73,7 @@ describe('DrillProgressSyncService', () => {
     service.recordDrillResult('key', true);
     await vi.waitFor(() => {
       expect(service.syncError()).toBe(
-        'ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。'
+        'ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。',
       );
     });
   });
@@ -96,7 +96,7 @@ describe('DrillProgressSyncService', () => {
 
     await vi.waitFor(() => {
       expect(service.syncError()).toBe(
-        'ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。'
+        'ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。',
       );
     });
   });

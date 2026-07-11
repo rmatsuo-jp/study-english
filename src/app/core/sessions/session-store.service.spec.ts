@@ -28,8 +28,8 @@ describe('SessionStoreService', () => {
   it('saveSession したセッションが sessions と allSessions 両方に反映される', () => {
     const session = makeSession({ id: 'a' });
     service.saveSession(session);
-    expect(service.sessions().map(s => s.id)).toEqual(['a']);
-    expect(service.allSessions().map(s => s.id)).toEqual(['a']);
+    expect(service.sessions().map((s) => s.id)).toEqual(['a']);
+    expect(service.allSessions().map((s) => s.id)).toEqual(['a']);
   });
 
   it('deleteSession は物理削除せず tombstone を立て、sessions からは消え allSessions には残る', () => {
@@ -50,7 +50,7 @@ describe('SessionStoreService', () => {
     const added = service.importSessions([older, fresh]);
 
     expect(added).toEqual([fresh]);
-    expect(service.sessions().map(s => s.id)).toEqual(['new', 'dup']);
+    expect(service.sessions().map((s) => s.id)).toEqual(['new', 'dup']);
   });
 
   it('exportSessions は削除済みを除いた JSON を返す', () => {
@@ -58,7 +58,7 @@ describe('SessionStoreService', () => {
     service.saveSession(makeSession({ id: 'gone' }));
     service.deleteSession('gone');
     const exported = JSON.parse(service.exportSessions()) as CorrectionSession[];
-    expect(exported.map(s => s.id)).toEqual(['keep']);
+    expect(exported.map((s) => s.id)).toEqual(['keep']);
   });
 
   it('localStorage書き込み失敗時はalertで通知しつつ、signalは更新される', () => {
@@ -70,7 +70,7 @@ describe('SessionStoreService', () => {
     service.saveSession(makeSession({ id: 'a' }));
 
     expect(alertSpy).toHaveBeenCalledTimes(1);
-    expect(service.sessions().map(s => s.id)).toEqual(['a']);
+    expect(service.sessions().map((s) => s.id)).toEqual(['a']);
 
     vi.restoreAllMocks();
   });
@@ -83,6 +83,6 @@ describe('SessionStoreService', () => {
     localStorage.setItem(SESSIONS_KEY, JSON.stringify(otherTabSessions));
     window.dispatchEvent(new StorageEvent('storage', { key: SESSIONS_KEY }));
 
-    expect(service.allSessions().map(s => s.id)).toEqual(['from-other-tab']);
+    expect(service.allSessions().map((s) => s.id)).toEqual(['from-other-tab']);
   });
 });

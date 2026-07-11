@@ -26,10 +26,7 @@ const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 async function renderPng(size, { transparent = false } = {}) {
   const inner = Math.round(size * 1.0);
   const pad = Math.round((size - inner) / 2);
-  const icon = await sharp(svg, { density: 384 })
-    .resize(inner, inner)
-    .png()
-    .toBuffer();
+  const icon = await sharp(svg, { density: 384 }).resize(inner, inner).png().toBuffer();
   return sharp({
     create: {
       width: size,
@@ -50,9 +47,7 @@ for (const size of sizes) {
 }
 
 // ── favicon.ico（16/32/48px マルチサイズ）─────────────────────
-const icoBuffers = await Promise.all(
-  [16, 32, 48].map((s) => renderPng(s, { transparent: true })),
-);
+const icoBuffers = await Promise.all([16, 32, 48].map((s) => renderPng(s, { transparent: true })));
 const ico = await pngToIco(icoBuffers);
 writeFileSync(join(root, 'public', 'favicon.ico'), ico);
 console.log('generated favicon.ico');

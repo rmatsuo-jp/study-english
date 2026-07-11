@@ -27,9 +27,12 @@
 
   <div class="date-row">
     <label class="label">{{ i18n.t('practice.date') }}</label>
-    <input class="input date-input" type="date"
+    <input
+      class="input date-input"
+      type="date"
       [value]="state.selectedDate()"
-      (input)="state.selectedDate.set($any($event.target).value)" />
+      (input)="state.selectedDate.set($any($event.target).value)"
+    />
   </div>
 
   <!-- ── APIキー未設定時の設定ページ誘導（未設定のあいだ添削ボタンは押せない） ── -->
@@ -45,7 +48,7 @@
     <textarea
       class="textarea"
       [(ngModel)]="state.userText"
-      [ngModelOptions]="{standalone: true}"
+      [ngModelOptions]="{ standalone: true }"
       [placeholder]="i18n.t('practice.inputPlaceholder')"
       rows="8"
     ></textarea>
@@ -56,8 +59,14 @@
   }
 
   <div class="actions">
-    <button class="btn-secondary" (click)="state.clear()" [disabled]="state.loading()">{{ i18n.t('practice.clear') }}</button>
-    <button class="btn-primary" (click)="state.submit()" [disabled]="state.loading() || !state.userText().trim() || !settingsStore.hasApiKey()">
+    <button class="btn-secondary" (click)="state.clear()" [disabled]="state.loading()">
+      {{ i18n.t('practice.clear') }}
+    </button>
+    <button
+      class="btn-primary"
+      (click)="state.submit()"
+      [disabled]="state.loading() || !state.userText().trim() || !settingsStore.hasApiKey()"
+    >
       @if (state.loading()) {
         <span class="spinner"></span> {{ i18n.t('practice.submitting') }}
       } @else {
@@ -101,7 +110,9 @@
               <span class="eval-cefr">{{ ev.contentCefr }}</span>
             </div>
           </div>
-          <div class="eval-density">{{ i18n.t('practice.errorDensity') }}: <strong>{{ ev.errorDensity }}</strong></div>
+          <div class="eval-density">
+            {{ i18n.t('practice.errorDensity') }}: <strong>{{ ev.errorDensity }}</strong>
+          </div>
         </div>
       }
 
@@ -123,7 +134,10 @@
         }
       } @else {
         <h2 class="section-title">{{ i18n.t('practice.explanation') }}</h2>
-        <div class="result-box markdown-body" [innerHTML]="toHtml(proseText(state.result()!))"></div>
+        <div
+          class="result-box markdown-body"
+          [innerHTML]="toHtml(proseText(state.result()!))"
+        ></div>
       }
 
       @if (state.result()!.mistakes.length > 0) {
@@ -154,25 +168,45 @@
     <p class="bulk-hint">{{ i18n.t('practice.bulk.hint') }}</p>
 
     <div class="bulk-actions">
-      <button class="btn-secondary" (click)="downloadTemplate()">{{ i18n.t('practice.bulk.downloadTemplate') }}</button>
-      <button class="btn-secondary" (click)="downloadHistoryAsTemplate()">{{ i18n.t('practice.bulk.downloadFromHistory') }}</button>
-      <button class="btn-secondary" (click)="triggerBulkUpload()">{{ i18n.t('practice.bulk.selectFile') }}</button>
-      <input #bulkFileInput type="file" accept=".json" hidden (change)="onBulkFileSelected($event)" />
+      <button class="btn-secondary" (click)="downloadTemplate()">
+        {{ i18n.t('practice.bulk.downloadTemplate') }}
+      </button>
+      <button class="btn-secondary" (click)="downloadHistoryAsTemplate()">
+        {{ i18n.t('practice.bulk.downloadFromHistory') }}
+      </button>
+      <button class="btn-secondary" (click)="triggerBulkUpload()">
+        {{ i18n.t('practice.bulk.selectFile') }}
+      </button>
+      <input
+        #bulkFileInput
+        type="file"
+        accept=".json"
+        hidden
+        (change)="onBulkFileSelected($event)"
+      />
     </div>
 
     @if (state.bulkEntries().length > 0) {
       <div class="bulk-preview">
-        <h3 class="bulk-subtitle">{{ i18n.t('practice.bulk.preview', { count: state.bulkEntries().length }) }}</h3>
+        <h3 class="bulk-subtitle">
+          {{ i18n.t('practice.bulk.preview', { count: state.bulkEntries().length }) }}
+        </h3>
         <div class="bulk-list">
           @for (e of state.bulkEntries(); track e.date + e.text) {
             <div class="bulk-item">
               <span class="bulk-date">{{ e.date }}</span>
-              <span class="bulk-text">{{ e.text.slice(0, 40) }}{{ e.text.length > 40 ? '…' : '' }}</span>
+              <span class="bulk-text"
+                >{{ e.text.slice(0, 40) }}{{ e.text.length > 40 ? '…' : '' }}</span
+              >
             </div>
           }
         </div>
         <div class="actions">
-          <button class="btn-primary" (click)="runBulk()" [disabled]="state.bulkRunning() || !settingsStore.hasApiKey()">
+          <button
+            class="btn-primary"
+            (click)="runBulk()"
+            [disabled]="state.bulkRunning() || !settingsStore.hasApiKey()"
+          >
             @if (state.bulkRunning()) {
               <span class="spinner"></span> {{ i18n.t('practice.bulk.running') }}
             } @else {
@@ -191,10 +225,18 @@
             <span class="bulk-date">{{ p.date }}</span>
             <span class="bulk-status-badge">
               @switch (p.status) {
-                @case ('pending') { {{ i18n.t('practice.bulk.pending') }} }
-                @case ('loading') { {{ i18n.t('practice.bulk.loading') }} }
-                @case ('success') { {{ i18n.t('practice.bulk.success') }} }
-                @case ('error') { {{ i18n.t('practice.bulk.error') }} }
+                @case ('pending') {
+                  {{ i18n.t('practice.bulk.pending') }}
+                }
+                @case ('loading') {
+                  {{ i18n.t('practice.bulk.loading') }}
+                }
+                @case ('success') {
+                  {{ i18n.t('practice.bulk.success') }}
+                }
+                @case ('error') {
+                  {{ i18n.t('practice.bulk.error') }}
+                }
               }
             </span>
             @if (p.errorMessage) {

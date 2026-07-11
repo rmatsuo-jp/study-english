@@ -4,5 +4,5 @@
 import { CanDeactivateFn } from '@angular/router';
 import type { Settings } from './settings';
 
-export const settingsCanDeactivateGuard: CanDeactivateFn<Settings> = component =>
+export const settingsCanDeactivateGuard: CanDeactivateFn<Settings> = (component) =>
   component.canDeactivate();

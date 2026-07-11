@@ -35,7 +35,7 @@ function makeSession(partial: Partial<CorrectionSession>): CorrectionSession {
 }
 
 function cloudSnap(sessions: CorrectionSession[]) {
-  return { docs: sessions.map(s => ({ data: () => s })) };
+  return { docs: sessions.map((s) => ({ data: () => s })) };
 }
 
 // syncFromCloud()のtombstone突き合わせマージロジックを中心に検証する。
@@ -65,7 +65,7 @@ describe('FirestoreSyncService', () => {
 
     await service.syncFromCloud('uid');
 
-    expect(sessionStore.allSessions().map(s => s.id)).toEqual(['local-only']);
+    expect(sessionStore.allSessions().map((s) => s.id)).toEqual(['local-only']);
     expect(setDocMock).toHaveBeenCalledTimes(1);
   });
 
@@ -76,7 +76,7 @@ describe('FirestoreSyncService', () => {
 
     await service.syncFromCloud('uid');
 
-    expect(sessionStore.allSessions().map(s => s.id)).toEqual(['cloud-only']);
+    expect(sessionStore.allSessions().map((s) => s.id)).toEqual(['cloud-only']);
     // クラウド側とdeleted状態の食い違いがないためpushは発生しない
     expect(setDocMock).not.toHaveBeenCalled();
   });
@@ -89,7 +89,7 @@ describe('FirestoreSyncService', () => {
 
     await service.syncFromCloud('uid');
 
-    const merged = sessionStore.allSessions().find(s => s.id === 'x');
+    const merged = sessionStore.allSessions().find((s) => s.id === 'x');
     expect(merged?.deleted).toBe(true);
     expect(setDocMock).toHaveBeenCalledTimes(1);
   });
