@@ -1,3 +1,12 @@
+# [0.6.0](https://github.com/rmatsuo-jp/study-english/compare/v0.5.2...v0.6.0) (2026-07-11)
+
+
+### Features
+
+* **gemini:** 添削をストリーミング受信し進捗率を通知する ([7ca6d06](https://github.com/rmatsuo-jp/study-english/commit/7ca6d06feec88bd3b9bb2556219fa9ea25cf1fb3))
+* **practice:** 添削待ちの進捗バーと待機中クイズを追加 ([e5a4044](https://github.com/rmatsuo-jp/study-english/commit/e5a40442f2a24424c240ddfe03ca386500491f25))
+* **settings:** APIキーの正規化・即時保存と課金同意の再取得 ([f162380](https://github.com/rmatsuo-jp/study-english/commit/f162380b84fa9c6d7a75cd453db0e45827e327a6))
+
 ## [0.5.2](https://github.com/rmatsuo-jp/study-english/compare/v0.5.1...v0.5.2) (2026-07-09)
 
 
