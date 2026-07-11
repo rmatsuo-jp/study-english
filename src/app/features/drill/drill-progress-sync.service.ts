@@ -58,10 +58,10 @@ export class DrillProgressSyncService {
     this.pushProgress();
   }
 
-  // apps/study_english/users/{uid}/drillProgress/data の単一ドキュメント参照を返す。
+  // apps/eibun_lab/users/{uid}/drillProgress/data の単一ドキュメント参照を返す。
   // セッションと異なり件数の多い配列ではないため、1ドキュメントに両方のマップをまとめて保存する。
   private progressDoc(uid: string) {
-    return doc(firestore, 'apps', 'study_english', 'users', uid, 'drillProgress', 'data');
+    return doc(firestore, 'apps', 'eibun_lab', 'users', uid, 'drillProgress', 'data');
   }
 
   // ドリル進捗の書き込み直後に呼び、ログイン中なら現在の全件をクラウドへ反映する（fire-and-forget）。

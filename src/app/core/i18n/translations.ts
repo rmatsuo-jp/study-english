@@ -7,7 +7,7 @@
 import { Lang } from './lang.model';
 
 const ja = {
-  'app.title': '英作文ラボ',
+  'app.title': '英文ラボ',
   'sidebar.expand': 'サイドバーを表示',
   'sidebar.collapse': 'サイドバーを格納',
   'sidebar.language': '言語',
@@ -229,7 +229,7 @@ const ja = {
 type TranslationKey = keyof typeof ja;
 
 const en: Record<TranslationKey, string> = {
-  'app.title': 'Study English Lab',
+  'app.title': 'Eibun-Lab',
   'sidebar.expand': 'Show sidebar',
   'sidebar.collapse': 'Collapse sidebar',
   'sidebar.language': 'Language',

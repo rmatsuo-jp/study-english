@@ -12,8 +12,8 @@ import { DrillProgress, LevelUpItemProgress } from '@core/models/session.model';
 import { normalizeDrillKey } from '@core/stats/session-stats.util';
 import { readJson, writeJson } from '@shared/utils/local-storage.util';
 
-const DRILL_PROGRESS_KEY = 'study-english-drill-progress';
-const LEVELUP_PROGRESS_KEY = 'study-english-levelup-progress';
+const DRILL_PROGRESS_KEY = 'eibun-lab-drill-progress';
+const LEVELUP_PROGRESS_KEY = 'eibun-lab-levelup-progress';
 // 連続正解がこの回数に達したら「習熟済み」とみなし、ドリルでの出題重みを下げる。
 export const DRILL_MASTERY_STREAK = 3;
 

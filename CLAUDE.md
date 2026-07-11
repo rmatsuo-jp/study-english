@@ -1,4 +1,4 @@
-# CLAUDE.md — Study English
+# CLAUDE.md — 英文ラボ（Eibun-Lab）
 
 Angular 22 製 PWA。Gemini AI で英作文を添削し、結果を LocalStorage に保存して学習履歴・ミス傾向を追跡する。
 UI言語: 日本語。

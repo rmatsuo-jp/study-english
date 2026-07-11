@@ -1,5 +1,5 @@
 {
-  "name": "study-english",
+  "name": "eibun-lab",
   "version": "0.10.2",
   "license": "MIT",
   "scripts": {
@@ -11,7 +11,7 @@
     "test": "ng test",
     "lint:text": "textlint docs README.md src/app/core/gemini/prompt.util.ts",
     "lint:text:fix": "textlint --fix docs README.md src/app/core/gemini/prompt.util.ts",
-    "deploy": "ng build && node -e \"require('fs').copyFileSync('dist/study-english/browser/index.html','dist/study-english/browser/404.html')\" && npx angular-cli-ghpages --dir=dist/study-english/browser"
+    "deploy": "ng build && node -e \"require('fs').copyFileSync('dist/eibun-lab/browser/index.html','dist/eibun-lab/browser/404.html')\" && npx angular-cli-ghpages --dir=dist/eibun-lab/browser"
   },
   "private": true,
   "packageManager": "npm@11.13.0",

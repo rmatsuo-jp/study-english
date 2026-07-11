@@ -70,15 +70,15 @@ export class FirestoreSyncService {
     });
   }
 
-  // apps/study_english/users/{uid}/sessions/{sessionId} のドキュメント参照を返す。
-  // 先頭の apps/study_english は、同一 Firebase プロジェクトに別アプリを追加しても衝突しないための名前空間。
+  // apps/eibun_lab/users/{uid}/sessions/{sessionId} のドキュメント参照を返す。
+  // 先頭の apps/eibun_lab は、同一 Firebase プロジェクトに別アプリを追加しても衝突しないための名前空間。
   private sessionDoc(uid: string, sessionId: string) {
-    return doc(firestore, 'apps', 'study_english', 'users', uid, 'sessions', sessionId);
+    return doc(firestore, 'apps', 'eibun_lab', 'users', uid, 'sessions', sessionId);
   }
 
-  // apps/study_english/users/{uid}/sessions コレクション参照を返す
+  // apps/eibun_lab/users/{uid}/sessions コレクション参照を返す
   private sessionsCol(uid: string) {
-    return collection(firestore, 'apps', 'study_english', 'users', uid, 'sessions');
+    return collection(firestore, 'apps', 'eibun_lab', 'users', uid, 'sessions');
   }
 
   // Firestore は undefined を受け付けないため、値が undefined の任意フィールドをフィールドごと除外する。

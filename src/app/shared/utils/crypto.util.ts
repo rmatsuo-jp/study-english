@@ -5,7 +5,7 @@
  * ⚠ 実行中のページで復号処理そのものを呼べる本格的な XSS への完全防御ではない点に注意。
  */
 
-const DB_NAME = 'study-english-crypto';
+const DB_NAME = 'eibun-lab-crypto';
 const STORE_NAME = 'keys';
 const KEY_ID = 'aes-key';
 const IV_LENGTH = 12; // AES-GCM 推奨の 96bit

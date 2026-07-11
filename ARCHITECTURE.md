@@ -1,4 +1,4 @@
-# ARCHITECTURE.md — Study English アーキテクチャ図
+# ARCHITECTURE.md — 英文ラボ（Eibun-Lab）アーキテクチャ図
 
 ## 1. レイヤ構成（共通パターン）
 
@@ -72,7 +72,7 @@ graph TD
     Auth["AuthService\n(user signal)"]
 
     LocalStorage[("LocalStorage")]
-    Firestore[("Cloud Firestore\napps/study_english/users/{uid}/sessions")]
+    Firestore[("Cloud Firestore\napps/eibun_lab/users/{uid}/sessions")]
 
     Repo -->|ローカル保存| Store
     Repo -->|直後に pushSessions\n（1箇所に集約）| Sync
@@ -279,7 +279,7 @@ erDiagram
     CORRECTION_SESSION |o--o{ LEVEL_UP_ITEM : "levelUpItems?（任意）"
 ```
 
-Firestore側は `apps/study_english/users/{uid}/sessions/{sessionId}` のパスに `CorrectionSession` を
+Firestore側は `apps/eibun_lab/users/{uid}/sessions/{sessionId}` のパスに `CorrectionSession` を
 そのまま保存する（任意フィールドが `undefined` の場合はFirestoreの制約によりフィールドごと除外）。
 
 そのほか LocalStorage には、ドリル進捗（`DrillProgressService`）・Gemini 送受信ログ

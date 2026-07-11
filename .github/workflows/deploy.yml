@@ -47,10 +47,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
-        run: npm run build -- --base-href=/study-english/
+        run: npm run build -- --base-href=/eibun-lab/
 
       - name: SPA fallback (404.html)
-        run: cp dist/study-english/browser/index.html dist/study-english/browser/404.html
+        run: cp dist/eibun-lab/browser/index.html dist/eibun-lab/browser/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -58,7 +58,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/study-english/browser
+          path: ./dist/eibun-lab/browser
 
   deploy:
     needs: build

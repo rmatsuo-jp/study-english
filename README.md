@@ -1,4 +1,4 @@
-# Study English
+# 英文ラボ（Eibun-Lab）
 
 Gemini AI を使った英語添削 PWA アプリです。Angular で構築されており、英文を入力すると AI が文法・語彙・表現のミスを指摘・修正します。
 
@@ -68,7 +68,7 @@ npm test
 このリポジトリは public 公開されています。運用上の注意点：
 
 - **Firebase の構成値（`apiKey` 等）は秘密情報ではなく**、クライアントに必ず露出するプロジェクト識別子です。コードに含めて公開して問題ありません。実際のアクセス保護は **Firestore セキュリティルール**（`firestore.rules`）で行います。
-- **Firestore ルールは本人 UID 限定**（`apps/study_english/users/{uid}/sessions`）です。これが無いと全ユーザーのデータが誰でも読み書き可能になります。ルール変更時は必ず反映してください：
+- **Firestore ルールは本人 UID 限定**（`apps/eibun_lab/users/{uid}/sessions`）です。これが無いと全ユーザーのデータが誰でも読み書き可能になります。ルール変更時は必ず反映してください：
 
   ```bash
   firebase deploy --only firestore:rules

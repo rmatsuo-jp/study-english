@@ -1,8 +1,8 @@
-# Study English — システム概要
+# 英文ラボ（Eibun-Lab） — システム概要
 
 ## アプリケーション概要
 
-**Study English** は Angular 22 製の PWA（Progressive Web App）。
+**英文ラボ（Eibun-Lab）** は Angular 22 製の PWA（Progressive Web App）。
 英作文（英語日記）を入力すると、Google Gemini AI が添削・フィードバックを返し、結果をブラウザの LocalStorage に蓄積する英語学習アプリ。Google アカウントでログインすると、添削履歴が Firebase（Cloud Firestore）経由で端末間に自動同期される。
 
 ---
@@ -185,11 +185,11 @@ interface CorrectionSession {
 |---|---|
 | `correction_sessions` | `CorrectionSession[]` の JSON 配列（論理削除済みも含む） |
 | `app_settings` | `AppSettings` の JSON オブジェクト |
-| `study-english-drill-progress` | ドリルの正規化キーごとの正解ストリーク（`DrillProgress`） |
-| `study-english-levelup-progress` | レベルアップドリルのセッション単位マスク進捗（`LevelUpItemProgress`） |
+| `eibun-lab-drill-progress` | ドリルの正規化キーごとの正解ストリーク（`DrillProgress`） |
+| `eibun-lab-levelup-progress` | レベルアップドリルのセッション単位マスク進捗（`LevelUpItemProgress`） |
 | `dev_logs` | Gemini 送受信ログ（最大20件、本番ビルドでは記録されない） |
 
-ログイン中は、上記のうち `correction_sessions` に相当するデータが `apps/study_english/users/{uid}/sessions` パスの Cloud Firestore とも双方向同期される。
+ログイン中は、上記のうち `correction_sessions` に相当するデータが `apps/eibun_lab/users/{uid}/sessions` パスの Cloud Firestore とも双方向同期される。
 
 ---
 
