@@ -5,9 +5,25 @@
      JSONテンプレートで複数日分の英作文をまとめてアップロード・一括添削・進捗表示する一括添削セクションを含む。
      添削解説5項目（proseSections、1項目ずつ独立表示。旧データは proseText の単一ブロックにフォールバック）・
      ミス説明（explanationText）・カテゴリ（categoryText）は
-     i18n.lang() に追随して表示言語が切り替わる（practice.ts のヘルパー参照）。 -->
+     i18n.lang() に追随して表示言語が切り替わる（practice.ts のヘルパー参照）。
+     待機中クイズ＋進捗バーはスクロールなしで解答できるよう、日付・入力欄より上（タイトル直下）に配置する。 -->
 <div class="page">
   <h1 class="page-title">{{ i18n.t('practice.title') }}</h1>
+
+  <!-- ── 添削中の実測進捗（ストリーミング受信のマイルストーン＋文字数比）＋待機中クイズ。
+       送信開始と同時に自動表示され、添削完了時に自動で閉じる。スクロールせず解けるようタイトル直下に置く。 ── -->
+  @if (state.loading()) {
+    <div class="progress-row">
+      <div class="bar-wrap">
+        <div class="bar" [style.width.%]="state.progress()"></div>
+      </div>
+      <span class="progress-percent">{{ state.progress() }}%</span>
+    </div>
+  }
+
+  @if (state.showQuiz()) {
+    <app-waiting-quiz />
+  }
 
   <div class="date-row">
     <label class="label">{{ i18n.t('practice.date') }}</label>
@@ -49,21 +65,6 @@
       }
     </button>
   </div>
-
-  <!-- ── 添削中の実測進捗（ストリーミング受信のマイルストーン＋文字数比） ── -->
-  @if (state.loading()) {
-    <div class="progress-row">
-      <div class="bar-wrap">
-        <div class="bar" [style.width.%]="state.progress()"></div>
-      </div>
-      <span class="progress-percent">{{ state.progress() }}%</span>
-    </div>
-  }
-
-  <!-- ── 待機中クイズ。送信開始と同時に自動表示され、添削完了時に自動で閉じる ── -->
-  @if (state.showQuiz()) {
-    <app-waiting-quiz />
-  }
 
   @if (state.result() && !state.showQuiz()) {
     <div class="result-section">
