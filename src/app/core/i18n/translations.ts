@@ -185,8 +185,8 @@ const ja = {
   'drill.next': '次へ',
   'drill.promptCloze': '正しい語を選んでください。',
   'drill.answerInputPlaceholder': '正しい表現を入力...',
-  'drill.choiceHint': 'ヒント: {hint}（数字キー 1〜4 で選択、Enterで回答）',
   'drill.hintLabel': 'ヒント: {hint}',
+  'drill.showHint': 'ヒントを見る',
   'drill.markCorrect': '正解にする',
   'drill.seeResult': '結果を見る',
 
@@ -406,8 +406,8 @@ const en: Record<TranslationKey, string> = {
   'drill.next': 'Next',
   'drill.promptCloze': 'Choose the correct word.',
   'drill.answerInputPlaceholder': 'Type the correct expression...',
-  'drill.choiceHint': 'Hint: {hint} (press 1-4 to select, Enter to answer)',
   'drill.hintLabel': 'Hint: {hint}',
+  'drill.showHint': 'Show hint',
   'drill.markCorrect': 'Mark as Correct',
   'drill.seeResult': 'See Results',
 

@@ -205,11 +205,7 @@
         </p>
         <p class="quiz-original">{{ q.prompt }}</p>
         @if (q.translation) {
-          @if (hintShown() || revealed()) {
-            <p class="quiz-translation">{{ q.translation }}</p>
-          } @else {
-            <button class="btn-secondary" (click)="toggleHint()">{{ i18n.t('drill.hintTranslation') }}</button>
-          }
+          <p class="quiz-translation">{{ q.translation }}</p>
         }
 
         @if (!choiceMode()) {
@@ -227,7 +223,11 @@
           }
         } @else {
           <!-- 4択モード（クローズのみ）。クリック/タップで即採点する。 -->
-          <p class="quiz-hint">{{ i18n.t('drill.choiceHint', { hint: q.hint }) }}</p>
+          @if (hintShown() || revealed()) {
+            <p class="quiz-hint">{{ i18n.t('drill.hintLabel', { hint: q.hint }) }}</p>
+          } @else {
+            <button class="btn-secondary" (click)="toggleHint()">{{ i18n.t('drill.showHint') }}</button>
+          }
           <div class="choice-list">
             @for (c of q.choices; track c) {
               <button class="choice-btn" [disabled]="revealed()" (click)="choose(c)">{{ c }}</button>
