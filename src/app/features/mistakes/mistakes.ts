@@ -8,11 +8,16 @@
  * 推移グラフの横軸は添削日付（M/D形式、両グラフ共通の xAxisLabels で描画。点数が多い場合は間引く）。
  * 推移グラフの各系列は同値で重なった際も見分けられるよう縦方向に微小オフセット(JITTER_PX)を付与し、
  * 凡例クリックで highlightedSeries を切り替えて対象系列を強調表示できる。
+ * グラフ系列名・カテゴリ表示・ミス説明は i18n.lang() に追随する（core/i18n の翻訳・localized-session.util 参照）。
+ * カテゴリ別集計（stats）は session-stats.util 側で正規化済みの日本語カテゴリ文字列のまま集計し、
+ * 表示直前にだけ localizedNormalizedCategory() で翻訳する（集計キーを表示文字列にすると言語切替でグラフが割れるため）。
  */
 import { Component, computed, inject, signal } from '@angular/core';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
 import { cefrToNumber, getEvaluationHistory, getFrequentMistakes, getMistakeStats, getStudyStats } from '@core/stats/session-stats.util';
 import { Mistake, WritingEvaluation } from '@core/models/session.model';
+import { I18nService } from '@core/i18n/i18n.service';
+import { localizedCategory, localizedExplanation, localizedNormalizedCategory } from '@core/i18n/localized-session.util';
 
 // 推移グラフの寸法（SVG viewBox）。スコア・CEFR 両グラフで共用する。
 const CHART = { w: 300, h: 150, padL: 22, padR: 8, padT: 12, padB: 26 };
@@ -33,6 +38,19 @@ interface ChartSeries {
 })
 export class Mistakes {
   private repository = inject(SessionRepositoryService);
+  protected i18n = inject(I18nService);
+
+  categoryLabel(categoryJa: string): string {
+    return localizedNormalizedCategory(categoryJa, this.i18n);
+  }
+
+  mistakeCategoryLabel(m: Mistake): string {
+    return localizedCategory(m, this.i18n);
+  }
+
+  mistakeExplanation(m: Mistake): string {
+    return localizedExplanation(m, this.i18n.lang());
+  }
 
   // ── 派生状態（computed）: sessions signal を純粋関数に渡して集計する ──
   studyStats = computed(() => getStudyStats(this.repository.sessions()));
@@ -111,10 +129,10 @@ export class Mistakes {
       return { name, color, line: dots.map(d => `${d.x},${d.y}`).join(' '), dots };
     };
     return [
-      build('総合', '#60a5fa', 0, e => e.overallScore),
-      build('文法', '#a78bfa', 1, e => e.grammarScore),
-      build('語彙', '#34d399', 2, e => e.vocabularyScore),
-      build('内容', '#f59e0b', 3, e => e.contentScore),
+      build(this.i18n.t('practice.evalOverall'), '#60a5fa', 0, e => e.overallScore),
+      build(this.i18n.t('practice.evalGrammar'), '#a78bfa', 1, e => e.grammarScore),
+      build(this.i18n.t('practice.evalVocabulary'), '#34d399', 2, e => e.vocabularyScore),
+      build(this.i18n.t('practice.evalContent'), '#f59e0b', 3, e => e.contentScore),
     ];
   });
 
@@ -129,10 +147,10 @@ export class Mistakes {
       return { name, color, line: dots.map(d => `${d.x},${d.y}`).join(' '), dots };
     };
     return [
-      build('総合', '#60a5fa', 0, e => e.overallCefr),
-      build('文法', '#a78bfa', 1, e => e.grammarCefr),
-      build('語彙', '#34d399', 2, e => e.vocabularyCefr),
-      build('内容', '#f59e0b', 3, e => e.contentCefr),
+      build(this.i18n.t('practice.evalOverall'), '#60a5fa', 0, e => e.overallCefr),
+      build(this.i18n.t('practice.evalGrammar'), '#a78bfa', 1, e => e.grammarCefr),
+      build(this.i18n.t('practice.evalVocabulary'), '#34d399', 2, e => e.vocabularyCefr),
+      build(this.i18n.t('practice.evalContent'), '#f59e0b', 3, e => e.contentCefr),
     ];
   });
 

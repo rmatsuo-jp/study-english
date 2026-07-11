@@ -4,6 +4,9 @@
  * カレンダーで日付を選ぶと一覧がその日だけに絞り込まれ（キーワード検索と併用可）、複数選択削除・展開表示・日付ソート・JSON インポート/エクスポートも提供する。
  * セッションカードは折りたたみ状態でも総合スコア/CEFRバッジを表示する。
  * SessionRepositoryService の sessions signal を直接参照し、データ変更を自動反映する。
+ * 添削解説（toHtml）・ミスのカテゴリ（categoryText）は i18n.lang() に追随して表示言語が切り替わる
+ * （英語版が無い旧セッションは core/i18n/localized-session.util.ts のフォールバックで日本語表示のまま）。
+ * toHtml のキャッシュは言語ごとに保持し、言語切替時に別セッションの内容が誤って再利用されないようにする。
  */
 import { Component, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +15,9 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { renderSafeMarkdown } from '@shared/utils/markdown.util';
 import { formatTimestampForFilename, toDayKey } from '@shared/utils/date.util';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
-import { CorrectionSession, WritingEvaluation } from '@core/models/session.model';
+import { CorrectionSession, Mistake, WritingEvaluation } from '@core/models/session.model';
+import { I18nService } from '@core/i18n/i18n.service';
+import { localizedCategory, localizedProse } from '@core/i18n/localized-session.util';
 
 interface CalendarCell {
   date: Date;
@@ -32,6 +37,7 @@ interface CalendarCell {
 export class History {
   private repository = inject(SessionRepositoryService);
   private sanitizer = inject(DomSanitizer);
+  protected i18n = inject(I18nService);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
@@ -93,8 +99,14 @@ export class History {
     return cells;
   });
 
+  weekdayLabels = computed(() =>
+    this.i18n.lang() === 'en'
+      ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      : ['日', '月', '火', '水', '木', '金', '土']
+  );
+
   calendarMonthLabel = computed(() =>
-    this.calendarMonth().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' })
+    this.calendarMonth().toLocaleDateString(this.i18n.lang() === 'en' ? 'en-US' : 'ja-JP', { year: 'numeric', month: 'long' })
   );
 
   // ── 日付フィルタ → 検索フィルタ → 日付ソートの順で派生（元文・添削文・ミス表現を横断検索） ─
@@ -120,19 +132,25 @@ export class History {
     });
   });
 
-  // セッションID単位でキャッシュし、[innerHTML] へ毎回同じ参照を返す。
+  // セッションID＋表示言語単位でキャッシュし、[innerHTML] へ毎回同じ参照を返す。
   // 参照が変わるとテンプレート再評価のたびに innerHTML が再設定され、
-  // ユーザーがドラッグ選択したテキストが消えてしまうため。
+  // ユーザーがドラッグ選択したテキストが消えてしまうため。言語をキーに含めるのは、
+  // 言語トグル時に前の言語のHTMLが誤って使い回されないようにするため。
   private htmlCache = new Map<string, SafeHtml>();
 
   toHtml(session: CorrectionSession): SafeHtml {
-    let html = this.htmlCache.get(session.id);
+    const cacheKey = `${session.id}:${this.i18n.lang()}`;
+    let html = this.htmlCache.get(cacheKey);
     if (!html) {
       // marked → DOMPurify でサニタイズした HTML のみ信頼済みとして渡す。
-      html = this.sanitizer.bypassSecurityTrustHtml(renderSafeMarkdown(session.corrected));
-      this.htmlCache.set(session.id, html);
+      html = this.sanitizer.bypassSecurityTrustHtml(renderSafeMarkdown(localizedProse(session, this.i18n.lang())));
+      this.htmlCache.set(cacheKey, html);
     }
     return html;
+  }
+
+  categoryText(m: Mistake): string {
+    return localizedCategory(m, this.i18n);
   }
 
   toggle(id: string) {
@@ -198,14 +216,14 @@ export class History {
   deleteSelected() {
     const ids = this.selectedIds();
     if (ids.length === 0) return;
-    if (!confirm(`${ids.length}件の履歴を削除しますか？この操作は元に戻せません。`)) return;
+    if (!confirm(this.i18n.t('history.confirmDelete', { count: ids.length }))) return;
     ids.forEach(id => this.repository.deleteSession(id));
     this.selectedIds.set([]);
     this.selectionMode.set(false);
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('ja-JP', {
+    return new Date(iso).toLocaleDateString(this.i18n.lang() === 'en' ? 'en-US' : 'ja-JP', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -226,7 +244,7 @@ export class History {
       try {
         const parsed = JSON.parse(reader.result as string);
         if (!Array.isArray(parsed)) {
-          alert('配列形式のJSONを指定してください');
+          alert(this.i18n.t('history.alertArrayJson'));
           return;
         }
         const valid = parsed.filter(
@@ -238,7 +256,7 @@ export class History {
         );
         this.repository.importSessions(valid as CorrectionSession[]);
       } catch {
-        alert('JSONの形式が正しくありません');
+        alert(this.i18n.t('history.alertInvalidJson'));
       }
       (event.target as HTMLInputElement).value = '';
     };

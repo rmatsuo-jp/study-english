@@ -32,6 +32,8 @@
  * （添削待機中クイズと共用するため core に置く）。
  * Quiz/LevelUpQuiz/MistakeKind の型定義も同ファイルへ移し、このファイルは状態管理と
  * 3モードのオーケストレーションに専念する。
+ * Quiz/LevelUpQuiz の hint/badge/translation は buildXxxQuiz に i18n.lang() を渡して生成した
+ * 時点の言語で固定される（スナップショット方式。出題順の固定と同じ設計）。
  */
 import { Component, computed, effect, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
@@ -41,6 +43,7 @@ import { getFrequentMistakes, getReviewItems, getSessionsWithLevelUp, normalizeD
 import { DRILL_MASTERY_STREAK } from './drill-progress.service';
 import { DrillProgressSyncService } from './drill-progress-sync.service';
 import { CorrectionSession, Mistake, ReviewItem } from '@core/models/session.model';
+import { I18nService } from '@core/i18n/i18n.service';
 import {
   buildClozeQuiz,
   buildLevelUpQuiz,
@@ -66,6 +69,7 @@ type Mode = 'mistakes' | 'cloze' | 'levelup';
 export class Drill {
   private repository = inject(SessionRepositoryService);
   private drillProgress = inject(DrillProgressSyncService);
+  protected i18n = inject(I18nService);
 
   // 答え合わせ後に表示される「次へ」ボタン（levelup/mistakes・cloze どちらか一方のみ描画される）。
   // revealed() が true になった直後に自動フォーカスし、Enterキーだけで次の問題へ進めるようにする。
@@ -154,7 +158,7 @@ export class Drill {
   selectLevelUpDate(session: CorrectionSession) {
     const progress = this.drillProgress.getLevelUpProgress(session.id);
     const items = (session.levelUpItems ?? []).map(item =>
-      buildLevelUpQuiz(item, normalizeDrillKey(item.leveledUp))
+      buildLevelUpQuiz(item, normalizeDrillKey(item.leveledUp), this.i18n.lang())
     );
     this.levelUpQuiz.set(items);
     this.currentSessionId.set(session.id);
@@ -213,7 +217,7 @@ export class Drill {
   private buildMistakeQuizzes(): Quiz[] {
     return getFrequentMistakes(this.repository.sessions()).map((m: Mistake & { count: number }) => {
       const key = normalizeDrillKey(m.original);
-      return buildMistakeQuiz(m, key, this.weightFor(key, m.count));
+      return buildMistakeQuiz(m, key, this.weightFor(key, m.count), this.i18n.lang());
     });
   }
 
@@ -221,7 +225,7 @@ export class Drill {
   private buildClozeQuizzes(): Quiz[] {
     return getReviewItems(this.repository.sessions()).map((r: ReviewItem) => {
       const key = normalizeDrillKey(`${r.sentence}${r.answer}`);
-      return buildClozeQuiz(r, key, this.weightFor(key, 1));
+      return buildClozeQuiz(r, key, this.weightFor(key, 1), this.i18n.lang());
     });
   }
 

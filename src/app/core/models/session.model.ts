@@ -4,14 +4,20 @@
  * DrillProgress（ドリルの習熟度）・LevelUpItemProgress（レベルアップ・タイピングのマスク段階進捗）と
  * CorrectionSession（1回の添削セッション。corrected=添削解説プローズ、correctedText=添削後の全文、
  * levelUpText=レベルアップ後の全文）を定義する。
+ * 日本語の説明系フィールド（Mistake.explanation, ReviewItem.hint/translation, LevelUpItem.translation,
+ * CorrectionSession.corrected）は、対応する `*En` フィールドに英語版を optional で持つ。
+ * 英語版が無いセッション（旧データ・生成失敗時）は表示側（core/i18n/localized-session.util.ts）が
+ * 自動で日本語にフォールバックする。Mistake.categoryKey は category（日本語固定文字列）の翻訳キー版。
  */
 
 // ── Mistake: Gemini が返す1件のミス情報 ─────────────────────────
 export interface Mistake {
   category: string;
+  categoryKey?: string; // 任意。UI表示用の翻訳キー（'grammar'|'vocabulary'|'spelling'|'collocation'|'usage'|'syntax'|'word-order'）。旧データは欠落し得る
   original: string;
   corrected: string;
   explanation: string;
+  explanationEn?: string; // 任意。explanation の英語版
 }
 
 // ── ReviewItem: Gemini が返す穴埋め（クローズ）復習カード 1 件 ─────
@@ -21,7 +27,9 @@ export interface ReviewItem {
   sentence: string;    // ___（半角アンダースコア3つ）で空所を作った英文
   answer: string;      // 空所に入る正解の語/句
   hint: string;        // 日本語ヒント
+  hintEn?: string;      // 任意。hint の英語版
   translation: string; // 英文の日本語訳
+  translationEn?: string; // 任意。translation の英語版
   choices: string[];   // 4択（正解を1つ含む）
 }
 
@@ -34,6 +42,7 @@ export interface LevelUpItem {
   leveledUp: string;    // CEFR一段階上のレベルで書き直した1文
   keyPhrases: string[]; // leveledUp 内に出現する、穴埋め対象のコロケーション・構文の完全一致部分文字列
   translation: string;  // leveledUp の日本語訳（stage 3 のヒントに使用）
+  translationEn?: string; // 任意。translation の英語版
 }
 
 // ── DrillProgress: ドリルの1問（ミス or 復習カード）ごとの習熟度 ─────
@@ -75,6 +84,7 @@ export interface CorrectionSession {
   date: string;
   original: string;
   corrected: string; // 添削解説プローズ（文法解説・自然な表現の提案・傾向・CEFR根拠・学習法など）
+  correctedEn?: string; // 任意。corrected の英語版
   correctedText?: string; // 任意。添削後の完成版の全文（corrected＝解説文とは別に、修正後の英文そのもの。後方互換）
   mistakes: Mistake[];
   evaluation?: WritingEvaluation; // 任意。定量評価が有効なセッションのみ持つ

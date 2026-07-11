@@ -4,8 +4,19 @@
  * Quiz/LevelUpQuiz への正規化ビルダーと不正解分類（classifyMistake）も提供し、
  * 呼び出し側（features/drill のドリル、features/practice の添削待機中クイズ）はこれを呼ぶだけにする。
  * 2つの feature が共用するため core に置く（feature 間 import を避けるため）。DIなしで単体テスト可能。
+ * hint/badge/translation は表示言語（lang）に応じて英語版（explanationEn等）へ切り替える。
+ * DI を持ち込まないよう、core/i18n の翻訳データ（プレーンオブジェクト）を直接参照する
+ * （I18nService は注入せず、lang 引数だけで完結させて単体テスト可能な純粋関数のままにする）。
  */
 import { Mistake, ReviewItem } from '@core/models/session.model';
+import { Lang } from '@core/i18n/lang.model';
+import { TRANSLATIONS, TranslationKey } from '@core/i18n/translations';
+
+function categoryBadge(m: Mistake, lang: Lang): string {
+  const key = `mistake.category.${m.categoryKey}` as TranslationKey;
+  if (m.categoryKey && key in TRANSLATIONS.ja) return TRANSLATIONS[lang][key];
+  return m.category;
+}
 
 // 内部で扱う統一出題型。表示・採点に必要な値を両モードから正規化して持つ。
 export interface Quiz {
@@ -77,42 +88,43 @@ export function maskedIndices(hideOrder: number[], wordCount: number, maxLevel: 
 }
 
 // 頻出ミス1件 → Quiz へ正規化。weight は呼び出し側で習熟度を反映して計算済みの値を渡す。
-export function buildMistakeQuiz(m: Mistake & { count: number }, key: string, weight: number): Quiz {
+export function buildMistakeQuiz(m: Mistake & { count: number }, key: string, weight: number, lang: Lang = 'ja'): Quiz {
   return {
     key,
     prompt: m.original,
     answer: m.corrected,
-    hint: m.explanation,
-    badge: m.category,
+    hint: lang === 'en' && m.explanationEn ? m.explanationEn : m.explanation,
+    badge: categoryBadge(m, lang),
     weight,
   };
 }
 
 // 復習カード1件 → Quiz へ正規化。weight は呼び出し側で習熟度を反映して計算済みの値を渡す。
-export function buildClozeQuiz(r: ReviewItem, key: string, weight: number): Quiz {
+export function buildClozeQuiz(r: ReviewItem, key: string, weight: number, lang: Lang = 'ja'): Quiz {
   return {
     key,
     prompt: r.sentence,
     answer: r.answer,
-    hint: r.hint,
-    badge: '穴埋め',
+    hint: lang === 'en' && r.hintEn ? r.hintEn : r.hint,
+    badge: TRANSLATIONS[lang]['quiz.cloze.badge'],
     weight,
-    translation: r.translation,
+    translation: lang === 'en' && r.translationEn ? r.translationEn : r.translation,
     choices: r.choices,
   };
 }
 
 // levelUpItems の1件 → LevelUpQuiz へ正規化（マスク順・マスク段階の最大値を決定的に算出）。
 export function buildLevelUpQuiz(
-  item: { leveledUp: string; original: string; translation: string },
+  item: { leveledUp: string; original: string; translation: string; translationEn?: string },
   key: string,
+  lang: Lang = 'ja',
 ): LevelUpQuiz {
   const words = item.leveledUp.split(/\s+/).filter(w => w.length > 0);
   return {
     key,
     leveledUp: item.leveledUp,
     original: item.original,
-    translation: item.translation,
+    translation: lang === 'en' && item.translationEn ? item.translationEn : item.translation,
     words,
     hideOrder: buildHideOrder(item.leveledUp, words.length),
     maxLevel: Math.min(6, Math.max(3, words.length)),

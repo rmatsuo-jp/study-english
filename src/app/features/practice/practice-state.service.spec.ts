@@ -28,11 +28,11 @@ describe('PracticeState', () => {
       ],
     });
     service = TestBed.inject(PracticeState);
-    TestBed.inject(SettingsStoreService).saveSettings({ apiKey: 'key', modelPriority: ['m1'], theme: 'dark' });
+    TestBed.inject(SettingsStoreService).saveSettings({ apiKey: 'key', modelPriority: ['m1'], theme: 'dark', language: 'ja' });
   });
 
   it('APIキー未設定なら送信せずエラー通知を出す', async () => {
-    TestBed.inject(SettingsStoreService).saveSettings({ apiKey: '', modelPriority: ['m1'], theme: 'dark' });
+    TestBed.inject(SettingsStoreService).saveSettings({ apiKey: '', modelPriority: ['m1'], theme: 'dark', language: 'ja' });
     service.userText.set('hello');
     await service.submit();
     expect(correctMock).not.toHaveBeenCalled();

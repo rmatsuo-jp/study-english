@@ -7,149 +7,150 @@
      不正解時はタイポ（見えている単語のミス）なら据え置き、理解度不足（隠れている単語のミス）なら1段階戻る。
      答え合わせ後は「次へ」で同じ文を更新後の maskLevel のまま再出題し、「中断」で文一覧選択画面に戻る
      （別の文に進みたい場合は中断→文一覧から選び直す）。
-     日付・文ごとの進捗はセッションID単位で保存され、日付選択・文一覧の各画面で完了状況の確認・途中再開ができる。 -->
+     日付・文ごとの進捗はセッションID単位で保存され、日付選択・文一覧の各画面で完了状況の確認・途中再開ができる。
+     全文言は i18n.t()（core/i18n/I18nService）経由で表示する。 -->
 <div class="page">
-  <h1 class="page-title">ドリル</h1>
+  <h1 class="page-title">{{ i18n.t('drill.title') }}</h1>
 
   @if (!started()) {
     <!-- ── モード選択（スタート画面） ── -->
     <div class="intro">
-      <p>復習モードを選んで弱点を克服しましょう。</p>
+      <p>{{ i18n.t('drill.intro') }}</p>
 
       <div class="mode-card">
-        <strong>頻出ミス</strong>
-        <p>あなたが過去によく間違えた表現を、正しい形に直します。</p>
-        <p class="intro-count">出題数: {{ mistakeCount() }}問</p>
+        <strong>{{ i18n.t('drill.mistakes.name') }}</strong>
+        <p>{{ i18n.t('drill.mistakes.desc') }}</p>
+        <p class="intro-count">{{ i18n.t('drill.questionCount', { count: mistakeCount() }) }}</p>
         @if (mistakeCount() === 0) {
-          <p class="empty-note">添削ページでミスを蓄積すると出題されます。</p>
+          <p class="empty-note">{{ i18n.t('drill.mistakes.empty') }}</p>
         } @else {
-          <button class="btn-primary" (click)="start('mistakes')">このモードで始める</button>
+          <button class="btn-primary" (click)="start('mistakes')">{{ i18n.t('drill.startMode') }}</button>
         }
       </div>
 
       <div class="mode-card">
-        <strong>穴埋め復習</strong>
-        <p>添削から作った穴埋めカード。難しければヒントで4択に切り替えられます。</p>
-        <p class="intro-count">出題数: {{ clozeCount() }}問</p>
+        <strong>{{ i18n.t('drill.cloze.name') }}</strong>
+        <p>{{ i18n.t('drill.cloze.desc') }}</p>
+        <p class="intro-count">{{ i18n.t('drill.questionCount', { count: clozeCount() }) }}</p>
         @if (clozeCount() === 0) {
-          <p class="empty-note">「復習カードの自動生成」を有効にして添削すると出題されます。</p>
+          <p class="empty-note">{{ i18n.t('drill.cloze.empty') }}</p>
         } @else {
-          <button class="btn-primary" (click)="start('cloze')">このモードで始める</button>
+          <button class="btn-primary" (click)="start('cloze')">{{ i18n.t('drill.startMode') }}</button>
         }
       </div>
 
       <div class="mode-card">
-        <strong>レベルアップ・タイピング</strong>
-        <p>日付を選んで、その日のCEFR一段階上の表現を1文目から。正解するたびに単語が少しずつ隠れていき、全部隠れた状態で打てたら習熟です。</p>
-        <p class="intro-count">対象日: {{ levelUpCount() }}日分</p>
+        <strong>{{ i18n.t('drill.levelup.name') }}</strong>
+        <p>{{ i18n.t('drill.levelup.desc') }}</p>
+        <p class="intro-count">{{ i18n.t('drill.dayCount', { count: levelUpCount() }) }}</p>
         @if (levelUpCount() === 0) {
-          <p class="empty-note">「レベルアップ表現の生成」を有効にして添削すると出題されます。</p>
+          <p class="empty-note">{{ i18n.t('drill.levelup.empty') }}</p>
         } @else {
-          <button class="btn-primary" (click)="start('levelup')">このモードで始める</button>
+          <button class="btn-primary" (click)="start('levelup')">{{ i18n.t('drill.startMode') }}</button>
         }
       </div>
     </div>
   } @else if (mode() === 'levelup' && !levelUpDateChosen()) {
     <!-- ── レベルアップ・タイピング: 日付選択画面 ── -->
     <div class="intro">
-      <p>復習したい日付を選んでください。その日の英文を1文目から順にたどります。</p>
+      <p>{{ i18n.t('drill.chooseDate') }}</p>
       <div class="date-select">
         @for (s of levelUpDates(); track s.id) {
           <button class="date-card" (click)="selectLevelUpDate(s)">
             <span class="date-card-date">{{ s.date | date:'yyyy/MM/dd' }}</span>
             @if (progressForSession(s); as p) {
               <span class="date-card-count" [class.date-card-done]="p.done === p.total && p.total > 0">
-                {{ p.done === p.total && p.total > 0 ? 'クリア済み' : (p.done + ' / ' + p.total + '文') }}
+                {{ p.done === p.total && p.total > 0 ? i18n.t('drill.cleared') : i18n.t('drill.progressCount', { done: p.done, total: p.total }) }}
               </span>
             }
           </button>
         }
         @if (levelUpDates().length === 0) {
-          <p class="empty-note">レベルアップ例文を持つセッションがありません。</p>
+          <p class="empty-note">{{ i18n.t('drill.noLevelUpSessions') }}</p>
         }
       </div>
-      <button class="btn-secondary" (click)="restart()">モード選択に戻る</button>
+      <button class="btn-secondary" (click)="restart()">{{ i18n.t('drill.backToModeSelect') }}</button>
     </div>
   } @else if (mode() === 'levelup' && !levelUpSentenceChosen()) {
     <!-- ── レベルアップ・タイピング: 文一覧選択画面 ── -->
     <div class="intro">
-      <p>取り組みたい文を選んでください。進捗は文ごとに保存されるので、途中からでも再開できます。</p>
+      <p>{{ i18n.t('drill.chooseSentence') }}</p>
       <div class="date-select">
         @for (item of levelUpQuiz(); track item.key; let i = $index) {
           @if (progressForItem(item); as p) {
             <button class="date-card sentence-card" (click)="selectLevelUpSentence(i)">
               <span class="date-card-date">{{ i + 1 }}. {{ item.original }}</span>
               <span class="date-card-count" [class.date-card-done]="p.completed">
-                {{ p.completed ? '習熟済み' : (p.maskLevel === 0 ? '未着手' : 'マスク ' + p.maskLevel + ' / ' + item.maxLevel) }}
+                {{ p.completed ? i18n.t('drill.mastered') : (p.maskLevel === 0 ? i18n.t('drill.notStarted') : i18n.t('drill.maskProgress', { level: p.maskLevel, max: item.maxLevel })) }}
               </span>
             </button>
           }
         }
       </div>
-      <button class="btn-secondary" (click)="backToDateSelect()">日付を選び直す</button>
+      <button class="btn-secondary" (click)="backToDateSelect()">{{ i18n.t('drill.backToDateSelect') }}</button>
     </div>
   } @else if (finished()) {
     <!-- ── 結果サマリー ── -->
     <div class="result-summary">
       @if (mode() === 'levelup') {
-        <p class="result-score">{{ masteredCount() }} / {{ total() }} 問 習熟</p>
+        <p class="result-score">{{ i18n.t('drill.resultLevelUp', { mastered: masteredCount(), total: total() }) }}</p>
       } @else {
-        <p class="result-score">{{ score() }} / {{ total() }} 正解</p>
+        <p class="result-score">{{ i18n.t('drill.resultScore', { score: score(), total: total() }) }}</p>
       }
-      <p class="result-message">お疲れさまでした！繰り返し挑戦して定着させましょう。</p>
-      <button class="btn-primary" (click)="restart()">モード選択に戻る</button>
+      <p class="result-message">{{ i18n.t('drill.resultMessage') }}</p>
+      <button class="btn-primary" (click)="restart()">{{ i18n.t('drill.backToModeSelect') }}</button>
     </div>
   } @else if (mode() === 'levelup') {
     <!-- ── レベルアップ・タイピング出題中 ── -->
     <div class="progress">
       {{ index() + 1 }} / {{ total() }}
-      <button class="link-button" (click)="backToSentenceList()">文一覧に戻る</button>
-      <button class="link-button" (click)="backToDateSelect()">日付を選び直す</button>
+      <button class="link-button" (click)="backToSentenceList()">{{ i18n.t('drill.backToSentenceList') }}</button>
+      <button class="link-button" (click)="backToDateSelect()">{{ i18n.t('drill.backToDateSelect') }}</button>
     </div>
 
     @if (currentLevelUp(); as item) {
       <div class="quiz-card">
-        <div class="mask-progress">マスク {{ maskLevel() }} / {{ item.maxLevel }}</div>
+        <div class="mask-progress">{{ i18n.t('drill.maskProgress', { level: maskLevel(), max: item.maxLevel }) }}</div>
 
         <p class="quiz-prompt">
-          {{ maskLevel() === 0 ? '見て、そのままタイプしてください。' : '隠れた単語を思い出しながら、全文をタイプしてください。' }}
+          {{ maskLevel() === 0 ? i18n.t('drill.promptSeeAndType') : i18n.t('drill.promptRecallAndType') }}
         </p>
         <p class="quiz-original">{{ maskedSentence(item) }}</p>
 
         @if (hintShown() || revealed()) {
           <p class="quiz-translation">{{ item.translation }}</p>
         } @else {
-          <button class="btn-secondary" (click)="toggleHint()">ヒント（日本語訳）</button>
+          <button class="btn-secondary" (click)="toggleHint()">{{ i18n.t('drill.hintTranslation') }}</button>
         }
 
         <input class="answer-input" type="text"
-               placeholder="英文を入力..."
+               [placeholder]="i18n.t('drill.answerPlaceholder')"
                [(ngModel)]="userAnswer"
                [disabled]="revealed()"
                (keyup.enter)="checkTyping()">
 
         @if (!revealed()) {
           <div class="quiz-actions">
-            <button class="btn-primary" (click)="checkTyping()" [disabled]="!userAnswer().trim()">答え合わせ</button>
+            <button class="btn-primary" (click)="checkTyping()" [disabled]="!userAnswer().trim()">{{ i18n.t('drill.check') }}</button>
           </div>
         }
 
         @if (revealed()) {
           <div class="answer-result" [class.correct]="currentCorrect()" [class.wrong]="!currentCorrect()">
             {{ currentCorrect()
-                ? (maskLevel() >= item.maxLevel ? '🎉 正解！この文は習熟済みになりました' : '⭕ 正解！')
-                : (mistakeKind() === 'gap' ? '❌ 不正解（理解度不足：レベルを1段階下げます）' : '❌ 不正解（タイポ：同じレベルでもう一度）') }}
+                ? (maskLevel() >= item.maxLevel ? i18n.t('drill.resultCorrectMastered') : i18n.t('drill.resultCorrect'))
+                : (mistakeKind() === 'gap' ? i18n.t('drill.resultWrongGap') : i18n.t('drill.resultWrongTypo')) }}
           </div>
           <div class="correct-answer">
-            <span class="correct-label">正解</span>
+            <span class="correct-label">{{ i18n.t('drill.correctAnswer') }}</span>
             <span class="correct-text">{{ item.leveledUp }}</span>
           </div>
           <div class="post-actions">
             @if (currentCorrect() && maskLevel() >= item.maxLevel) {
-              <button class="btn-primary" #nextBtn (click)="backToSentenceList()">文一覧に戻る</button>
+              <button class="btn-primary" #nextBtn (click)="backToSentenceList()">{{ i18n.t('drill.backToSentenceList') }}</button>
             } @else {
-              <button class="btn-secondary" (click)="backToSentenceList()">中断</button>
-              <button class="btn-primary" #nextBtn (click)="retry()">次へ</button>
+              <button class="btn-secondary" (click)="backToSentenceList()">{{ i18n.t('drill.suspend') }}</button>
+              <button class="btn-primary" #nextBtn (click)="retry()">{{ i18n.t('drill.next') }}</button>
             }
           </div>
         }
@@ -163,34 +164,34 @@
       <div class="quiz-card">
         <span class="category-badge">{{ q.badge }}</span>
         <p class="quiz-prompt">
-          {{ mode() === 'cloze' ? '正しい語を選んでください。' : '次の表現を正しく直してください。' }}
+          {{ mode() === 'cloze' ? i18n.t('drill.promptCloze') : i18n.t('drill.promptMistake') }}
         </p>
         <p class="quiz-original">{{ q.prompt }}</p>
         @if (q.translation) {
           @if (hintShown() || revealed()) {
             <p class="quiz-translation">{{ q.translation }}</p>
           } @else {
-            <button class="btn-secondary" (click)="toggleHint()">ヒント（日本語訳）</button>
+            <button class="btn-secondary" (click)="toggleHint()">{{ i18n.t('drill.hintTranslation') }}</button>
           }
         }
 
         @if (!choiceMode()) {
           <!-- 入力モード -->
           <input class="answer-input" type="text"
-                 placeholder="正しい表現を入力..."
+                 [placeholder]="i18n.t('drill.answerInputPlaceholder')"
                  [(ngModel)]="userAnswer"
                  [disabled]="revealed()"
                  (keyup.enter)="check()">
 
           @if (!revealed()) {
             <div class="quiz-actions">
-              <button class="btn-primary" (click)="check()" [disabled]="!userAnswer().trim()">答え合わせ</button>
+              <button class="btn-primary" (click)="check()" [disabled]="!userAnswer().trim()">{{ i18n.t('drill.check') }}</button>
             </div>
           }
         } @else {
           <!-- 4択モード（クローズのみ）。キー1〜4で選択肢をハイライトし、Enterで確定して採点する
                （tabindex="0" + (keydown) でキーボード操作を受け付ける。マウスクリックは従来通り即採点）。 -->
-          <p class="quiz-hint">ヒント: {{ q.hint }}（数字キー 1〜4 で選択、Enterで回答）</p>
+          <p class="quiz-hint">{{ i18n.t('drill.choiceHint', { hint: q.hint }) }}</p>
           <div class="choice-list" tabindex="0" (keydown)="onChoiceKeydown($event)">
             @for (c of q.choices; track c; let i = $index) {
               <button class="choice-btn" [class.selected]="selectedChoiceIndex() === i"
@@ -203,21 +204,21 @@
 
         @if (revealed()) {
           <div class="answer-result" [class.correct]="currentCorrect()" [class.wrong]="!currentCorrect()">
-            {{ currentCorrect() ? '⭕ 正解！' : '❌ 不正解' }}
+            {{ currentCorrect() ? i18n.t('drill.resultCorrect') : i18n.t('drill.resultWrong') }}
           </div>
           <div class="correct-answer">
-            <span class="correct-label">正解</span>
+            <span class="correct-label">{{ i18n.t('drill.correctAnswer') }}</span>
             <span class="correct-text">{{ q.answer }}</span>
           </div>
           @if (!choiceMode()) {
-            <p class="quiz-hint">ヒント: {{ q.hint }}</p>
+            <p class="quiz-hint">{{ i18n.t('drill.hintLabel', { hint: q.hint }) }}</p>
           }
           <div class="post-actions">
             @if (!currentCorrect()) {
-              <button class="btn-secondary" (click)="markCorrect()">正解にする</button>
+              <button class="btn-secondary" (click)="markCorrect()">{{ i18n.t('drill.markCorrect') }}</button>
             }
             <button class="btn-primary" #nextBtn (click)="next()">
-              {{ index() + 1 >= total() ? '結果を見る' : '次へ' }}
+              {{ index() + 1 >= total() ? i18n.t('drill.seeResult') : i18n.t('drill.next') }}
             </button>
           </div>
         }

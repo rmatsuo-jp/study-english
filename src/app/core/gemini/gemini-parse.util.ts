@@ -4,6 +4,9 @@
  * 自由記述の英文・Markdown用の extractTaggedText（タグ抽出のみ、JSON化しない）、
  * および抽出済みタグを本文から取り除く stripKnownBlocks の3種類を提供する。
  * 新しいタグ付き項目を追加する場合は、対応する抽出関数を呼びつつ KNOWN_TAGS にもタグ名を足すこと。
+ * stripKnownBlocks は corrected（添削解説）取得の主経路ではなく、<prose-ja> タグの抽出に
+ * 失敗した場合（Gemini がタグ出力の指示に従わなかった場合）のフォールバック専用として使う
+ * （gemini.service.ts 側で prose-ja 抽出成功時は stripKnownBlocks を呼ばない）。
  */
 
 export type ParseFailureStage = 'no-tag' | 'json-parse' | 'validation';
@@ -87,7 +90,11 @@ export function extractTaggedText(
 
 // ── 抽出済みブロックの除去（添削解説プローズの生成） ──────────────────
 // prompt.util.ts が Gemini に出力させるタグの全一覧。新しいタグを増やしたらここにも足す。
+// prose-ja/prose-en（解説プローズの日英タグ）は gemini.service.ts が extractTaggedText で個別抽出するが、
+// タグ抽出に失敗した場合の stripKnownBlocks フォールバック経路でも正しく除去できるよう、ここにも含める。
 const KNOWN_TAGS = [
+  'prose-ja',
+  'prose-en',
   'corrected-text',
   'mistakes',
   'evaluation',
@@ -99,6 +106,8 @@ const KNOWN_TAGS = [
 // 見出しから閉じタグまでを丸ごと落とすブロック。見出しと閉じタグの間には、他コンポーネントで
 // 表示済みの内容（スコアの講評など）や複数のタグが挟まるため、末尾のタグまで一括で除去する。
 const HEADING_BLOCKS: readonly (readonly [string, string])[] = [
+  // 【解説のまとめ（日英併記）】の後は <prose-ja> → <prose-en> の順で続く
+  ['解説のまとめ（日英併記）', 'prose-en'],
   ['添削後の全文', 'corrected-text'],
   ['ミス一覧（JSON）', 'mistakes'],
   ['定量評価（10点満点・0.5刻み）', 'evaluation'],

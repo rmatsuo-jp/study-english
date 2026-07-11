@@ -12,11 +12,12 @@
  * 成功した呼び出しは GEMINI_LOGGER トークン（core/logging）経由で記録する。実装は開発ビルド時のみ
  * features/dev の DevLogService が provide され、本番ビルドでは no-op（core→features の逆依存を持たない）。
  * レスポンス解析は utils/gemini-parse.util.ts に集約する。構造化JSON（<mistakes>等）は extractTaggedJson、
- * 自由記述の英文（<corrected-text>/<levelup-text>）は extractTaggedText を使い、それぞれ独立データとして抽出する。
- * corrected（添削解説）は、correctedText・levelUpText を含む全ての既知タグを、対応する【】見出し行ごと
- * stripKnownBlocks で除去した残りの本文（文法解説・自然な表現の提案・ミスの傾向・CEFR根拠・学習法など）
- * であり、従来の「添削解説」の意味を維持する。見出しごと消すのは、タグの中身が評価スコア・添削後の英文・
- * ミスリスト等 別コンポーネントで既に表示済みで、見出しだけが添削解説に空で残るのを防ぐため。
+ * 自由記述の英文（<corrected-text>/<levelup-text>）や解説プローズ（<prose-ja>/<prose-en>）は
+ * extractTaggedText を使い、それぞれ独立データとして抽出する。
+ * corrected（添削解説・日本語）/ correctedEn（同・英語）は <prose-ja>/<prose-en> タグから抽出する。
+ * <prose-ja> の抽出に失敗した場合（Gemini がタグ指示に従わなかった場合）のみ、従来どおり
+ * stripKnownBlocks(text)（既知タグを対応する【】見出し行ごと除去した残りの本文）にフォールバックする
+ * （この場合 correctedEn は undefined のままとなり、表示側は日本語にフォールバックする）。
  */
 import { Injectable, inject } from '@angular/core';
 import { EnhancedGenerateContentResponse, GoogleGenerativeAI } from '@google/generative-ai';
@@ -34,6 +35,7 @@ import { GeminiBlockedError } from '@core/gemini/gemini-blocked.error';
 
 export interface CorrectionResult {
   corrected: string;
+  correctedEn?: string;
   correctedText?: string;
   mistakes: Mistake[];
   evaluation?: WritingEvaluation;
@@ -128,10 +130,12 @@ export class GeminiService {
     const levelUpText = extractTaggedText(text, 'levelup-text', warn('levelup-text'));
     const correctedText = extractTaggedText(text, 'corrected-text', warn('corrected-text'));
     const reviewItems = this.parseReview(text, warn('review'));
-    // corrected（添削解説）は、独立タグとして抽出済みの既知ブロックを全部除去した残りの本文
-    // （文法解説・自然な表現の提案・傾向・CEFR根拠・学習法など）。除去ロジックは stripKnownBlocks に
-    // 集約し、Gemini が【】見出しを省略・改変してもタグ基準で必ず落ちるようにしている（JSON の残留防止）。
-    const corrected = stripKnownBlocks(text);
+    // corrected（添削解説・日本語）は <prose-ja> タグから抽出する。抽出に失敗した場合のみ、
+    // 既知タグを全部除去した残りの本文（stripKnownBlocks）にフォールバックする
+    // （この場合 correctedEn は取得できないため undefined のままになる）。
+    const proseJa = extractTaggedText(text, 'prose-ja', warn('prose-ja'));
+    const correctedEn = extractTaggedText(text, 'prose-en', warn('prose-en'));
+    const corrected = proseJa ?? stripKnownBlocks(text);
 
     if (parseWarnings.length > 0) {
       console.warn('[GeminiService] レスポンス解析で問題が発生しました:', parseWarnings);
@@ -142,11 +146,11 @@ export class GeminiService {
       fullPrompt,
       userText,
       rawResponse: text,
-      parsed: { corrected, correctedText, mistakes, evaluation, reviewItems, levelUpItems, levelUpText },
+      parsed: { corrected, correctedEn, correctedText, mistakes, evaluation, reviewItems, levelUpItems, levelUpText },
       parseWarnings,
     });
 
-    return { corrected, correctedText, mistakes, evaluation, reviewItems, levelUpItems, levelUpText };
+    return { corrected, correctedEn, correctedText, mistakes, evaluation, reviewItems, levelUpItems, levelUpText };
   }
 
   // ── レスポンス解析: <mistakes>...</mistakes> タグから JSON を抽出（失敗時は空配列） ─

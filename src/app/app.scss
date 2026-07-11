@@ -214,6 +214,34 @@
     }
   }
 
+  // ── 言語トグル（JA/EN）。格納時（.collapsed）は幅を圧迫しないよう非表示にする ──
+  .lang-toggle {
+    display: flex;
+    flex: 0 0 auto;
+    border: 1px solid var(--color-border);
+    border-radius: 0.375rem;
+    overflow: hidden;
+
+    .collapsed & {
+      display: none;
+    }
+  }
+
+  .lang-btn {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+
+    &.active {
+      background: var(--color-primary);
+      color: #fff;
+    }
+  }
+
   .sidebar-toggle {
     display: flex;
     align-items: center;

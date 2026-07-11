@@ -8,6 +8,8 @@
  * 未保存の API キーは isDirty で検知し、保存ボタンの強調表示と離脱時の確認ダイアログ（settings.guard.ts）に使う。
  * 選択可能なモデル一覧は gemini-models.constants.ts を共用する（settings-store.service.ts のデフォルト優先順位と同一ソース）。
  * 末尾に法的情報（プライバシーポリシー・利用規約・免責事項、pages/legal）への導線を持つ。
+ * 表示言語（テーマの直下）も即時保存対象。updateLanguage() は I18nService.setLang() で即時反映しつつ
+ * settings signal を更新して persist() する（updateTheme() と同じ即時保存パターン）。
  */
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -16,6 +18,7 @@ import { AppSettings, SettingsStoreService } from '@core/settings/settings-store
 import { normalizeApiKey } from '@core/settings/api-key.util';
 import { AuthService } from '@core/firebase/auth.service';
 import { GEMINI_MODELS } from '@core/gemini/gemini-models.constants';
+import { I18nService } from '@core/i18n/i18n.service';
 import { APP_VERSION, RELEASE_DATE } from '../../../version';
 
 @Component({
@@ -27,6 +30,7 @@ import { APP_VERSION, RELEASE_DATE } from '../../../version';
 export class Settings {
   private settingsStore = inject(SettingsStoreService);
   private auth = inject(AuthService);
+  protected i18n = inject(I18nService);
 
   // ── アカウント（Google SSO） ──────────────────────────────────────
   readonly user = this.auth.user;
@@ -115,6 +119,13 @@ export class Settings {
     this.persist();
   }
 
+  // ── 表示言語（即時保存。I18nService への反映と永続化を同時に行う） ──
+  updateLanguage(language: AppSettings['language']) {
+    this.i18n.setLang(language);
+    this.settings.update(s => ({ ...s, language }));
+    this.persist();
+  }
+
   // ── API キー（草稿のみ更新。保存は saveApiKey() でのみ行う） ───────
   updateApiKey(value: string) {
     // APIキーは貼り付け時に前後の空白・改行・引用符が混入しやすい。そのまま送信すると
@@ -138,6 +149,6 @@ export class Settings {
   // ── 他ページへの遷移時に未保存の API キーを警告（settings.guard.ts から呼ばれる） ──
   canDeactivate(): boolean {
     if (!this.isDirty()) return true;
-    return window.confirm('API キーの変更が保存されていません。移動しますか？');
+    return window.confirm(this.i18n.t('settings.confirmLeave'));
   }
 }
