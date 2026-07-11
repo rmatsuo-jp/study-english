@@ -29,11 +29,5 @@ service cloud.firestore {
       allow read, write: if isAllowedUser() && request.auth.uid == uid;
     }
 
-    // apps/lunch_picker/users/{uid}/restaurants/{restaurantId}
-    // lunch-picker アプリの飲食店データ。許可ユーザーかつ本人の UID のドキュメントだけを許可。
-    match /apps/lunch_picker/users/{uid}/restaurants/{restaurantId} {
-      allow read, write: if isAllowedUser() && request.auth.uid == uid;
-    }
-
   }
 }
