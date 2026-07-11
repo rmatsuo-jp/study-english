@@ -49,8 +49,16 @@ describe('MistakesState', () => {
 
     it('データ範囲の上下に0.5パディングを付け、0.5刻みに丸める', () => {
       const state = setup([
-        makeSession({ id: 'a', date: '2026-01-01', evaluation: makeEvaluation({ overallScore: 4.2 }) }),
-        makeSession({ id: 'b', date: '2026-01-02', evaluation: makeEvaluation({ overallScore: 6.3 }) }),
+        makeSession({
+          id: 'a',
+          date: '2026-01-01',
+          evaluation: makeEvaluation({ overallScore: 4.2 }),
+        }),
+        makeSession({
+          id: 'b',
+          date: '2026-01-02',
+          evaluation: makeEvaluation({ overallScore: 6.3 }),
+        }),
       ]);
       // min候補: floor((4.2-0.5)*2)/2 = floor(7.4)/2 = 7/2 = 3.5
       // max候補: ceil((6.3+0.5)*2)/2 = ceil(13.6)/2 = 14/2 = 7
@@ -59,8 +67,16 @@ describe('MistakesState', () => {
 
     it('全データが同値に近い場合でも最低1点分の幅を確保する', () => {
       const state = setup([
-        makeSession({ id: 'a', date: '2026-01-01', evaluation: makeEvaluation({ overallScore: 5 }) }),
-        makeSession({ id: 'b', date: '2026-01-02', evaluation: makeEvaluation({ overallScore: 5 }) }),
+        makeSession({
+          id: 'a',
+          date: '2026-01-01',
+          evaluation: makeEvaluation({ overallScore: 5 }),
+        }),
+        makeSession({
+          id: 'b',
+          date: '2026-01-02',
+          evaluation: makeEvaluation({ overallScore: 5 }),
+        }),
       ]);
       const domain = state.scoreDomain();
       expect(domain.max - domain.min).toBeGreaterThanOrEqual(1);
@@ -68,8 +84,16 @@ describe('MistakesState', () => {
 
     it('範囲は0〜10でクランプされる（下限・上限を超えない）', () => {
       const state = setup([
-        makeSession({ id: 'a', date: '2026-01-01', evaluation: makeEvaluation({ overallScore: 0.1 }) }),
-        makeSession({ id: 'b', date: '2026-01-02', evaluation: makeEvaluation({ overallScore: 9.9 }) }),
+        makeSession({
+          id: 'a',
+          date: '2026-01-01',
+          evaluation: makeEvaluation({ overallScore: 0.1 }),
+        }),
+        makeSession({
+          id: 'b',
+          date: '2026-01-02',
+          evaluation: makeEvaluation({ overallScore: 9.9 }),
+        }),
       ]);
       const domain = state.scoreDomain();
       expect(domain.min).toBeGreaterThanOrEqual(0);

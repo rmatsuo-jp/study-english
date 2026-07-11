@@ -39,7 +39,12 @@ class FakeDrillProgressSync {
     });
   }
 
-  setLevelUpItemProgress(sessionId: string, itemKey: string, maskLevel: number, completed: boolean) {
+  setLevelUpItemProgress(
+    sessionId: string,
+    itemKey: string,
+    maskLevel: number,
+    completed: boolean,
+  ) {
     const existing = this.levelUp.get(sessionId) ?? {};
     this.levelUp.set(sessionId, { ...existing, [itemKey]: { maskLevel, completed } });
   }
@@ -119,7 +124,9 @@ describe('DrillState', () => {
       const { state, fakeSync } = setup([session]);
       expect(state.progressForClozeSession(session)).toEqual({ done: 0, total: 2 });
 
-      const key = normalizeDrillKey(`${session.reviewItems![0].sentence}${session.reviewItems![0].answer}`);
+      const key = normalizeDrillKey(
+        `${session.reviewItems![0].sentence}${session.reviewItems![0].answer}`,
+      );
       fakeSync.masterKey(key);
       expect(state.progressForClozeSession(session)).toEqual({ done: 1, total: 2 });
     });
@@ -130,7 +137,13 @@ describe('DrillState', () => {
       const session = makeSession({
         id: 's1',
         reviewItems: [
-          { sentence: 'a ___ b', answer: 'fox', hint: 'h', translation: 't', choices: ['fox', 'dog'] },
+          {
+            sentence: 'a ___ b',
+            answer: 'fox',
+            hint: 'h',
+            translation: 't',
+            choices: ['fox', 'dog'],
+          },
         ],
       });
       const { state } = setup([session]);
@@ -147,7 +160,13 @@ describe('DrillState', () => {
       const session = makeSession({
         id: 's1',
         reviewItems: [
-          { sentence: 'a ___ b', answer: 'fox', hint: 'h', translation: 't', choices: ['fox', 'dog'] },
+          {
+            sentence: 'a ___ b',
+            answer: 'fox',
+            hint: 'h',
+            translation: 't',
+            choices: ['fox', 'dog'],
+          },
         ],
       });
       const { state } = setup([session]);
@@ -192,7 +211,12 @@ describe('DrillState', () => {
       const session = makeSession({
         id: 's1',
         levelUpItems: [
-          { original: 'o', leveledUp: 'this is a test sentence', keyPhrases: ['test'], translation: 't' },
+          {
+            original: 'o',
+            leveledUp: 'this is a test sentence',
+            keyPhrases: ['test'],
+            translation: 't',
+          },
         ],
       });
       const { state, fakeSync } = setup([session]);

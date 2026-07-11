@@ -49,14 +49,14 @@ graph TD
 
 ### 各 feature が inject する core サービス
 
-| feature  | 使用する core                                                                               |
-| -------- | ------------------------------------------------------------------------------------------- |
-| practice | GeminiService / SessionRepositoryService / SettingsStoreService（+ feature 内 PracticeState）|
+| feature  | 使用する core                                                                                                               |
+| -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| practice | GeminiService / SessionRepositoryService / SettingsStoreService（+ feature 内 PracticeState）                               |
 | drill    | SessionRepositoryService / stats / I18nService（+ feature 内 DrillState / DrillProgressService / DrillProgressSyncService） |
-| history  | SessionRepositoryService / I18nService（+ feature 内 HistoryState / HistoryCalendar）       |
-| mistakes | SessionRepositoryService / stats / I18nService（+ feature 内 MistakesState）                |
-| settings | SettingsStoreService / AuthService / gemini-models.constants                                |
-| dev      | SessionRepositoryService / SettingsStoreService / prompt.util（+ feature 内 DevLogService） |
+| history  | SessionRepositoryService / I18nService（+ feature 内 HistoryState / HistoryCalendar）                                       |
+| mistakes | SessionRepositoryService / stats / I18nService（+ feature 内 MistakesState）                                                |
+| settings | SettingsStoreService / AuthService / gemini-models.constants                                                                |
+| dev      | SessionRepositoryService / SettingsStoreService / prompt.util（+ feature 内 DevLogService）                                 |
 
 ### 状態分離パターン（practice / drill / history / mistakes 共通）
 

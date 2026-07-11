@@ -12,7 +12,11 @@ import { toDayKey } from '@shared/utils/date.util';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
 import { CorrectionSession, Mistake } from '@core/models/session.model';
 import { I18nService } from '@core/i18n/i18n.service';
-import { localizedCategory, localizedField, localizedProse } from '@core/i18n/localized-session.util';
+import {
+  localizedCategory,
+  localizedField,
+  localizedProse,
+} from '@core/i18n/localized-session.util';
 import { PROSE_FIELDS } from '@core/i18n/prose-fields.util';
 import { GEMINI_MODELS } from '@core/gemini/gemini-models.constants';
 
@@ -165,7 +169,9 @@ export class HistoryState {
   // ── インポート / エクスポート ──────────────────────────────────────
   // JSON文字列を検証してから取り込む。壊れたJSON・非配列は呼び出し側にエラー種別を返す
   // （alert表示はDOM操作のためcomponent層に残す）。
-  importFromJson(jsonText: string): { ok: true } | { ok: false; reason: 'not-array' | 'invalid-json' } {
+  importFromJson(
+    jsonText: string,
+  ): { ok: true } | { ok: false; reason: 'not-array' | 'invalid-json' } {
     let parsed: unknown;
     try {
       parsed = JSON.parse(jsonText);

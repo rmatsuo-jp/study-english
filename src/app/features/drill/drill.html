@@ -139,12 +139,18 @@
     <div class="result-summary">
       @if (state.sampleMode()) {
         <p class="empty-note">
-          {{ i18n.t(state.mode() === 'levelup' ? 'drill.levelup.sampleNote' : 'drill.cloze.sampleNote') }}
+          {{
+            i18n.t(
+              state.mode() === 'levelup' ? 'drill.levelup.sampleNote' : 'drill.cloze.sampleNote'
+            )
+          }}
         </p>
       }
       @if (state.mode() === 'levelup') {
         <p class="result-score">
-          {{ i18n.t('drill.resultLevelUp', { mastered: state.masteredCount(), total: state.total() }) }}
+          {{
+            i18n.t('drill.resultLevelUp', { mastered: state.masteredCount(), total: state.total() })
+          }}
         </p>
       } @else {
         <p class="result-score">
@@ -205,7 +211,11 @@
 
         @if (!state.revealed()) {
           <div class="quiz-actions">
-            <button class="btn-primary" (click)="state.checkTyping()" [disabled]="!state.userAnswer().trim()">
+            <button
+              class="btn-primary"
+              (click)="state.checkTyping()"
+              [disabled]="!state.userAnswer().trim()"
+            >
               {{ i18n.t('drill.check') }}
             </button>
           </div>
@@ -284,7 +294,11 @@
 
           @if (!state.revealed()) {
             <div class="quiz-actions">
-              <button class="btn-primary" (click)="state.check()" [disabled]="!state.userAnswer().trim()">
+              <button
+                class="btn-primary"
+                (click)="state.check()"
+                [disabled]="!state.userAnswer().trim()"
+              >
                 {{ i18n.t('drill.check') }}
               </button>
             </div>
@@ -313,7 +327,9 @@
             [class.correct]="state.currentCorrect()"
             [class.wrong]="!state.currentCorrect()"
           >
-            {{ state.currentCorrect() ? i18n.t('drill.resultCorrect') : i18n.t('drill.resultWrong') }}
+            {{
+              state.currentCorrect() ? i18n.t('drill.resultCorrect') : i18n.t('drill.resultWrong')
+            }}
           </div>
           <div class="correct-answer">
             <span class="correct-label">{{ i18n.t('drill.correctAnswer') }}</span>
@@ -324,7 +340,11 @@
           }
           <div class="post-actions">
             <button class="btn-primary" #nextBtn (click)="state.next()">
-              {{ state.index() + 1 >= state.total() ? i18n.t('drill.seeResult') : i18n.t('drill.next') }}
+              {{
+                state.index() + 1 >= state.total()
+                  ? i18n.t('drill.seeResult')
+                  : i18n.t('drill.next')
+              }}
             </button>
           </div>
         }

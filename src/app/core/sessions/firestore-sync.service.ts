@@ -92,9 +92,7 @@ export class FirestoreSyncService {
   private retryPendingPush(): void {
     if (this.pendingPushIds.size === 0) return;
     const ids = this.pendingPushIds;
-    const sessions = this.sessionStore
-      .allSessions()
-      .filter((s) => ids.has(s.id));
+    const sessions = this.sessionStore.allSessions().filter((s) => ids.has(s.id));
     if (sessions.length > 0) this.pushSessions(sessions);
   }
 
