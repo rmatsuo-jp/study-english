@@ -74,7 +74,7 @@
 
   <nav class="bottom-nav" [class.collapsed]="sidebarCollapsed()" #bottomNav>
     <div class="sidebar-header">
-      <a routerLink="/practice" class="sidebar-title"><span>{{ i18n.t('app.title') }}</span></a>
+      <a routerLink="/practice" class="sidebar-title"><img src="favicon.svg" alt="" class="sidebar-logo" width="24" height="24"><span>{{ i18n.t('app.title') }}</span></a>
       <button type="button" class="sidebar-toggle" (click)="toggleSidebar()" [attr.aria-label]="sidebarCollapsed() ? i18n.t('sidebar.expand') : i18n.t('sidebar.collapse')">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"/>

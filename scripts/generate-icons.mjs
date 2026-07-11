@@ -18,18 +18,25 @@ const svg = readFileSync(svgPath);
 mkdirSync(iconsDir, { recursive: true });
 
 // ── PWA 用 PNG（manifest のサイズに合わせる。白背景・余白付き）───────────
+// favicon.ico のみ透過背景で生成する（ブラウザタブでの表示用）
 const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
-/** SVG を指定サイズの白背景 PNG にラスタライズ（デザインは中央 ~80% に配置）*/
-async function renderPng(size) {
-  const inner = Math.round(size * 0.82);
+/** SVG を指定サイズの PNG にラスタライズ（デザインは中央 ~96% に配置）
+ *  transparent=false の場合は白背景を合成（PWA maskable アイコン用）*/
+async function renderPng(size, { transparent = false } = {}) {
+  const inner = Math.round(size * 1.0);
   const pad = Math.round((size - inner) / 2);
   const icon = await sharp(svg, { density: 384 })
     .resize(inner, inner)
     .png()
     .toBuffer();
   return sharp({
-    create: { width: size, height: size, channels: 4, background: '#ffffff' },
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: transparent ? { r: 0, g: 0, b: 0, alpha: 0 } : '#ffffff',
+    },
   })
     .composite([{ input: icon, top: pad, left: pad }])
     .png()
@@ -43,7 +50,9 @@ for (const size of sizes) {
 }
 
 // ── favicon.ico（16/32/48px マルチサイズ）─────────────────────
-const icoBuffers = await Promise.all([16, 32, 48].map((s) => renderPng(s)));
+const icoBuffers = await Promise.all(
+  [16, 32, 48].map((s) => renderPng(s, { transparent: true })),
+);
 const ico = await pngToIco(icoBuffers);
 writeFileSync(join(root, 'public', 'favicon.ico'), ico);
 console.log('generated favicon.ico');

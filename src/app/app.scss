@@ -292,6 +292,9 @@
   }
 
   .sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1rem;
     font-weight: 700;
     color: var(--color-text);
@@ -300,8 +303,16 @@
     overflow: hidden;
 
     .collapsed & {
-      display: none;
+      span {
+        display: none;
+      }
     }
+  }
+
+  .sidebar-logo {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
   }
 
   // ── 言語トグル（日/EN、ナビ項目の下＝サイドバー最下部）。格納時（.collapsed）は幅を圧迫しないよう非表示にする ──
