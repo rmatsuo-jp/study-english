@@ -7,11 +7,11 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: 'AIzaSyAutqBenGPJzQPjBy81pxGAqPROIKoAos8',
-    authDomain: 'my-apps-sync.firebaseapp.com',
-    projectId: 'my-apps-sync',
-    storageBucket: 'my-apps-sync.firebasestorage.app',
-    messagingSenderId: '757775114616',
-    appId: '1:757775114616:web:0f288ea4f994c4d657a88d',
+    apiKey: 'AIzaSyCrQ2tRMuq0olqh0Q-f7cjDXWX020sIeqA',
+    authDomain: 'eibun-lab.firebaseapp.com',
+    projectId: 'eibun-lab',
+    storageBucket: 'eibun-lab.firebasestorage.app',
+    messagingSenderId: '812400203705',
+    appId: '1:812400203705:web:a2d2a37750546a72234868',
   },
 };

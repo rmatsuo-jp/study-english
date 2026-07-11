@@ -93,7 +93,8 @@ export const SAMPLE_REVIEW_ITEMS: ReviewItem[] = [
     sentence: 'I ___ for this company for over ten years.',
     answer: 'have been working',
     hint: '過去に始まり現在も続く動作は現在完了進行形で表します。',
-    hintEn: 'Use the present perfect continuous for an action that started in the past and is still continuing.',
+    hintEn:
+      'Use the present perfect continuous for an action that started in the past and is still continuing.',
     translation: '私はこの会社で10年以上働いています。',
     translationEn: 'I have been working for this company for over ten years.',
     choices: ['have been working', 'am working', 'worked', 'work'],
@@ -102,7 +103,8 @@ export const SAMPLE_REVIEW_ITEMS: ReviewItem[] = [
     sentence: 'Not knowing what to say, she ___ silent.',
     answer: 'remained',
     hint: '分詞構文の主節は過去の出来事なので過去形になります。',
-    hintEn: 'The main clause after a participial phrase describing a past situation takes the past tense.',
+    hintEn:
+      'The main clause after a participial phrase describing a past situation takes the past tense.',
     translation: '何を言えばいいかわからず、彼女は黙ったままでした。',
     translationEn: 'Not knowing what to say, she remained silent.',
     choices: ['remained', 'remains', 'remaining', 'has remained'],
@@ -129,7 +131,8 @@ export const SAMPLE_REVIEW_ITEMS: ReviewItem[] = [
     sentence: 'If I ___ more money, I would travel around the world.',
     answer: 'had',
     hint: '現実とは異なる仮定を表す仮定法過去です。',
-    hintEn: 'The past subjunctive (unreal conditional) form used for a hypothetical present situation.',
+    hintEn:
+      'The past subjunctive (unreal conditional) form used for a hypothetical present situation.',
     translation: 'もっとお金があれば、世界中を旅するのに。',
     translationEn: 'If I had more money, I would travel around the world.',
     choices: ['had', 'have', 'has', 'will have'],

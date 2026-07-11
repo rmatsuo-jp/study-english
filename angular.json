@@ -3,11 +3,12 @@
   "version": 1,
   "cli": {
     "packageManager": "npm",
-    "analytics": false
+    "analytics": false,
+    "schematicCollections": ["angular-eslint"]
   },
   "newProjectRoot": "projects",
   "projects": {
-    "study-english": {
+    "eibun-lab": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -39,7 +40,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/study-english/",
+              "baseHref": "/eibun-lab/",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -76,10 +77,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "study-english:build:production"
+              "buildTarget": "eibun-lab:build:production"
             },
             "development": {
-              "buildTarget": "study-english:build:development"
+              "buildTarget": "eibun-lab:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -87,7 +88,19 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "setupFiles": ["src/test-setup.ts"]
+            "setupFiles": ["src/test-setup.ts"],
+            "coverageThresholds": {
+              "statements": 60,
+              "branches": 55,
+              "functions": 60,
+              "lines": 65
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }

@@ -20,7 +20,11 @@ import { formatTimestampForFilename, toDayKey } from '@shared/utils/date.util';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
 import { CorrectionSession, Mistake, WritingEvaluation } from '@core/models/session.model';
 import { I18nService } from '@core/i18n/i18n.service';
-import { localizedCategory, localizedField, localizedProse } from '@core/i18n/localized-session.util';
+import {
+  localizedCategory,
+  localizedField,
+  localizedProse,
+} from '@core/i18n/localized-session.util';
 import { PROSE_FIELDS } from '@core/i18n/prose-fields.util';
 import { GEMINI_MODELS } from '@core/gemini/gemini-models.constants';
 
@@ -107,11 +111,14 @@ export class History {
   weekdayLabels = computed(() =>
     this.i18n.lang() === 'en'
       ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-      : ['日', '月', '火', '水', '木', '金', '土']
+      : ['日', '月', '火', '水', '木', '金', '土'],
   );
 
   calendarMonthLabel = computed(() =>
-    this.calendarMonth().toLocaleDateString(this.i18n.lang() === 'en' ? 'en-US' : 'ja-JP', { year: 'numeric', month: 'long' })
+    this.calendarMonth().toLocaleDateString(this.i18n.lang() === 'en' ? 'en-US' : 'ja-JP', {
+      year: 'numeric',
+      month: 'long',
+    }),
   );
 
   // ── 日付フィルタ → 検索フィルタ → 日付ソートの順で派生（元文・添削文・ミス表現を横断検索） ─
@@ -122,13 +129,13 @@ export class History {
 
     const q = this.searchQuery().trim().toLowerCase();
     const filtered = q
-      ? base.filter(s =>
-          s.original.toLowerCase().includes(q) ||
-          s.corrected.toLowerCase().includes(q) ||
-          s.mistakes.some(m =>
-            m.original.toLowerCase().includes(q) ||
-            m.corrected.toLowerCase().includes(q)
-          )
+      ? base.filter(
+          (s) =>
+            s.original.toLowerCase().includes(q) ||
+            s.corrected.toLowerCase().includes(q) ||
+            s.mistakes.some(
+              (m) => m.original.toLowerCase().includes(q) || m.corrected.toLowerCase().includes(q),
+            ),
         )
       : base;
     return [...filtered].sort((a, b) => {
@@ -144,7 +151,10 @@ export class History {
   private htmlCache = new Map<string, SafeHtml>();
 
   toHtml(session: CorrectionSession): SafeHtml {
-    return this.cachedHtml(`legacy:${session.id}:${this.i18n.lang()}`, localizedProse(session, this.i18n.lang()));
+    return this.cachedHtml(
+      `legacy:${session.id}:${this.i18n.lang()}`,
+      localizedProse(session, this.i18n.lang()),
+    );
   }
 
   // 解説5項目を、抽出できたものだけ見出し付きで返す。1項目もタグ抽出できていない旧データの場合は
@@ -154,7 +164,10 @@ export class History {
     return PROSE_FIELDS.map((f) => {
       const text = localizedField(session[f.ja], session[f.en], lang);
       return text
-        ? { heading: this.i18n.t(f.headingKey), html: this.cachedHtml(`${session.id}:${lang}:${f.ja}`, text) }
+        ? {
+            heading: this.i18n.t(f.headingKey),
+            html: this.cachedHtml(`${session.id}:${lang}:${f.ja}`, text),
+          }
         : undefined;
     }).filter((s): s is { heading: string; html: SafeHtml } => !!s);
   }
@@ -222,9 +235,7 @@ export class History {
   toggleSelect(id: string, event: Event) {
     event.stopPropagation();
     const ids = this.selectedIds();
-    this.selectedIds.set(
-      ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]
-    );
+    this.selectedIds.set(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
   }
 
   isSelected(id: string): boolean {
@@ -232,7 +243,7 @@ export class History {
   }
 
   selectAll() {
-    this.selectedIds.set(this.filteredSessions().map(s => s.id));
+    this.selectedIds.set(this.filteredSessions().map((s) => s.id));
   }
 
   deselectAll() {
@@ -243,7 +254,7 @@ export class History {
     const ids = this.selectedIds();
     if (ids.length === 0) return;
     if (!confirm(this.i18n.t('history.confirmDelete', { count: ids.length }))) return;
-    ids.forEach(id => this.repository.deleteSession(id));
+    ids.forEach((id) => this.repository.deleteSession(id));
     this.selectedIds.set([]);
     this.selectionMode.set(false);
   }
@@ -273,13 +284,16 @@ export class History {
           alert(this.i18n.t('history.alertArrayJson'));
           return;
         }
-        const valid = parsed.filter(
-          (s: unknown) => {
-            const session = s as Record<string, unknown>;
-            return session['id'] && session['date'] && session['original'] !== undefined &&
-              session['corrected'] !== undefined && Array.isArray(session['mistakes']);
-          }
-        );
+        const valid = parsed.filter((s: unknown) => {
+          const session = s as Record<string, unknown>;
+          return (
+            session['id'] &&
+            session['date'] &&
+            session['original'] !== undefined &&
+            session['corrected'] !== undefined &&
+            Array.isArray(session['mistakes'])
+          );
+        });
         this.repository.importSessions(valid as CorrectionSession[]);
       } catch {
         alert(this.i18n.t('history.alertInvalidJson'));

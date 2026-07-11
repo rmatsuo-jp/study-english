@@ -46,7 +46,11 @@ import { Component, computed, effect, ElementRef, inject, signal, viewChild } fr
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
-import { getSessionsWithLevelUp, getSessionsWithReviewItems, normalizeDrillKey } from '@core/stats/session-stats.util';
+import {
+  getSessionsWithLevelUp,
+  getSessionsWithReviewItems,
+  normalizeDrillKey,
+} from '@core/stats/session-stats.util';
 import { DRILL_MASTERY_STREAK } from './drill-progress.service';
 import { DrillProgressSyncService } from './drill-progress-sync.service';
 import { CorrectionSession, ReviewItem } from '@core/models/session.model';
@@ -95,14 +99,14 @@ export class Drill {
 
   // スタート画面のモード選択カードに表示する達成度（完了数/全体数の合算）。
   levelUpAchievement = computed(() => {
-    const totals = this.levelUpDates().map(s => this.progressForSession(s));
+    const totals = this.levelUpDates().map((s) => this.progressForSession(s));
     return {
       done: totals.reduce((a, t) => a + t.done, 0),
       total: totals.reduce((a, t) => a + t.total, 0),
     };
   });
   clozeAchievement = computed(() => {
-    const totals = this.clozeDates().map(s => this.progressForClozeSession(s));
+    const totals = this.clozeDates().map((s) => this.progressForClozeSession(s));
     return {
       done: totals.reduce((a, t) => a + t.done, 0),
       total: totals.reduce((a, t) => a + t.total, 0),
@@ -113,18 +117,18 @@ export class Drill {
   mode = signal<Mode>('cloze');
   started = signal(false);
   finished = signal(false);
-  quiz = signal<Quiz[]>([]);          // 出題順を固定したスナップショット（mistakes/cloze用）
+  quiz = signal<Quiz[]>([]); // 出題順を固定したスナップショット（mistakes/cloze用）
   levelUpQuiz = signal<LevelUpQuiz[]>([]); // 出題順を固定したスナップショット（levelup用）
   index = signal(0);
   userAnswer = signal('');
   revealed = signal(false);
-  currentCorrect = signal(false);     // 現在の問題が正解扱いか
-  choiceMode = signal(false);         // 4択 UI で出題中か（cloze は常に true、mistakes は常に false）
+  currentCorrect = signal(false); // 現在の問題が正解扱いか
+  choiceMode = signal(false); // 4択 UI で出題中か（cloze は常に true、mistakes は常に false）
   score = signal(0);
-  hintShown = signal(false);          // 日本語訳をヒントボタンで表示中か（デフォルト非表示）
+  hintShown = signal(false); // 日本語訳をヒントボタンで表示中か（デフォルト非表示）
 
   // レベルアップ・タイピングの進行状態。
-  maskLevel = signal(0);              // 現在のアイテムのマスク段階（0=全文表示）
+  maskLevel = signal(0); // 現在のアイテムのマスク段階（0=全文表示）
   mistakeKind = signal<MistakeKind | null>(null); // 直近の不正解の分類（結果メッセージ用）
   // レベルアップ・タイピングは「maxLevelで正解」した問題数を結果サマリーの分子として使う。
   masteredCount = signal(0);
@@ -143,7 +147,9 @@ export class Drill {
 
   current = computed(() => this.quiz()[this.index()] ?? null);
   currentLevelUp = computed(() => this.levelUpQuiz()[this.index()] ?? null);
-  total = computed(() => this.mode() === 'levelup' ? this.levelUpQuiz().length : this.quiz().length);
+  total = computed(() =>
+    this.mode() === 'levelup' ? this.levelUpQuiz().length : this.quiz().length,
+  );
 
   constructor() {
     // 答え合わせ直後（revealed→true）にレンダリングが確定してから「次へ」ボタンへフォーカスを移す。
@@ -185,7 +191,9 @@ export class Drill {
         this.clozeDateChosen.set(true);
       } else {
         this.levelUpQuiz.set(
-          SAMPLE_LEVELUP_ITEMS.map(item => buildLevelUpQuiz(item, normalizeDrillKey(item.leveledUp), this.i18n.lang()))
+          SAMPLE_LEVELUP_ITEMS.map((item) =>
+            buildLevelUpQuiz(item, normalizeDrillKey(item.leveledUp), this.i18n.lang()),
+          ),
         );
         this.levelUpDateChosen.set(true);
       }
@@ -214,7 +222,7 @@ export class Drill {
   // 選択中セッションの進捗サマリー（習熟済み数/全体数）。穴埋め復習の日付選択画面のバッジ表示に使う。
   progressForClozeSession(session: CorrectionSession): { done: number; total: number } {
     const items = session.reviewItems ?? [];
-    const done = items.filter(r => {
+    const done = items.filter((r) => {
       const key = normalizeDrillKey(`${r.sentence}${r.answer}`);
       return (this.drillProgress.getDrillProgress(key)?.correctStreak ?? 0) >= DRILL_MASTERY_STREAK;
     }).length;
@@ -241,12 +249,12 @@ export class Drill {
   // ここでは特定の文へ自動ジャンプせず、levelUpSentenceChosen は false のまま文一覧を表示させる。
   selectLevelUpDate(session: CorrectionSession) {
     const progress = this.drillProgress.getLevelUpProgress(session.id);
-    const items = (session.levelUpItems ?? []).map(item =>
-      buildLevelUpQuiz(item, normalizeDrillKey(item.leveledUp), this.i18n.lang())
+    const items = (session.levelUpItems ?? []).map((item) =>
+      buildLevelUpQuiz(item, normalizeDrillKey(item.leveledUp), this.i18n.lang()),
     );
     this.levelUpQuiz.set(items);
     this.currentSessionId.set(session.id);
-    this.masteredCount.set(Object.values(progress).filter(p => p.completed).length);
+    this.masteredCount.set(Object.values(progress).filter((p) => p.completed).length);
 
     this.levelUpDateChosen.set(true);
     this.levelUpSentenceChosen.set(false);
@@ -257,7 +265,9 @@ export class Drill {
     const item = this.levelUpQuiz()[index];
     if (!item) return;
     const sessionId = this.currentSessionId();
-    const saved = sessionId ? this.drillProgress.getLevelUpProgress(sessionId)[item.key] : undefined;
+    const saved = sessionId
+      ? this.drillProgress.getLevelUpProgress(sessionId)[item.key]
+      : undefined;
 
     this.index.set(index);
     this.maskLevel.set(saved?.maskLevel ?? 0);
@@ -278,14 +288,18 @@ export class Drill {
   progressForSession(session: CorrectionSession): { done: number; total: number } {
     const items = session.levelUpItems ?? [];
     const progress = this.drillProgress.getLevelUpProgress(session.id);
-    const done = items.filter(item => progress[normalizeDrillKey(item.leveledUp)]?.completed).length;
+    const done = items.filter(
+      (item) => progress[normalizeDrillKey(item.leveledUp)]?.completed,
+    ).length;
     return { done, total: items.length };
   }
 
   // 文一覧の1文分の進捗表示用（未着手/マスク段階/習熟済み）を返す。
   progressForItem(item: LevelUpQuiz): { maskLevel: number; completed: boolean } {
     const sessionId = this.currentSessionId();
-    const saved = sessionId ? this.drillProgress.getLevelUpProgress(sessionId)[item.key] : undefined;
+    const saved = sessionId
+      ? this.drillProgress.getLevelUpProgress(sessionId)[item.key]
+      : undefined;
     return { maskLevel: saved?.maskLevel ?? 0, completed: saved?.completed ?? false };
   }
 
@@ -319,13 +333,13 @@ export class Drill {
 
   // ヒント（日本語訳）の表示切り替え。答え合わせ後は自動表示されるため、その前にだけ使う。
   toggleHint() {
-    this.hintShown.update(v => !v);
+    this.hintShown.update((v) => !v);
   }
 
   // ── 入力での回答チェック: 正規化した文字列一致で自動採点 ─────────
   check() {
     if (this.revealed()) return;
-    if (!this.userAnswer().trim()) return;   // 空回答（Enter押下含む）では答え合わせしない
+    if (!this.userAnswer().trim()) return; // 空回答（Enter押下含む）では答え合わせしない
     this.grade(this.userAnswer());
   }
 
@@ -342,7 +356,7 @@ export class Drill {
     if (!cur) return;
     const correct = normalizeAnswer(answer) === normalizeAnswer(cur.answer);
     this.currentCorrect.set(correct);
-    if (correct) this.score.update(s => s + 1);
+    if (correct) this.score.update((s) => s + 1);
     this.revealed.set(true);
     if (!this.sampleMode()) this.drillProgress.recordDrillResult(cur.key, correct);
   }
@@ -368,11 +382,12 @@ export class Drill {
       const level = this.maskLevel();
       if (level >= cur.maxLevel) {
         if (sessionId) this.drillProgress.setLevelUpItemProgress(sessionId, cur.key, level, true);
-        this.masteredCount.update(c => c + 1);
+        this.masteredCount.update((c) => c + 1);
       } else {
         const nextLevel = level + 1;
         this.maskLevel.set(nextLevel);
-        if (sessionId) this.drillProgress.setLevelUpItemProgress(sessionId, cur.key, nextLevel, false);
+        if (sessionId)
+          this.drillProgress.setLevelUpItemProgress(sessionId, cur.key, nextLevel, false);
       }
       return;
     }

@@ -1,6 +1,11 @@
-# Study English
+# 英文ラボ（Eibun-Lab）
 
 Gemini AI を使った英語添削 PWA アプリです。Angular で構築されており、英文を入力すると AI が文法・語彙・表現のミスを指摘・修正します。
+
+> **お知らせ（1.0.0）**: アプリ名変更（旧名からのリネーム）に伴い Firebase プロジェクトを作り直しました。
+> ホーム画面に追加済みの端末では、PWA アイコン・名前が変わって見えることがあります。学習履歴・ドリル進捗は
+> LocalStorage にはそのまま残りますが、Firestore クラウド同期は新プロジェクトでゼロから開始されるため、
+> 他端末との同期データは一度リセットされます。
 
 ## 機能
 
@@ -12,13 +17,13 @@ Gemini AI を使った英語添削 PWA アプリです。Angular で構築され
 
 ## 技術スタック
 
-| 項目 | 内容 |
-|------|------|
-| フレームワーク | Angular 22（Standalone, PWA） |
-| AI | Google Gemini API (`@google/generative-ai`) |
-| ストレージ | LocalStorage + Firestore 同期 |
-| スタイル | SCSS |
-| テスト | Vitest |
+| 項目           | 内容                                        |
+| -------------- | ------------------------------------------- |
+| フレームワーク | Angular 22（Standalone, PWA）               |
+| AI             | Google Gemini API (`@google/generative-ai`) |
+| ストレージ     | LocalStorage + Firestore 同期               |
+| スタイル       | SCSS                                        |
+| テスト         | Vitest                                      |
 
 ## セットアップ
 
@@ -68,7 +73,7 @@ npm test
 このリポジトリは public 公開されています。運用上の注意点：
 
 - **Firebase の構成値（`apiKey` 等）は秘密情報ではなく**、クライアントに必ず露出するプロジェクト識別子です。コードに含めて公開して問題ありません。実際のアクセス保護は **Firestore セキュリティルール**（`firestore.rules`）で行います。
-- **Firestore ルールは本人 UID 限定**（`apps/study_english/users/{uid}/sessions`）です。これが無いと全ユーザーのデータが誰でも読み書き可能になります。ルール変更時は必ず反映してください：
+- **Firestore ルールは本人 UID 限定**（`apps/eibun_lab/users/{uid}/sessions`）です。これが無いと全ユーザーのデータが誰でも読み書き可能になります。ルール変更時は必ず反映してください：
 
   ```bash
   firebase deploy --only firestore:rules

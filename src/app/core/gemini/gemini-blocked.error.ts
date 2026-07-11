@@ -10,7 +10,7 @@ export class GeminiBlockedError extends Error {
   constructor(blockReason: string) {
     super(
       `入力内容が Gemini のコンテンツポリシーによりブロックされました（理由: ${blockReason}）。` +
-        '表現を変えて再度お試しください。'
+        '表現を変えて再度お試しください。',
     );
     this.name = 'GeminiBlockedError';
   }

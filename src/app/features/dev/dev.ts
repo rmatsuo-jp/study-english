@@ -45,7 +45,7 @@ export class Dev {
   // ── b. 添削後 HTML ライブプレビュー ────────────────────────────
   previewMarkdown = signal('');
   previewHtml = computed<SafeHtml>(() =>
-    this.sanitizer.bypassSecurityTrustHtml(renderSafeMarkdown(this.previewMarkdown()))
+    this.sanitizer.bypassSecurityTrustHtml(renderSafeMarkdown(this.previewMarkdown())),
   );
 
   // ── c. buildPrompt() プレビュー ────────────────────────────────

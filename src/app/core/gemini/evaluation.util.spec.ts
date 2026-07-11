@@ -33,8 +33,14 @@ describe('computeOverallScore', () => {
 describe('buildEvaluation', () => {
   it('総合スコアは常にコード算出し、CEFRはAI値があれば優先採用する', () => {
     const ev = buildEvaluation({
-      grammarScore: 7.5, vocabularyScore: 6.0, contentScore: 7.0, errorDensity: 3.5,
-      grammarCefr: 'B1', vocabularyCefr: 'A2', contentCefr: 'B1', overallCefr: 'B1',
+      grammarScore: 7.5,
+      vocabularyScore: 6.0,
+      contentScore: 7.0,
+      errorDensity: 3.5,
+      grammarCefr: 'B1',
+      vocabularyCefr: 'A2',
+      contentCefr: 'B1',
+      overallCefr: 'B1',
     });
     expect(ev.overallScore).toBe(7); // 平均6.83→7.0（コード算出）
     // AI値をそのまま採用（scoreToCefr の換算 B2 などにはしない）
@@ -46,10 +52,15 @@ describe('buildEvaluation', () => {
   });
 
   it('CEFRが欠落した場合はスコアからフォールバック算出する', () => {
-    const ev = buildEvaluation({ grammarScore: 7.5, vocabularyScore: 6.0, contentScore: 7.0, errorDensity: 3.5 });
-    expect(ev.grammarCefr).toBe('B2');   // 7.5→B2
+    const ev = buildEvaluation({
+      grammarScore: 7.5,
+      vocabularyScore: 6.0,
+      contentScore: 7.0,
+      errorDensity: 3.5,
+    });
+    expect(ev.grammarCefr).toBe('B2'); // 7.5→B2
     expect(ev.vocabularyCefr).toBe('B1'); // 6.0→B1
-    expect(ev.contentCefr).toBe('B2');   // 7.0→B2
-    expect(ev.overallCefr).toBe('B2');   // overall 7.0→B2
+    expect(ev.contentCefr).toBe('B2'); // 7.0→B2
+    expect(ev.overallCefr).toBe('B2'); // overall 7.0→B2
   });
 });

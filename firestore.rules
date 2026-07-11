@@ -17,16 +17,17 @@ service cloud.firestore {
         && request.auth.token.email_verified == true;
     }
 
-    // apps/study_english/users/{uid}/sessions/{sessionId}
+    // apps/eibun_lab/users/{uid}/sessions/{sessionId}
     // 許可ユーザーかつ本人の UID のドキュメントだけを許可。
-    match /apps/study_english/users/{uid}/sessions/{sessionId} {
+    match /apps/eibun_lab/users/{uid}/sessions/{sessionId} {
       allow read, write: if isAllowedUser() && request.auth.uid == uid;
     }
 
-    // apps/study_english/users/{uid}/drillProgress/{docId}
+    // apps/eibun_lab/users/{uid}/drillProgress/{docId}
     // ドリル習熟度・レベルアップ進捗（単一ドキュメント "data"）。同じく許可ユーザー本人のみ。
-    match /apps/study_english/users/{uid}/drillProgress/{docId} {
+    match /apps/eibun_lab/users/{uid}/drillProgress/{docId} {
       allow read, write: if isAllowedUser() && request.auth.uid == uid;
     }
+
   }
 }

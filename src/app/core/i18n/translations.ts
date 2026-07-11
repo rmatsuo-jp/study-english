@@ -7,7 +7,7 @@
 import { Lang } from './lang.model';
 
 const ja = {
-  'app.title': '英作文ラボ',
+  'app.title': '英文ラボ',
   'sidebar.expand': 'サイドバーを表示',
   'sidebar.collapse': 'サイドバーを格納',
   'sidebar.language': '言語',
@@ -37,7 +37,8 @@ const ja = {
   // ── practice ──
   'practice.title': '添削',
   'practice.date': '日付',
-  'practice.setupRequired': '添削には Gemini API キーが必要です。設定ページでキーを登録してください。',
+  'practice.setupRequired':
+    '添削には Gemini API キーが必要です。設定ページでキーを登録してください。',
   'practice.setupLink': '設定ページを開く',
   'practice.inputLabel': '英作文',
   'practice.inputPlaceholder': '今日の英作文をここに入力してください...',
@@ -76,13 +77,15 @@ const ja = {
   'practice.bulk.loading': '処理中...',
   'practice.bulk.success': '成功',
   'practice.bulk.error': '失敗',
-  'practice.bulk.confirm': '{count}件の英文を Gemini API へ送信します（API 呼び出し {count} 回分）。\n無料枠を超えた分は課金対象となる場合があります。実行しますか？',
+  'practice.bulk.confirm':
+    '{count}件の英文を Gemini API へ送信します（API 呼び出し {count} 回分）。\n無料枠を超えた分は課金対象となる場合があります。実行しますか？',
   'practice.bulk.alertPartial': '一部のデータを読み込めませんでした:\n{errors}',
 
   // ── quiz（drill・waiting-quiz 共用） ──
   'quiz.cloze.badge': '穴埋め',
   'quiz.waiting.duringLoading': '添削中に復習しましょう',
-  'quiz.waiting.sampleNote': 'サンプル問題です。添削を行うとご自身の弱点に基づいた問題が出題されます。',
+  'quiz.waiting.sampleNote':
+    'サンプル問題です。添削を行うとご自身の弱点に基づいた問題が出題されます。',
   'quiz.waiting.correct': '正解！',
   'quiz.waiting.wrong': '不正解 — 正解: {answer}',
   'quiz.waiting.next': '次の問題',
@@ -146,11 +149,13 @@ const ja = {
   'drill.cloze.name': '穴埋め復習',
   'drill.cloze.desc': '添削から作った穴埋めカードで復習します。',
   'drill.cloze.empty': '「復習カードの自動生成」を有効にして添削すると出題されます。',
-  'drill.cloze.sampleNote': 'これはサンプル問題です。添削を行うとご自身の弱点に基づいた問題が出題されます。',
+  'drill.cloze.sampleNote':
+    'これはサンプル問題です。添削を行うとご自身の弱点に基づいた問題が出題されます。',
   'drill.levelup.name': 'レベルアップ・タイピング',
   'drill.levelup.desc': 'CEFR一段階上の表現をタイピングで習熟します。',
   'drill.levelup.empty': '「レベルアップ表現の生成」を有効にして添削すると出題されます。',
-  'drill.levelup.sampleNote': 'これはサンプル問題です。添削を行うとご自身の弱点に基づいた問題が出題されます。',
+  'drill.levelup.sampleNote':
+    'これはサンプル問題です。添削を行うとご自身の弱点に基づいた問題が出題されます。',
   'drill.sampleBadge': 'サンプル問題',
   'drill.questionCount': '出題数: {count}問',
   'drill.dayCount': '対象日: {count}日分',
@@ -163,7 +168,8 @@ const ja = {
   'drill.noClozeSessions': '復習カードを持つセッションがありません。',
   'drill.cleared': 'クリア済み',
   'drill.progressCount': '{done} / {total}文',
-  'drill.chooseSentence': '取り組みたい文を選んでください。進捗は文ごとに保存されるので、途中からでも再開できます。',
+  'drill.chooseSentence':
+    '取り組みたい文を選んでください。進捗は文ごとに保存されるので、途中からでも再開できます。',
   'drill.mastered': '習熟済み',
   'drill.notStarted': '未着手',
   'drill.maskProgress': 'マスク {level} / {max}',
@@ -199,7 +205,8 @@ const ja = {
   'settings.logout': 'ログアウト',
   'settings.login': 'Google でログイン',
   'settings.processing': '処理中…',
-  'settings.authNote': 'クラウド同期は許可されたユーザー（ホワイトリスト制）のみ利用できます。ログインなしでもローカル保存で全機能を利用できます。',
+  'settings.authNote':
+    'クラウド同期は許可されたユーザー（ホワイトリスト制）のみ利用できます。ログインなしでもローカル保存で全機能を利用できます。',
   'settings.theme': '外観テーマ',
   'settings.themeLight': 'ライト',
   'settings.themeDark': 'ダーク',
@@ -214,13 +221,17 @@ const ja = {
   'settings.save': '保存',
   'settings.unsavedHint': '● API キーが保存されていません',
   'settings.billingTitle': 'API 利用料金についてのご注意',
-  'settings.billing1': '無料枠を超えた利用や、Google Cloud の請求先アカウントを紐付けたプロジェクトのキーを使用した場合、料金が発生することがあります。',
-  'settings.billing2': 'API の利用料金・請求は利用者ご自身の Google アカウントに帰属します。本アプリは料金を負担せず、一切の責任を負いません。',
-  'settings.billing3': '意図しない課金を防ぐため、Google Cloud 側で利用上限（割り当て）や予算アラートの設定を強く推奨します。',
+  'settings.billing1':
+    '無料枠を超えた利用や、Google Cloud の請求先アカウントを紐付けたプロジェクトのキーを使用した場合、料金が発生することがあります。',
+  'settings.billing2':
+    'API の利用料金・請求は利用者ご自身の Google アカウントに帰属します。本アプリは料金を負担せず、一切の責任を負いません。',
+  'settings.billing3':
+    '意図しない課金を防ぐため、Google Cloud 側で利用上限（割り当て）や予算アラートの設定を強く推奨します。',
   'settings.pricing': 'Gemini API の料金体系',
   'settings.legal': '法的情報',
   'settings.modelPriority': 'モデルの優先順位（フォールバック順）',
-  'settings.modelPriorityHint': '上から順に試行します。API送信に失敗した場合、次のモデルに自動的に切り替わります。ドラッグして並び替えできます。',
+  'settings.modelPriorityHint':
+    '上から順に試行します。API送信に失敗した場合、次のモデルに自動的に切り替わります。ドラッグして並び替えできます。',
   'settings.version': 'バージョン情報',
   'settings.versionLine': 'Ver {version}（リリース日 {date}）',
   'settings.confirmLeave': 'API キーの変更が保存されていません。移動しますか？',
@@ -229,7 +240,7 @@ const ja = {
 type TranslationKey = keyof typeof ja;
 
 const en: Record<TranslationKey, string> = {
-  'app.title': 'Study English Lab',
+  'app.title': 'Eibun-Lab',
   'sidebar.expand': 'Show sidebar',
   'sidebar.collapse': 'Collapse sidebar',
   'sidebar.language': 'Language',
@@ -259,10 +270,11 @@ const en: Record<TranslationKey, string> = {
   // ── practice ──
   'practice.title': 'Correction',
   'practice.date': 'Date',
-  'practice.setupRequired': 'A Gemini API key is required for correction. Please register one on the Settings page.',
+  'practice.setupRequired':
+    'A Gemini API key is required for correction. Please register one on the Settings page.',
   'practice.setupLink': 'Open Settings',
   'practice.inputLabel': 'English Writing',
-  'practice.inputPlaceholder': 'Enter today\'s writing here...',
+  'practice.inputPlaceholder': "Enter today's writing here...",
   'practice.clear': 'Clear',
   'practice.submit': 'Correct',
   'practice.submitting': 'Correcting...',
@@ -298,13 +310,15 @@ const en: Record<TranslationKey, string> = {
   'practice.bulk.loading': 'Processing...',
   'practice.bulk.success': 'Done',
   'practice.bulk.error': 'Failed',
-  'practice.bulk.confirm': 'This will send {count} entries to the Gemini API ({count} API calls).\nUsage beyond the free tier may incur charges. Proceed?',
+  'practice.bulk.confirm':
+    'This will send {count} entries to the Gemini API ({count} API calls).\nUsage beyond the free tier may incur charges. Proceed?',
   'practice.bulk.alertPartial': 'Some entries could not be loaded:\n{errors}',
 
   // ── quiz（drill・waiting-quiz 共用） ──
   'quiz.cloze.badge': 'Cloze',
   'quiz.waiting.duringLoading': 'Review while your writing is corrected',
-  'quiz.waiting.sampleNote': 'This is a sample question. Once you submit a correction, questions will be based on your own weak points.',
+  'quiz.waiting.sampleNote':
+    'This is a sample question. Once you submit a correction, questions will be based on your own weak points.',
   'quiz.waiting.correct': 'Correct!',
   'quiz.waiting.wrong': 'Incorrect — answer: {answer}',
   'quiz.waiting.next': 'Next question',
@@ -368,24 +382,29 @@ const en: Record<TranslationKey, string> = {
   'drill.cloze.name': 'Cloze Review',
   'drill.cloze.desc': 'Review with cloze cards generated from your corrections.',
   'drill.cloze.empty': 'Enable "auto-generate review cards" when correcting to get questions here.',
-  'drill.cloze.sampleNote': 'This is a sample question. Once you submit a correction, questions will be based on your own weak points.',
+  'drill.cloze.sampleNote':
+    'This is a sample question. Once you submit a correction, questions will be based on your own weak points.',
   'drill.levelup.name': 'Level-Up Typing',
   'drill.levelup.desc': 'Master expressions leveled up one CEFR step by typing them.',
-  'drill.levelup.empty': 'Enable "generate level-up expressions" when correcting to get questions here.',
-  'drill.levelup.sampleNote': 'This is a sample question. Once you submit a correction, questions will be based on your own weak points.',
+  'drill.levelup.empty':
+    'Enable "generate level-up expressions" when correcting to get questions here.',
+  'drill.levelup.sampleNote':
+    'This is a sample question. Once you submit a correction, questions will be based on your own weak points.',
   'drill.sampleBadge': 'Sample',
   'drill.questionCount': '{count} questions',
   'drill.dayCount': '{count} days available',
   'drill.achievement': 'Progress: {done}/{total}',
   'drill.startMode': 'Start This Mode',
-  'drill.chooseDate': 'Choose the date you want to review. You\'ll go through that day\'s sentences in order.',
+  'drill.chooseDate':
+    "Choose the date you want to review. You'll go through that day's sentences in order.",
   'drill.chooseDateCloze': 'Choose the date you want to review.',
   'drill.backToModeSelect': 'Back to Mode Selection',
   'drill.noLevelUpSessions': 'No sessions with level-up examples.',
   'drill.noClozeSessions': 'No sessions with review cards.',
   'drill.cleared': 'Cleared',
   'drill.progressCount': '{done} / {total} sentences',
-  'drill.chooseSentence': 'Choose a sentence to work on. Progress is saved per sentence, so you can resume anytime.',
+  'drill.chooseSentence':
+    'Choose a sentence to work on. Progress is saved per sentence, so you can resume anytime.',
   'drill.mastered': 'Mastered',
   'drill.notStarted': 'Not started',
   'drill.maskProgress': 'Mask {level} / {max}',
@@ -421,7 +440,8 @@ const en: Record<TranslationKey, string> = {
   'settings.logout': 'Log Out',
   'settings.login': 'Sign in with Google',
   'settings.processing': 'Processing…',
-  'settings.authNote': 'Cloud sync is available only to whitelisted users. All features work locally without logging in.',
+  'settings.authNote':
+    'Cloud sync is available only to whitelisted users. All features work locally without logging in.',
   'settings.theme': 'Appearance',
   'settings.themeLight': 'Light',
   'settings.themeDark': 'Dark',
@@ -436,13 +456,17 @@ const en: Record<TranslationKey, string> = {
   'settings.save': 'Save',
   'settings.unsavedHint': '● API key not saved',
   'settings.billingTitle': 'A Note on API Usage Fees',
-  'settings.billing1': 'Fees may be incurred if you exceed the free tier or use a key from a Google Cloud project linked to a billing account.',
-  'settings.billing2': 'API usage fees and billing belong solely to your own Google account. This app bears no responsibility for any charges.',
-  'settings.billing3': 'To prevent unintended charges, we strongly recommend setting usage limits (quotas) and budget alerts on the Google Cloud side.',
+  'settings.billing1':
+    'Fees may be incurred if you exceed the free tier or use a key from a Google Cloud project linked to a billing account.',
+  'settings.billing2':
+    'API usage fees and billing belong solely to your own Google account. This app bears no responsibility for any charges.',
+  'settings.billing3':
+    'To prevent unintended charges, we strongly recommend setting usage limits (quotas) and budget alerts on the Google Cloud side.',
   'settings.pricing': 'Gemini API Pricing',
   'settings.legal': 'Legal',
   'settings.modelPriority': 'Model Priority (Fallback Order)',
-  'settings.modelPriorityHint': 'Tried from top to bottom. If a request fails, it automatically falls back to the next model. Drag to reorder.',
+  'settings.modelPriorityHint':
+    'Tried from top to bottom. If a request fails, it automatically falls back to the next model. Drag to reorder.',
   'settings.version': 'Version Info',
   'settings.versionLine': 'Version {version} (released {date})',
   'settings.confirmLeave': 'Your API key changes have not been saved. Leave anyway?',

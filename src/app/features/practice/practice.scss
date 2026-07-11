@@ -149,7 +149,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // ── 添削中の進捗バー（ストリーミング実測。mistakes.scss の .bar-wrap/.bar と同系統） ──
@@ -206,7 +208,7 @@
   border: 1px solid var(--color-border);
   border-radius: 0.75rem;
   padding: 1rem;
-  white-space: pre-wrap;   // 入力時の改行を保持
+  white-space: pre-wrap; // 入力時の改行を保持
   color: var(--color-text);
   line-height: 1.6;
 }

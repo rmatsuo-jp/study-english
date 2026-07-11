@@ -37,137 +37,197 @@
 
     <!-- ── スコア推移（10点満点） ── -->
     @if (evalHistory().length > 0) {
-    <section class="section">
-      <h2 class="section-title">{{ i18n.t('mistakes.scoreTrend') }}</h2>
-      @if (scoreChart().length > 0) {
-        <div class="cefr-chart">
-          <svg [attr.viewBox]="'0 0 ' + chartBox.w + ' ' + chartBox.h" preserveAspectRatio="xMidYMid meet">
-            <!-- y軸グリッド -->
-            @for (g of scoreLevels(); track g.label) {
-              <line class="grid-line" [attr.x1]="chartBox.padL" [attr.x2]="chartBox.w - chartBox.padR"
-                    [attr.y1]="g.y" [attr.y2]="g.y" />
-              <text class="grid-label" [attr.x]="2" [attr.y]="g.y + 3">{{ g.label }}</text>
-            }
-            <!-- 系列 -->
-            @for (s of scoreChart(); track s.name) {
-              <polyline [attr.points]="s.line" fill="none" [attr.stroke]="s.color"
-                        [attr.stroke-width]="highlightedSeries() && highlightedSeries() !== s.name ? 1.5 : 2.5"
-                        [attr.opacity]="highlightedSeries() && highlightedSeries() !== s.name ? 0.3 : 1" />
-              @for (d of s.dots; track $index) {
-                <circle [attr.cx]="d.x" [attr.cy]="d.y" r="2.5" [attr.fill]="s.color"
-                        [attr.opacity]="highlightedSeries() && highlightedSeries() !== s.name ? 0.3 : 1" />
+      <section class="section">
+        <h2 class="section-title">{{ i18n.t('mistakes.scoreTrend') }}</h2>
+        @if (scoreChart().length > 0) {
+          <div class="cefr-chart">
+            <svg
+              [attr.viewBox]="'0 0 ' + chartBox.w + ' ' + chartBox.h"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <!-- y軸グリッド -->
+              @for (g of scoreLevels(); track g.label) {
+                <line
+                  class="grid-line"
+                  [attr.x1]="chartBox.padL"
+                  [attr.x2]="chartBox.w - chartBox.padR"
+                  [attr.y1]="g.y"
+                  [attr.y2]="g.y"
+                />
+                <text class="grid-label" [attr.x]="2" [attr.y]="g.y + 3">{{ g.label }}</text>
               }
-            }
-            <!-- x軸ラベル（日付） -->
-            @for (t of xAxisLabels(); track t.x) {
-              <text class="axis-label" [attr.x]="t.x" [attr.y]="xAxisLabelY"
-                    [attr.text-anchor]="t.anchor">{{ t.label }}</text>
-            }
-          </svg>
-          <div class="cefr-legend">
-            @for (s of scoreChart(); track s.name) {
-              <span class="legend-item" tabindex="0" role="button"
-                    [attr.aria-pressed]="highlightedSeries() === s.name"
-                    [class.active]="highlightedSeries() === s.name"
-                    (click)="toggleHighlight(s.name)"
-                    (keydown.enter)="toggleHighlight(s.name)"
-                    (keydown.space)="$event.preventDefault(); toggleHighlight(s.name)">
-                <span class="legend-dot" [style.background]="s.color"></span>{{ s.name }}
-              </span>
-            }
+              <!-- 系列 -->
+              @for (s of scoreChart(); track s.name) {
+                <polyline
+                  [attr.points]="s.line"
+                  fill="none"
+                  [attr.stroke]="s.color"
+                  [attr.stroke-width]="
+                    highlightedSeries() && highlightedSeries() !== s.name ? 1.5 : 2.5
+                  "
+                  [attr.opacity]="highlightedSeries() && highlightedSeries() !== s.name ? 0.3 : 1"
+                />
+                @for (d of s.dots; track $index) {
+                  <circle
+                    [attr.cx]="d.x"
+                    [attr.cy]="d.y"
+                    r="2.5"
+                    [attr.fill]="s.color"
+                    [attr.opacity]="highlightedSeries() && highlightedSeries() !== s.name ? 0.3 : 1"
+                  />
+                }
+              }
+              <!-- x軸ラベル（日付） -->
+              @for (t of xAxisLabels(); track t.x) {
+                <text
+                  class="axis-label"
+                  [attr.x]="t.x"
+                  [attr.y]="xAxisLabelY"
+                  [attr.text-anchor]="t.anchor"
+                >
+                  {{ t.label }}
+                </text>
+              }
+            </svg>
+            <div class="cefr-legend">
+              @for (s of scoreChart(); track s.name) {
+                <span
+                  class="legend-item"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-pressed]="highlightedSeries() === s.name"
+                  [class.active]="highlightedSeries() === s.name"
+                  (click)="toggleHighlight(s.name)"
+                  (keydown.enter)="toggleHighlight(s.name)"
+                  (keydown.space)="$event.preventDefault(); toggleHighlight(s.name)"
+                >
+                  <span class="legend-dot" [style.background]="s.color"></span>{{ s.name }}
+                </span>
+              }
+            </div>
           </div>
-        </div>
-      } @else {
-        <p class="chart-note">{{ i18n.t('mistakes.chartNote') }}</p>
-      }
-    </section>
+        } @else {
+          <p class="chart-note">{{ i18n.t('mistakes.chartNote') }}</p>
+        }
+      </section>
     }
 
     <!-- ── CEFR レベル推移 ── -->
     @if (evalHistory().length > 0) {
-    <section class="section">
-      <h2 class="section-title">{{ i18n.t('mistakes.cefrTrend') }}</h2>
-      @if (cefrChart().length > 0) {
-        <div class="cefr-chart">
-          <svg [attr.viewBox]="'0 0 ' + chartBox.w + ' ' + chartBox.h" preserveAspectRatio="xMidYMid meet">
-            <!-- y軸グリッド -->
-            @for (g of cefrLevels; track g.label) {
-              <line class="grid-line" [attr.x1]="chartBox.padL" [attr.x2]="chartBox.w - chartBox.padR"
-                    [attr.y1]="g.y" [attr.y2]="g.y" />
-              <text class="grid-label" [attr.x]="2" [attr.y]="g.y + 3">{{ g.label }}</text>
-            }
-            <!-- 系列 -->
-            @for (s of cefrChart(); track s.name) {
-              <polyline [attr.points]="s.line" fill="none" [attr.stroke]="s.color"
-                        [attr.stroke-width]="highlightedSeries() && highlightedSeries() !== s.name ? 1.5 : 2.5"
-                        [attr.opacity]="highlightedSeries() && highlightedSeries() !== s.name ? 0.3 : 1" />
-              @for (d of s.dots; track $index) {
-                <circle [attr.cx]="d.x" [attr.cy]="d.y" r="2.5" [attr.fill]="s.color"
-                        [attr.opacity]="highlightedSeries() && highlightedSeries() !== s.name ? 0.3 : 1" />
+      <section class="section">
+        <h2 class="section-title">{{ i18n.t('mistakes.cefrTrend') }}</h2>
+        @if (cefrChart().length > 0) {
+          <div class="cefr-chart">
+            <svg
+              [attr.viewBox]="'0 0 ' + chartBox.w + ' ' + chartBox.h"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <!-- y軸グリッド -->
+              @for (g of cefrLevels; track g.label) {
+                <line
+                  class="grid-line"
+                  [attr.x1]="chartBox.padL"
+                  [attr.x2]="chartBox.w - chartBox.padR"
+                  [attr.y1]="g.y"
+                  [attr.y2]="g.y"
+                />
+                <text class="grid-label" [attr.x]="2" [attr.y]="g.y + 3">{{ g.label }}</text>
               }
-            }
-            <!-- x軸ラベル（日付） -->
-            @for (t of xAxisLabels(); track t.x) {
-              <text class="axis-label" [attr.x]="t.x" [attr.y]="xAxisLabelY"
-                    [attr.text-anchor]="t.anchor">{{ t.label }}</text>
-            }
-          </svg>
-          <div class="cefr-legend">
-            @for (s of cefrChart(); track s.name) {
-              <span class="legend-item" tabindex="0" role="button"
-                    [attr.aria-pressed]="highlightedSeries() === s.name"
-                    [class.active]="highlightedSeries() === s.name"
-                    (click)="toggleHighlight(s.name)"
-                    (keydown.enter)="toggleHighlight(s.name)"
-                    (keydown.space)="$event.preventDefault(); toggleHighlight(s.name)">
-                <span class="legend-dot" [style.background]="s.color"></span>{{ s.name }}
-              </span>
-            }
+              <!-- 系列 -->
+              @for (s of cefrChart(); track s.name) {
+                <polyline
+                  [attr.points]="s.line"
+                  fill="none"
+                  [attr.stroke]="s.color"
+                  [attr.stroke-width]="
+                    highlightedSeries() && highlightedSeries() !== s.name ? 1.5 : 2.5
+                  "
+                  [attr.opacity]="highlightedSeries() && highlightedSeries() !== s.name ? 0.3 : 1"
+                />
+                @for (d of s.dots; track $index) {
+                  <circle
+                    [attr.cx]="d.x"
+                    [attr.cy]="d.y"
+                    r="2.5"
+                    [attr.fill]="s.color"
+                    [attr.opacity]="highlightedSeries() && highlightedSeries() !== s.name ? 0.3 : 1"
+                  />
+                }
+              }
+              <!-- x軸ラベル（日付） -->
+              @for (t of xAxisLabels(); track t.x) {
+                <text
+                  class="axis-label"
+                  [attr.x]="t.x"
+                  [attr.y]="xAxisLabelY"
+                  [attr.text-anchor]="t.anchor"
+                >
+                  {{ t.label }}
+                </text>
+              }
+            </svg>
+            <div class="cefr-legend">
+              @for (s of cefrChart(); track s.name) {
+                <span
+                  class="legend-item"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-pressed]="highlightedSeries() === s.name"
+                  [class.active]="highlightedSeries() === s.name"
+                  (click)="toggleHighlight(s.name)"
+                  (keydown.enter)="toggleHighlight(s.name)"
+                  (keydown.space)="$event.preventDefault(); toggleHighlight(s.name)"
+                >
+                  <span class="legend-dot" [style.background]="s.color"></span>{{ s.name }}
+                </span>
+              }
+            </div>
           </div>
-        </div>
-      } @else {
-        <p class="chart-note">{{ i18n.t('mistakes.chartNote') }}</p>
-      }
-    </section>
+        } @else {
+          <p class="chart-note">{{ i18n.t('mistakes.chartNote') }}</p>
+        }
+      </section>
     }
 
     @if (stats().length > 0) {
-    <section class="section">
-      <h2 class="section-title">{{ i18n.t('mistakes.categoryCount') }}</h2>
-      <div class="chart">
-        @for (s of stats(); track s.category) {
-          <div class="chart-row">
-            <span class="chart-label">{{ categoryLabel(s.category) }}</span>
-            <div class="bar-wrap">
-              <div class="bar" [style.width]="barWidth(s.count)"></div>
+      <section class="section">
+        <h2 class="section-title">{{ i18n.t('mistakes.categoryCount') }}</h2>
+        <div class="chart">
+          @for (s of stats(); track s.category) {
+            <div class="chart-row">
+              <span class="chart-label">{{ categoryLabel(s.category) }}</span>
+              <div class="bar-wrap">
+                <div class="bar" [style.width]="barWidth(s.count)"></div>
+              </div>
+              <span class="chart-count">{{ s.count }}</span>
             </div>
-            <span class="chart-count">{{ s.count }}</span>
-          </div>
-        }
-      </div>
-    </section>
+          }
+        </div>
+      </section>
 
-    <section class="section">
-      <h2 class="section-title">{{ i18n.t('mistakes.frequent') }}</h2>
-      <div class="frequent-list">
-        @for (m of frequent(); track m.original) {
-          <div class="frequent-item">
-            <div class="frequent-header">
-              <span class="category-badge">{{ mistakeCategoryLabel(m) }}</span>
-              @if (m.count > 1) {
-                <span class="repeat-badge">{{ i18n.t('mistakes.repeatCount', { count: m.count }) }}</span>
-              }
+      <section class="section">
+        <h2 class="section-title">{{ i18n.t('mistakes.frequent') }}</h2>
+        <div class="frequent-list">
+          @for (m of frequent(); track m.original) {
+            <div class="frequent-item">
+              <div class="frequent-header">
+                <span class="category-badge">{{ mistakeCategoryLabel(m) }}</span>
+                @if (m.count > 1) {
+                  <span class="repeat-badge">{{
+                    i18n.t('mistakes.repeatCount', { count: m.count })
+                  }}</span>
+                }
+              </div>
+              <div class="frequent-pair">
+                <span class="f-original">{{ m.original }}</span>
+                <span class="arrow">→</span>
+                <span class="f-corrected">{{ m.corrected }}</span>
+              </div>
+              <p class="f-explanation">{{ mistakeExplanation(m) }}</p>
             </div>
-            <div class="frequent-pair">
-              <span class="f-original">{{ m.original }}</span>
-              <span class="arrow">→</span>
-              <span class="f-corrected">{{ m.corrected }}</span>
-            </div>
-            <p class="f-explanation">{{ mistakeExplanation(m) }}</p>
-          </div>
-        }
-      </div>
-    </section>
+          }
+        </div>
+      </section>
     }
   }
 </div>

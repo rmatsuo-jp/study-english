@@ -1,7 +1,9 @@
 <!-- @file 開発者用ページテンプレート。入出力ログ一覧・HTMLライブプレビュー・buildPrompt()プレビュー・localStorageダンプの4セクション。 -->
 <div class="page">
   <h1 class="page-title">開発</h1>
-  <p class="hint">添削プロンプトの改善やHTML表示のUX検証に使う開発者向けツールです。ユーザーの学習データには影響しません。</p>
+  <p class="hint">
+    添削プロンプトの改善やHTML表示のUX検証に使う開発者向けツールです。ユーザーの学習データには影響しません。
+  </p>
 
   <!-- ── a. 入出力ログ一覧 ────────────────────────────────────────── -->
   <div class="form-group">
@@ -27,7 +29,11 @@
             <div class="log-block">
               <div class="block-header">
                 <span class="block-title">入力（userText）</span>
-                <button class="copy-btn" type="button" (click)="copy(entry.id + '-userText', entry.userText)">
+                <button
+                  class="copy-btn"
+                  type="button"
+                  (click)="copy(entry.id + '-userText', entry.userText)"
+                >
                   {{ copiedKey() === entry.id + '-userText' ? 'コピーしました' : 'コピー' }}
                 </button>
               </div>
@@ -37,7 +43,11 @@
             <div class="log-block">
               <div class="block-header">
                 <span class="block-title">送信プロンプト全文</span>
-                <button class="copy-btn" type="button" (click)="copy(entry.id + '-prompt', entry.fullPrompt)">
+                <button
+                  class="copy-btn"
+                  type="button"
+                  (click)="copy(entry.id + '-prompt', entry.fullPrompt)"
+                >
                   {{ copiedKey() === entry.id + '-prompt' ? 'コピーしました' : 'コピー' }}
                 </button>
               </div>
@@ -47,7 +57,11 @@
             <div class="log-block">
               <div class="block-header">
                 <span class="block-title">生レスポンス</span>
-                <button class="copy-btn" type="button" (click)="copy(entry.id + '-raw', entry.rawResponse)">
+                <button
+                  class="copy-btn"
+                  type="button"
+                  (click)="copy(entry.id + '-raw', entry.rawResponse)"
+                >
                   {{ copiedKey() === entry.id + '-raw' ? 'コピーしました' : 'コピー' }}
                 </button>
               </div>
@@ -56,8 +70,14 @@
 
             <div class="log-block">
               <div class="block-header">
-                <span class="block-title">パース済み JSON（mistakes / evaluation / reviewItems）</span>
-                <button class="copy-btn" type="button" (click)="copy(entry.id + '-parsed', json(entry.parsed))">
+                <span class="block-title"
+                  >パース済み JSON（mistakes / evaluation / reviewItems）</span
+                >
+                <button
+                  class="copy-btn"
+                  type="button"
+                  (click)="copy(entry.id + '-parsed', json(entry.parsed))"
+                >
                   {{ copiedKey() === entry.id + '-parsed' ? 'コピーしました' : 'コピー' }}
                 </button>
               </div>
@@ -82,7 +102,12 @@
     <div class="preview-grid">
       <div>
         <span class="block-title">Markdown ソース</span>
-        <textarea class="textarea" rows="12" [(ngModel)]="previewMarkdown" name="previewMarkdown"></textarea>
+        <textarea
+          class="textarea"
+          rows="12"
+          [(ngModel)]="previewMarkdown"
+          name="previewMarkdown"
+        ></textarea>
       </div>
       <div>
         <span class="block-title">レンダリング結果</span>

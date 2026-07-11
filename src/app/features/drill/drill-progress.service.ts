@@ -12,8 +12,8 @@ import { DrillProgress, LevelUpItemProgress } from '@core/models/session.model';
 import { normalizeDrillKey } from '@core/stats/session-stats.util';
 import { readJson, writeJson } from '@shared/utils/local-storage.util';
 
-const DRILL_PROGRESS_KEY = 'study-english-drill-progress';
-const LEVELUP_PROGRESS_KEY = 'study-english-levelup-progress';
+const DRILL_PROGRESS_KEY = 'eibun-lab-drill-progress';
+const LEVELUP_PROGRESS_KEY = 'eibun-lab-levelup-progress';
 // 連続正解がこの回数に達したら「習熟済み」とみなし、ドリルでの出題重みを下げる。
 export const DRILL_MASTERY_STREAK = 3;
 
@@ -23,7 +23,9 @@ export class DrillProgressService {
   private drillProgress = signal<Record<string, DrillProgress>>(this.loadDrillProgress());
 
   // ── レベルアップ・タイピング進捗キャッシュ（sessionId → itemKey → 進捗） ─
-  private levelUpProgress = signal<Record<string, Record<string, LevelUpItemProgress>>>(this.loadLevelUpProgress());
+  private levelUpProgress = signal<Record<string, Record<string, LevelUpItemProgress>>>(
+    this.loadLevelUpProgress(),
+  );
 
   private loadDrillProgress(): Record<string, DrillProgress> {
     return readJson<Record<string, DrillProgress>>(DRILL_PROGRESS_KEY, {});
@@ -44,7 +46,10 @@ export class DrillProgressService {
   }
 
   // クラウドとマージ済みの状態をローカルへ書き戻す（DrillProgressSyncService.syncFromCloud から使用）。
-  persist(drillProgress: Record<string, DrillProgress>, levelUpProgress: Record<string, Record<string, LevelUpItemProgress>>): void {
+  persist(
+    drillProgress: Record<string, DrillProgress>,
+    levelUpProgress: Record<string, Record<string, LevelUpItemProgress>>,
+  ): void {
     writeJson(DRILL_PROGRESS_KEY, drillProgress);
     this.drillProgress.set(drillProgress);
     writeJson(LEVELUP_PROGRESS_KEY, levelUpProgress);
@@ -77,7 +82,12 @@ export class DrillProgressService {
   }
 
   // 1文分の進捗を更新して保存する。maskLevel は現在のマスク段階、completed は maxLevel で正解済みかどうか。
-  setLevelUpItemProgress(sessionId: string, itemKey: string, maskLevel: number, completed: boolean): void {
+  setLevelUpItemProgress(
+    sessionId: string,
+    itemKey: string,
+    maskLevel: number,
+    completed: boolean,
+  ): void {
     const current = this.levelUpProgress();
     const updated: Record<string, Record<string, LevelUpItemProgress>> = {
       ...current,

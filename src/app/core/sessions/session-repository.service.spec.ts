@@ -71,6 +71,6 @@ describe('SessionRepositoryService', () => {
     service.saveSession(makeSession({ id: 'gone' }));
     service.deleteSession('gone');
     const exported = JSON.parse(service.exportSessions()) as CorrectionSession[];
-    expect(exported.map(s => s.id)).toEqual(['keep']);
+    expect(exported.map((s) => s.id)).toEqual(['keep']);
   });
 });

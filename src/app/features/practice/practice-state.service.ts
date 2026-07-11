@@ -72,8 +72,12 @@ export class PracticeState {
     // 注: ここで result はクリアしない（新しい結果を受信して初めて置き換える）。
 
     try {
-      const res = await this.gemini.correct(settings.apiKey, settings.modelPriority, buildPrompt(), text, (p) =>
-        this.progress.set(Math.max(this.progress(), p))
+      const res = await this.gemini.correct(
+        settings.apiKey,
+        settings.modelPriority,
+        buildPrompt(),
+        text,
+        (p) => this.progress.set(Math.max(this.progress(), p)),
       );
       this.progress.set(100);
       this.result.set({ original: text, ...res });
@@ -142,7 +146,12 @@ export class PracticeState {
 
   bulkEntries = signal<BulkEntry[]>([]);
   bulkProgress = signal<
-    { date: string; text: string; status: 'pending' | 'loading' | 'success' | 'error'; errorMessage?: string }[]
+    {
+      date: string;
+      text: string;
+      status: 'pending' | 'loading' | 'success' | 'error';
+      errorMessage?: string;
+    }[]
   >([]);
   bulkRunning = signal(false);
 
@@ -164,7 +173,9 @@ export class PracticeState {
     }
 
     this.bulkRunning.set(true);
-    this.bulkProgress.set(entries.map(e => ({ date: e.date, text: e.text, status: 'pending' as const })));
+    this.bulkProgress.set(
+      entries.map((e) => ({ date: e.date, text: e.text, status: 'pending' as const })),
+    );
 
     let successCount = 0;
     let errorCount = 0;
@@ -179,7 +190,12 @@ export class PracticeState {
           const i = start + offset;
           this.updateBulkStatus(i, 'loading');
           try {
-            const res = await this.gemini.correct(settings.apiKey, settings.modelPriority, buildPrompt(), entry.text);
+            const res = await this.gemini.correct(
+              settings.apiKey,
+              settings.modelPriority,
+              buildPrompt(),
+              entry.text,
+            );
             const session = this.buildSession(entry.date, entry.text, res);
             this.repository.saveSession(session);
             this.updateBulkStatus(i, 'success');
@@ -189,9 +205,12 @@ export class PracticeState {
             errorCount++;
           } finally {
             completedCount++;
-            this.notice.set({ status: 'loading', message: `一括添削中 (${completedCount}/${entries.length})` });
+            this.notice.set({
+              status: 'loading',
+              message: `一括添削中 (${completedCount}/${entries.length})`,
+            });
           }
-        })
+        }),
       );
 
       const isLastBatch = start + this.BULK_BATCH_SIZE >= entries.length;
@@ -203,7 +222,7 @@ export class PracticeState {
             status: 'loading',
             message: `一括添削中 (${completedCount}/${entries.length}) — レート制限のため待機中...`,
           });
-          await new Promise(resolve => setTimeout(resolve, waitMs));
+          await new Promise((resolve) => setTimeout(resolve, waitMs));
         }
       }
     }
@@ -218,7 +237,7 @@ export class PracticeState {
   private updateBulkStatus(
     index: number,
     status: 'pending' | 'loading' | 'success' | 'error',
-    errorMessage?: string
+    errorMessage?: string,
   ) {
     const progress = [...this.bulkProgress()];
     progress[index] = { ...progress[index], status, errorMessage };

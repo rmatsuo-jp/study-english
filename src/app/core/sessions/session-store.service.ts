@@ -19,7 +19,7 @@ export class SessionStoreService {
   // _sessions は tombstone（deleted=true）も含む全件の源泉。localStorage / Firestore と一致する。
   private _sessions = signal<CorrectionSession[]>(this.loadFromStorage());
   // 公開ビューは削除済みを除外。表示・集計はすべてこちらを基準にする。
-  readonly sessions = computed(() => this._sessions().filter(s => !s.deleted));
+  readonly sessions = computed(() => this._sessions().filter((s) => !s.deleted));
 
   // tombstone を含む全件（Firestore同期がローカル/クラウドの突き合わせに使う）。
   readonly allSessions = this._sessions;
@@ -48,7 +48,7 @@ export class SessionStoreService {
     if (!writeJson(SESSIONS_KEY, sessions)) {
       alert(
         'ブラウザの保存容量が上限に達したため、セッションを保存できませんでした。\n' +
-          '履歴ページから古いセッションを削除するか、エクスポートでバックアップしてください。'
+          '履歴ページから古いセッションを削除するか、エクスポートでバックアップしてください。',
       );
     }
     this._sessions.set(sessions);
@@ -61,19 +61,18 @@ export class SessionStoreService {
   // 物理削除せず deleted フラグを立てる（tombstone）。これによりクラウド側へ削除を伝播でき、
   // 他端末の syncFromCloud で「削除済み」として反映され、再 push による復活を防ぐ。
   deleteSession(id: string): void {
-    const updated = this._sessions().map(s =>
-      s.id === id ? { ...s, deleted: true } : s
-    );
+    const updated = this._sessions().map((s) => (s.id === id ? { ...s, deleted: true } : s));
     this.persist(updated);
   }
 
   // ── インポート/エクスポート ────────────────────────────────────
   importSessions(incoming: CorrectionSession[]): CorrectionSession[] {
     const existing = this._sessions();
-    const existingIds = new Set(existing.map(s => s.id));
-    const added = incoming.filter(s => !existingIds.has(s.id));
-    const merged = [...existing, ...added]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const existingIds = new Set(existing.map((s) => s.id));
+    const added = incoming.filter((s) => !existingIds.has(s.id));
+    const merged = [...existing, ...added].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
     this.persist(merged);
     return added;
   }

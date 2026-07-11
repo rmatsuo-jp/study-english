@@ -26,7 +26,7 @@ export class SessionRepositoryService {
 
   deleteSession(id: string): void {
     this.sessionStore.deleteSession(id);
-    const target = this.sessionStore.allSessions().find(s => s.id === id);
+    const target = this.sessionStore.allSessions().find((s) => s.id === id);
     if (target) this.syncToCloud([target]);
   }
 

@@ -32,13 +32,17 @@ export class Legal {
   html = signal<SafeHtml | null>(null);
 
   constructor() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const doc = params.get('doc') ?? 'privacy';
       this.title.set(DOC_TITLES[doc] ?? '法的情報');
       this.html.set(null);
       this.http.get(`legal/${doc}.md`, { responseType: 'text' }).subscribe({
-        next: (markdown) => this.html.set(this.sanitizer.bypassSecurityTrustHtml(renderSafeMarkdown(markdown))),
-        error: () => this.html.set(this.sanitizer.bypassSecurityTrustHtml('<p>文書の読み込みに失敗しました。</p>')),
+        next: (markdown) =>
+          this.html.set(this.sanitizer.bypassSecurityTrustHtml(renderSafeMarkdown(markdown))),
+        error: () =>
+          this.html.set(
+            this.sanitizer.bypassSecurityTrustHtml('<p>文書の読み込みに失敗しました。</p>'),
+          ),
       });
     });
   }

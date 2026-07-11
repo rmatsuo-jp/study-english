@@ -78,8 +78,6 @@ export const appConfig: ApplicationConfig = {
     },
     // ── Gemini 送受信ログ: 開発ビルドのみ DevLogService を紐付ける（本番は no-op デフォルト） ──
     // /dev ルートと同じ environment.production 分岐なので、本番バンドルからは tree-shaking で除外される。
-    ...(environment.production
-      ? []
-      : [{ provide: GEMINI_LOGGER, useExisting: DevLogService }]),
+    ...(environment.production ? [] : [{ provide: GEMINI_LOGGER, useExisting: DevLogService }]),
   ],
 };

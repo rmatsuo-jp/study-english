@@ -9,24 +9,41 @@
   <div class="form-group">
     <label class="label">{{ i18n.t('settings.apiKey') }}</label>
     <p class="hint">
-      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener"
+        >Google AI Studio</a
+      >
       {{ i18n.t('settings.apiKeyHint') }}
     </p>
     <div class="key-input-wrap">
+      <!-- パスワードマネージャーの保存提案を抑止するための属性群（完全な保証はない） -->
       <input
         class="input"
         [type]="showKey() ? 'text' : 'password'"
         [value]="apiKeyDraft()"
         (input)="updateApiKey($any($event.target).value)"
         [placeholder]="i18n.t('settings.apiKeyPlaceholder')"
+        autocomplete="off"
+        data-lpignore="true"
+        data-1p-ignore="true"
+        data-bwignore="true"
+        data-form-type="other"
       />
       <button class="toggle-key" (click)="showKey.set(!showKey())" type="button">
         {{ showKey() ? i18n.t('settings.hide') : i18n.t('settings.show') }}
       </button>
       <!-- API キーだけは入力途中の値を永続化しないよう、明示的な保存を要求する -->
-      <button class="save-key" [class.pending]="isDirty()" [disabled]="!isDirty()"
-              (click)="saveApiKey()" type="button">
-        @if (saved()) { ✓ } @else { {{ i18n.t('settings.save') }} }
+      <button
+        class="save-key"
+        [class.pending]="isDirty()"
+        [disabled]="!isDirty()"
+        (click)="saveApiKey()"
+        type="button"
+      >
+        @if (saved()) {
+          ✓
+        } @else {
+          {{ i18n.t('settings.save') }}
+        }
       </button>
     </div>
     @if (isDirty()) {
@@ -42,7 +59,10 @@
         <li>{{ i18n.t('settings.billing3') }}</li>
       </ul>
       <p class="hint">
-        <a href="https://ai.google.dev/pricing" target="_blank" rel="noopener">{{ i18n.t('settings.pricing') }}</a> ・
+        <a href="https://ai.google.dev/pricing" target="_blank" rel="noopener">{{
+          i18n.t('settings.pricing')
+        }}</a>
+        ・
         <a routerLink="/legal/disclaimer">{{ i18n.t('consent.disclaimer') }}</a>
       </p>
     </div>
@@ -51,10 +71,22 @@
   <div class="form-group">
     <label class="label">{{ i18n.t('settings.theme') }}</label>
     <div class="theme-toggle">
-      <button class="theme-btn" [class.active]="settings().theme === 'light'"
-              (click)="updateTheme('light')" type="button">{{ i18n.t('settings.themeLight') }}</button>
-      <button class="theme-btn" [class.active]="settings().theme === 'dark'"
-              (click)="updateTheme('dark')" type="button">{{ i18n.t('settings.themeDark') }}</button>
+      <button
+        class="theme-btn"
+        [class.active]="settings().theme === 'light'"
+        (click)="updateTheme('light')"
+        type="button"
+      >
+        {{ i18n.t('settings.themeLight') }}
+      </button>
+      <button
+        class="theme-btn"
+        [class.active]="settings().theme === 'dark'"
+        (click)="updateTheme('dark')"
+        type="button"
+      >
+        {{ i18n.t('settings.themeDark') }}
+      </button>
     </div>
   </div>
 
@@ -62,10 +94,22 @@
   <div class="form-group">
     <label class="label">{{ i18n.t('settings.language') }}</label>
     <div class="theme-toggle">
-      <button class="theme-btn" [class.active]="i18n.lang() === 'ja'"
-              (click)="updateLanguage('ja')" type="button">{{ i18n.t('settings.languageJa') }}</button>
-      <button class="theme-btn" [class.active]="i18n.lang() === 'en'"
-              (click)="updateLanguage('en')" type="button">{{ i18n.t('settings.languageEn') }}</button>
+      <button
+        class="theme-btn"
+        [class.active]="i18n.lang() === 'ja'"
+        (click)="updateLanguage('ja')"
+        type="button"
+      >
+        {{ i18n.t('settings.languageJa') }}
+      </button>
+      <button
+        class="theme-btn"
+        [class.active]="i18n.lang() === 'en'"
+        (click)="updateLanguage('en')"
+        type="button"
+      >
+        {{ i18n.t('settings.languageEn') }}
+      </button>
     </div>
   </div>
 
@@ -125,7 +169,11 @@
       </div>
     } @else {
       <button class="btn-primary" (click)="login()" [disabled]="authBusy()" type="button">
-        @if (authBusy()) { {{ i18n.t('settings.processing') }} } @else { {{ i18n.t('settings.login') }} }
+        @if (authBusy()) {
+          {{ i18n.t('settings.processing') }}
+        } @else {
+          {{ i18n.t('settings.login') }}
+        }
       </button>
       <!-- クラウド同期はホワイトリスト制であることの常時表示注記 -->
       <p class="auth-note">{{ i18n.t('settings.authNote') }}</p>
@@ -135,5 +183,4 @@
       <p class="auth-error">{{ msg }}</p>
     }
   </div>
-
 </div>

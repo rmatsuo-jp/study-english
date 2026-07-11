@@ -46,7 +46,9 @@ export function computeProgress(accumulatedText: string, expectedTotalChars: num
 // ── 期待総文字数（過去レスポンス長の中央値） ─────────────────────
 // 平均でなく中央値を使うのは、極端に長い/短い1回の添削に引きずられないため。
 export function getExpectedTotalChars(): number {
-  const history = readJson<number[]>(LENGTH_HISTORY_KEY, []).filter(n => typeof n === 'number' && n > 0);
+  const history = readJson<number[]>(LENGTH_HISTORY_KEY, []).filter(
+    (n) => typeof n === 'number' && n > 0,
+  );
   if (history.length === 0) return DEFAULT_EXPECTED_CHARS;
   return median(history);
 }
@@ -54,7 +56,9 @@ export function getExpectedTotalChars(): number {
 // 成功したレスポンスの文字数を履歴へ追記する（直近 LENGTH_HISTORY_SIZE 件のみ保持）。
 export function recordResponseLength(length: number): void {
   if (length <= 0) return;
-  const history = readJson<number[]>(LENGTH_HISTORY_KEY, []).filter(n => typeof n === 'number' && n > 0);
+  const history = readJson<number[]>(LENGTH_HISTORY_KEY, []).filter(
+    (n) => typeof n === 'number' && n > 0,
+  );
   history.push(length);
   writeJson(LENGTH_HISTORY_KEY, history.slice(-LENGTH_HISTORY_SIZE));
 }

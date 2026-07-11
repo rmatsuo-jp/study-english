@@ -1,5 +1,10 @@
 import { CorrectionSession, WritingEvaluation } from '@core/models/session.model';
-import { cefrToNumber, getEvaluationHistory, getSessionsWithReviewItems, getStudyStats } from './session-stats.util';
+import {
+  cefrToNumber,
+  getEvaluationHistory,
+  getSessionsWithReviewItems,
+  getStudyStats,
+} from './session-stats.util';
 
 // テスト用セッション生成ヘルパ
 function makeSession(partial: Partial<CorrectionSession>): CorrectionSession {
@@ -17,8 +22,15 @@ function makeSession(partial: Partial<CorrectionSession>): CorrectionSession {
 // テスト用 WritingEvaluation 生成ヘルパ（overall系を基準に最小指定）
 function makeEval(overrides: Partial<WritingEvaluation> = {}): WritingEvaluation {
   return {
-    grammarScore: 7, vocabularyScore: 6, contentScore: 7, overallScore: 6.5, errorDensity: 3,
-    grammarCefr: 'B1', vocabularyCefr: 'B1', contentCefr: 'B1', overallCefr: 'B1',
+    grammarScore: 7,
+    vocabularyScore: 6,
+    contentScore: 7,
+    overallScore: 6.5,
+    errorDensity: 3,
+    grammarCefr: 'B1',
+    vocabularyCefr: 'B1',
+    contentCefr: 'B1',
+    overallCefr: 'B1',
     ...overrides,
   };
 }
@@ -54,9 +66,16 @@ describe('getStudyStats', () => {
 
   it('総数・平均ミス数を集計する', () => {
     const sessions = [
-      makeSession({ mistakes: [{ category: '文法', original: 'a', corrected: 'b', explanation: '' }] }),
+      makeSession({
+        mistakes: [{ category: '文法', original: 'a', corrected: 'b', explanation: '' }],
+      }),
       makeSession({ mistakes: [] }),
-      makeSession({ mistakes: [{ category: '語彙', original: 'c', corrected: 'd', explanation: '' }, { category: '文法', original: 'e', corrected: 'f', explanation: '' }] }),
+      makeSession({
+        mistakes: [
+          { category: '語彙', original: 'c', corrected: 'd', explanation: '' },
+          { category: '文法', original: 'e', corrected: 'f', explanation: '' },
+        ],
+      }),
     ];
     const s = getStudyStats(sessions);
     expect(s.totalSessions).toBe(3);
@@ -85,9 +104,17 @@ describe('getStudyStats', () => {
 describe('getEvaluationHistory', () => {
   it('evaluation を持つセッションのみ日付昇順で返す', () => {
     const sessions = [
-      makeSession({ id: '1', date: daysAgo(2), evaluation: makeEval({ grammarScore: 4, grammarCefr: 'A2' }) }),
+      makeSession({
+        id: '1',
+        date: daysAgo(2),
+        evaluation: makeEval({ grammarScore: 4, grammarCefr: 'A2' }),
+      }),
       makeSession({ id: '2', date: daysAgo(1) }), // evaluation なし
-      makeSession({ id: '3', date: daysAgo(0), evaluation: makeEval({ grammarScore: 7, grammarCefr: 'B1' }) }),
+      makeSession({
+        id: '3',
+        date: daysAgo(0),
+        evaluation: makeEval({ grammarScore: 7, grammarCefr: 'B1' }),
+      }),
     ];
     const hist = getEvaluationHistory(sessions);
     expect(hist.length).toBe(2);
@@ -105,6 +132,6 @@ describe('getSessionsWithReviewItems', () => {
       makeSession({ id: '3' }), // reviewItems なし
     ];
     const result = getSessionsWithReviewItems(sessions);
-    expect(result.map(s => s.id)).toEqual(['1']);
+    expect(result.map((s) => s.id)).toEqual(['1']);
   });
 });

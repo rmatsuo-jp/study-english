@@ -1,6 +1,6 @@
 # ライセンス（License）
 
-本アプリ「Study English」は、以下の MIT License の条件のもとで提供されます。
+本アプリ「英文ラボ（Eibun-Lab）」は、以下の MIT License の条件のもとで提供されます。
 
 ---
 

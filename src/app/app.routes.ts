@@ -13,28 +13,28 @@ export const routes: Routes = [
   { path: '', redirectTo: 'practice', pathMatch: 'full' },
   {
     path: 'practice',
-    loadComponent: () => import('./features/practice/practice').then(m => m.Practice),
+    loadComponent: () => import('./features/practice/practice').then((m) => m.Practice),
   },
   {
     path: 'drill',
-    loadComponent: () => import('./features/drill/drill').then(m => m.Drill),
+    loadComponent: () => import('./features/drill/drill').then((m) => m.Drill),
   },
   {
     path: 'history',
-    loadComponent: () => import('./features/history/history').then(m => m.History),
+    loadComponent: () => import('./features/history/history').then((m) => m.History),
   },
   {
     path: 'mistakes',
-    loadComponent: () => import('./features/mistakes/mistakes').then(m => m.Mistakes),
+    loadComponent: () => import('./features/mistakes/mistakes').then((m) => m.Mistakes),
   },
   {
     path: 'settings',
-    loadComponent: () => import('./features/settings/settings').then(m => m.Settings),
+    loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
     canDeactivate: [settingsCanDeactivateGuard],
   },
   {
     path: 'legal/:doc',
-    loadComponent: () => import('./features/legal/legal').then(m => m.Legal),
+    loadComponent: () => import('./features/legal/legal').then((m) => m.Legal),
   },
   // ── 開発用ページ（本番ビルドでは非搭載） ────────────────────────
   ...(environment.production
@@ -42,7 +42,7 @@ export const routes: Routes = [
     : [
         {
           path: 'dev',
-          loadComponent: () => import('./features/dev/dev').then(m => m.Dev),
+          loadComponent: () => import('./features/dev/dev').then((m) => m.Dev),
         },
       ]),
 ];

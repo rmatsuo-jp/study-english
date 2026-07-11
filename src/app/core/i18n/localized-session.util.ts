@@ -14,14 +14,21 @@ import { TRANSLATIONS, TranslationKey } from './translations';
 // CorrectionSession（保存済みセッション）・CorrectionResult（添削直後の結果）どちらも
 // corrected/correctedEn の形を共有するため、構造的部分型で受ける。
 // corrected は grammarNotes 等5項目を結合した後方互換フィールド（新データも旧データも必ず持つ）。
-export function localizedProse(source: { corrected: string; correctedEn?: string }, lang: Lang): string {
+export function localizedProse(
+  source: { corrected: string; correctedEn?: string },
+  lang: Lang,
+): string {
   return lang === 'en' && source.correctedEn ? source.correctedEn : source.corrected;
 }
 
 // 解説5項目（grammarNotes/naturalExpressions/grammarTendency/cefrRationale/studyPlan）のような
 // 「ja本体 + en任意」ペアを表示言語に応じて切り替える汎用ヘルパー。ja が無ければ（そのタグの抽出に
 // 失敗していれば）undefined を返し、呼び出し側でそのブロックごと非表示にできる。
-export function localizedField(ja: string | undefined, en: string | undefined, lang: Lang): string | undefined {
+export function localizedField(
+  ja: string | undefined,
+  en: string | undefined,
+  lang: Lang,
+): string | undefined {
   if (!ja) return undefined;
   return lang === 'en' && en ? en : ja;
 }
@@ -52,13 +59,13 @@ export function localizedCategory(mistake: Mistake, i18n: I18nService): string {
 // （文法/語彙/スペリング/コロケーション/語法/構文/語順）へ正規化して集計する。
 // その正規化済み日本語文字列から翻訳キーへの逆引き（ミス傾向ページのカテゴリ別集計表示に使う）。
 const NORMALIZED_JA_TO_KEY: Record<string, TranslationKey> = {
-  '文法': 'mistake.category.grammar',
-  '語彙': 'mistake.category.vocabulary',
-  'スペリング': 'mistake.category.spelling',
-  'コロケーション': 'mistake.category.collocation',
-  '語法': 'mistake.category.usage',
-  '構文': 'mistake.category.syntax',
-  '語順': 'mistake.category.word-order',
+  文法: 'mistake.category.grammar',
+  語彙: 'mistake.category.vocabulary',
+  スペリング: 'mistake.category.spelling',
+  コロケーション: 'mistake.category.collocation',
+  語法: 'mistake.category.usage',
+  構文: 'mistake.category.syntax',
+  語順: 'mistake.category.word-order',
 };
 
 export function localizedNormalizedCategory(categoryJa: string, i18n: I18nService): string {

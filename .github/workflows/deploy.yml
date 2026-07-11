@@ -39,6 +39,10 @@ jobs:
       - name: Test
         run: npx ng test --watch=false
 
+      # ビルドが壊れている場合はここで止め、以降のリリース（タグ・バージョン確定）を作成しない
+      - name: Build (verify)
+        run: npm run build -- --base-href=/eibun-lab/
+
       # コミット種別から次バージョンを判定 → package.json / src/version.ts / CHANGELOG.md を更新し
       # タグ・GitHub Release を作成して main へ push([skip ci] 付きで再帰起動しない)
       - name: Release (bump version, tag, changelog)
@@ -46,11 +50,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Deploy Firestore rules
+        run: npx firebase-tools deploy --only firestore:rules --project eibun-lab
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      # semantic-release が src/version.ts を最新バージョンへ更新したため、成果物用に再ビルドする
       - name: Build
-        run: npm run build -- --base-href=/study-english/
+        run: npm run build -- --base-href=/eibun-lab/
 
       - name: SPA fallback (404.html)
-        run: cp dist/study-english/browser/index.html dist/study-english/browser/404.html
+        run: cp dist/eibun-lab/browser/index.html dist/eibun-lab/browser/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -58,7 +68,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/study-english/browser
+          path: ./dist/eibun-lab/browser
 
   deploy:
     needs: build

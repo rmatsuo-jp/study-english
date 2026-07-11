@@ -5,7 +5,7 @@
  * ⚠ 実行中のページで復号処理そのものを呼べる本格的な XSS への完全防御ではない点に注意。
  */
 
-const DB_NAME = 'study-english-crypto';
+const DB_NAME = 'eibun-lab-crypto';
 const STORE_NAME = 'keys';
 const KEY_ID = 'aes-key';
 const IV_LENGTH = 12; // AES-GCM 推奨の 96bit
@@ -51,7 +51,7 @@ export async function getOrCreateAesKey(): Promise<CryptoKey> {
     const key = await crypto.subtle.generateKey(
       { name: 'AES-GCM', length: 256 },
       false, // extractable: false — JS から鍵素材をエクスポートできない
-      ['encrypt', 'decrypt']
+      ['encrypt', 'decrypt'],
     );
     await idbPut(db, key);
     return key;
@@ -66,7 +66,7 @@ export async function encryptText(key: CryptoKey, plain: string): Promise<string
   const cipher = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
-    new TextEncoder().encode(plain)
+    new TextEncoder().encode(plain),
   );
   const combined = new Uint8Array(IV_LENGTH + cipher.byteLength);
   combined.set(iv);
@@ -75,7 +75,7 @@ export async function encryptText(key: CryptoKey, plain: string): Promise<string
 }
 
 export async function decryptText(key: CryptoKey, encoded: string): Promise<string> {
-  const combined = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+  const combined = Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0));
   const iv = combined.slice(0, IV_LENGTH);
   const cipher = combined.slice(IV_LENGTH);
   const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipher);

@@ -167,7 +167,9 @@
 }
 
 @keyframes notice-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .nav-item {
@@ -218,7 +220,10 @@
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background 0.2s;
 
   &.active {
     border-color: var(--color-primary);
@@ -292,6 +297,9 @@
   }
 
   .sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1rem;
     font-weight: 700;
     color: var(--color-text);
@@ -300,8 +308,16 @@
     overflow: hidden;
 
     .collapsed & {
-      display: none;
+      span {
+        display: none;
+      }
     }
+  }
+
+  .sidebar-logo {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
   }
 
   // ── 言語トグル（日/EN、ナビ項目の下＝サイドバー最下部）。格納時（.collapsed）は幅を圧迫しないよう非表示にする ──
@@ -386,7 +402,9 @@
     padding-bottom: 1rem;
     margin-left: 220px;
     width: calc(100% - 220px);
-    transition: margin-left 0.2s ease, width 0.2s ease;
+    transition:
+      margin-left 0.2s ease,
+      width 0.2s ease;
   }
 
   .app-shell.sidebar-collapsed .app-content {

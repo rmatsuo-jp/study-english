@@ -7,8 +7,10 @@
  * DrillProgressService を直接 inject しない。
  * ドリル進捗には「削除」概念がないため tombstone は不要。競合は各値の新しさ（lastAttemptAt /
  * maskLevel）で解決する。
+ * 同期失敗は syncError signal（読み取り専用）にメッセージを流し、app.ts がグローバルバナーで
+ * ユーザーに知らせる（次回の同期成功時に自動でクリアされる）。
  */
-import { effect, Injectable, inject } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { DrillProgress, LevelUpItemProgress } from '@core/models/session.model';
 import { AuthService } from '@core/firebase/auth.service';
@@ -25,15 +27,24 @@ export class DrillProgressSyncService {
   private auth = inject(AuthService);
   private store = inject(DrillProgressService);
 
+  // クラウド同期の直近の失敗メッセージ（成功時は null に戻る）。app.ts が購読して通知バナーに出す。
+  private _syncError = signal<string | null>(null);
+  readonly syncError = this._syncError.asReadonly();
+
   constructor() {
     // ログイン状態を監視し、ログインした瞬間にクラウドと双方向同期する。
     // ログアウト時（user が null）はローカルキャッシュをそのまま残す。
     effect(() => {
       const user = this.auth.user();
       if (user) {
-        this.syncFromCloud(user.uid).catch(err =>
-          console.error('[DrillProgressSyncService] クラウド同期に失敗:', err)
-        );
+        this.syncFromCloud(user.uid)
+          .then(() => this._syncError.set(null))
+          .catch((err) => {
+            console.error('[DrillProgressSyncService] クラウド同期に失敗:', err);
+            this._syncError.set(
+              'ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。',
+            );
+          });
       }
     });
   }
@@ -53,15 +64,20 @@ export class DrillProgressSyncService {
     this.pushProgress();
   }
 
-  setLevelUpItemProgress(sessionId: string, itemKey: string, maskLevel: number, completed: boolean): void {
+  setLevelUpItemProgress(
+    sessionId: string,
+    itemKey: string,
+    maskLevel: number,
+    completed: boolean,
+  ): void {
     this.store.setLevelUpItemProgress(sessionId, itemKey, maskLevel, completed);
     this.pushProgress();
   }
 
-  // apps/study_english/users/{uid}/drillProgress/data の単一ドキュメント参照を返す。
+  // apps/eibun_lab/users/{uid}/drillProgress/data の単一ドキュメント参照を返す。
   // セッションと異なり件数の多い配列ではないため、1ドキュメントに両方のマップをまとめて保存する。
   private progressDoc(uid: string) {
-    return doc(firestore, 'apps', 'study_english', 'users', uid, 'drillProgress', 'data');
+    return doc(firestore, 'apps', 'eibun_lab', 'users', uid, 'drillProgress', 'data');
   }
 
   // ドリル進捗の書き込み直後に呼び、ログイン中なら現在の全件をクラウドへ反映する（fire-and-forget）。
@@ -72,9 +88,14 @@ export class DrillProgressSyncService {
       drillProgress: this.store.allDrillProgress(),
       levelUpProgress: this.store.allLevelUpProgress(),
     };
-    setDoc(this.progressDoc(uid), data).catch(err =>
-      console.error('[DrillProgressSyncService] 同期に失敗:', err)
-    );
+    setDoc(this.progressDoc(uid), data)
+      .then(() => this._syncError.set(null))
+      .catch((err) => {
+        console.error('[DrillProgressSyncService] 同期に失敗:', err);
+        this._syncError.set(
+          'ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。',
+        );
+      });
   }
 
   // ログイン直後に呼ぶ双方向同期:
@@ -98,21 +119,27 @@ export class DrillProgressSyncService {
       JSON.stringify(mergedDrill) !== JSON.stringify(cloudDrill) ||
       JSON.stringify(mergedLevelUp) !== JSON.stringify(cloudLevelUp);
     if (changed) {
-      await setDoc(this.progressDoc(uid), { drillProgress: mergedDrill, levelUpProgress: mergedLevelUp });
+      await setDoc(this.progressDoc(uid), {
+        drillProgress: mergedDrill,
+        levelUpProgress: mergedLevelUp,
+      });
     }
   }
 
   // キーごとに lastAttemptAt が新しい方を採用する。
   private mergeDrillProgress(
     local: Record<string, DrillProgress>,
-    cloud: Record<string, DrillProgress>
+    cloud: Record<string, DrillProgress>,
   ): Record<string, DrillProgress> {
     const keys = new Set([...Object.keys(local), ...Object.keys(cloud)]);
     const merged: Record<string, DrillProgress> = {};
     for (const key of keys) {
       const l = local[key];
       const c = cloud[key];
-      merged[key] = !c || (l && new Date(l.lastAttemptAt).getTime() >= new Date(c.lastAttemptAt).getTime()) ? l : c;
+      merged[key] =
+        !c || (l && new Date(l.lastAttemptAt).getTime() >= new Date(c.lastAttemptAt).getTime())
+          ? l
+          : c;
     }
     return merged;
   }
@@ -120,7 +147,7 @@ export class DrillProgressSyncService {
   // sessionId → itemKey ごとに maskLevel が大きい方（進んでいる方）を採用する。
   private mergeLevelUpProgress(
     local: Record<string, Record<string, LevelUpItemProgress>>,
-    cloud: Record<string, Record<string, LevelUpItemProgress>>
+    cloud: Record<string, Record<string, LevelUpItemProgress>>,
   ): Record<string, Record<string, LevelUpItemProgress>> {
     const sessionIds = new Set([...Object.keys(local), ...Object.keys(cloud)]);
     const merged: Record<string, Record<string, LevelUpItemProgress>> = {};

@@ -107,7 +107,9 @@
   cursor: pointer;
   border-radius: 999px;
   padding: 0.1rem 0.4rem;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 
   &.active {
     background: var(--color-primary-light);
