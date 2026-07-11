@@ -39,6 +39,10 @@ jobs:
       - name: Test
         run: npx ng test --watch=false
 
+      # ビルドが壊れている場合はここで止め、以降のリリース（タグ・バージョン確定）を作成しない
+      - name: Build (verify)
+        run: npm run build -- --base-href=/eibun-lab/
+
       # コミット種別から次バージョンを判定 → package.json / src/version.ts / CHANGELOG.md を更新し
       # タグ・GitHub Release を作成して main へ push([skip ci] 付きで再帰起動しない)
       - name: Release (bump version, tag, changelog)
@@ -51,6 +55,7 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
+      # semantic-release が src/version.ts を最新バージョンへ更新したため、成果物用に再ビルドする
       - name: Build
         run: npm run build -- --base-href=/eibun-lab/
 

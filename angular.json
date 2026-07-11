@@ -88,7 +88,13 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "setupFiles": ["src/test-setup.ts"]
+            "setupFiles": ["src/test-setup.ts"],
+            "coverageThresholds": {
+              "statements": 60,
+              "branches": 55,
+              "functions": 60,
+              "lines": 65
+            }
           }
         },
         "lint": {
