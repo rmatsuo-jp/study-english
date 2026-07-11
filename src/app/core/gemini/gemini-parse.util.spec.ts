@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { extractTaggedJson } from './gemini-parse.util';
+import { extractTaggedJson, extractTaggedText, stripKnownBlocks } from './gemini-parse.util';
 
 describe('extractTaggedJson', () => {
   const validateArr = (json: unknown) => {
@@ -57,5 +57,114 @@ describe('extractTaggedJson', () => {
     const text = '<foo>{"items":"not-an-array"}</foo>';
     expect(extractTaggedJson(text, 'foo', validateArr, onError)).toBeUndefined();
     expect(onError).toHaveBeenCalledWith('validation', expect.any(String));
+  });
+});
+
+describe('stripKnownBlocks', () => {
+  it('見出しとタグが揃っていればブロックごと消え、他のプローズは残る', () => {
+    const text = [
+      '【文法・語法のミスの指摘】',
+      '三単現の s が抜けています。',
+      '',
+      '【添削後の全文】',
+      '<corrected-text>He goes to school.</corrected-text>',
+      '',
+      '【CEFR評価の根拠】',
+      '語彙は A2 相当です。',
+    ].join('\n');
+
+    const out = stripKnownBlocks(text);
+    expect(out).toContain('三単現の s が抜けています。');
+    expect(out).toContain('語彙は A2 相当です。');
+    expect(out).not.toContain('corrected-text');
+    expect(out).not.toContain('He goes to school.');
+    expect(out).not.toContain('【添削後の全文】');
+  });
+
+  it('見出しが欠落しタグだけでも JSON が本文に残らない', () => {
+    const text = [
+      '【CEFR評価の根拠】',
+      '語彙は A2 相当です。',
+      '',
+      '<levelup>{"levelUpItems":[{"original":"a","leveledUp":"b"}]}</levelup>',
+      '<levelup-text>Leveled up prose.</levelup-text>',
+    ].join('\n');
+
+    const out = stripKnownBlocks(text);
+    expect(out).toBe('【CEFR評価の根拠】\n語彙は A2 相当です。');
+    expect(out).not.toContain('levelUpItems');
+    expect(out).not.toContain('Leveled up prose.');
+  });
+
+  it('閉じタグが欠落しても次の見出しまでで除去が止まる', () => {
+    const text = [
+      '<levelup>{"levelUpItems":[{"original":"a"}]}',
+      '',
+      '【今のレベルから伸ばすための学習法】',
+      '冠詞のドリルを1日30分。',
+    ].join('\n');
+
+    const out = stripKnownBlocks(text);
+    expect(out).toBe('【今のレベルから伸ばすための学習法】\n冠詞のドリルを1日30分。');
+    expect(out).not.toContain('levelUpItems');
+  });
+
+  it('閉じタグが欠落し次の開始タグが続く場合はそこで除去が止まる', () => {
+    const text = '<levelup>{"levelUpItems":[]}<review>{"reviewItems":[]}</review>あとがき';
+    expect(stripKnownBlocks(text)).toBe('あとがき');
+  });
+
+  it('既知タグが無ければ入力をそのまま返す', () => {
+    const text = '【文法・語法のミスの指摘】\n特にミスはありません。';
+    expect(stripKnownBlocks(text)).toBe(text);
+  });
+
+  it('除去跡に3行以上の連続空行を残さない', () => {
+    const text = '前書き\n\n<review>{"reviewItems":[]}</review>\n\n後書き';
+    expect(stripKnownBlocks(text)).toBe('前書き\n\n後書き');
+  });
+
+  // ── prose-ja/prose-en（日英併記の添削解説プローズ）関連 ──────────────
+  it('見出し【解説のまとめ（日英併記）】〜</prose-en> がひとまとまりで除去される', () => {
+    const text = [
+      '【文法・語法のミスの指摘】',
+      '三単現の s が抜けています。',
+      '',
+      '【解説のまとめ（日英併記）】',
+      '<prose-ja>三単現の s が抜けています。</prose-ja>',
+      '<prose-en>The third-person singular -s is missing.</prose-en>',
+      '',
+      '【添削後の全文】',
+      '<corrected-text>He goes to school.</corrected-text>',
+    ].join('\n');
+
+    const out = stripKnownBlocks(text);
+    expect(out).toContain('三単現の s が抜けています。');
+    expect(out).not.toContain('prose-ja');
+    expect(out).not.toContain('prose-en');
+    expect(out).not.toContain('The third-person singular');
+    expect(out).not.toContain('【解説のまとめ（日英併記）】');
+  });
+
+  it('extractTaggedText で <prose-ja>/<prose-en> をそれぞれ独立して抽出できる', () => {
+    const text = '<prose-ja>日本語の解説</prose-ja><prose-en>English explanation</prose-en>';
+    expect(extractTaggedText(text, 'prose-ja')).toBe('日本語の解説');
+    expect(extractTaggedText(text, 'prose-en')).toBe('English explanation');
+  });
+
+  it('<prose-ja> の抽出に失敗した場合は stripKnownBlocks が従来どおりのフォールバックとして働く', () => {
+    // Gemini がタグ指示に従わなかった場合を想定: prose-ja/prose-en が無いレスポンス
+    const text = [
+      '【文法・語法のミスの指摘】',
+      '三単現の s が抜けています。',
+      '',
+      '【添削後の全文】',
+      '<corrected-text>He goes to school.</corrected-text>',
+    ].join('\n');
+
+    expect(extractTaggedText(text, 'prose-ja')).toBeUndefined();
+    const fallback = stripKnownBlocks(text);
+    expect(fallback).toContain('三単現の s が抜けています。');
+    expect(fallback).not.toContain('corrected-text');
   });
 });

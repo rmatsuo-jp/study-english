@@ -1,12 +1,12 @@
 <!-- @file Mistakes ページテンプレート。学習統計ダッシュボード・スコア推移グラフ・CEFR推移グラフ（横軸=添削日付）・カテゴリ別ミス頻度バー・頻出ミスリストを表示する。
      グラフ凡例（.legend-item）は tabindex/role="button"+keydown.enter/space でキーボードからも系列ハイライトを切り替えられる。 -->
 <div class="page">
-  <h1 class="page-title">ミス傾向</h1>
+  <h1 class="page-title">{{ i18n.t('mistakes.title') }}</h1>
 
   @if (studyStats().totalSessions === 0) {
     <div class="empty">
-      <p>まだデータがありません。</p>
-      <p>添削を重ねるとミスのパターンが分析されます。</p>
+      <p>{{ i18n.t('mistakes.empty1') }}</p>
+      <p>{{ i18n.t('mistakes.empty2') }}</p>
     </div>
   } @else {
     <!-- ── 学習統計ダッシュボード ── -->
@@ -14,23 +14,23 @@
       <div class="stat-grid">
         <div class="stat-card streak">
           <span class="stat-value">🔥 {{ studyStats().currentStreak }}</span>
-          <span class="stat-label">連続学習日数</span>
+          <span class="stat-label">{{ i18n.t('mistakes.streak') }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-value">{{ studyStats().totalSessions }}</span>
-          <span class="stat-label">総添削数</span>
+          <span class="stat-label">{{ i18n.t('mistakes.totalSessions') }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-value">{{ studyStats().totalMistakes }}</span>
-          <span class="stat-label">総ミス数</span>
+          <span class="stat-label">{{ i18n.t('mistakes.totalMistakes') }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-value">{{ studyStats().avgMistakes }}</span>
-          <span class="stat-label">平均ミス/回</span>
+          <span class="stat-label">{{ i18n.t('mistakes.avgMistakes') }}</span>
         </div>
         <div class="stat-card">
           <span class="stat-value">{{ studyStats().last7DaysCount }}</span>
-          <span class="stat-label">直近7日</span>
+          <span class="stat-label">{{ i18n.t('mistakes.last7Days') }}</span>
         </div>
       </div>
     </section>
@@ -38,7 +38,7 @@
     <!-- ── スコア推移（10点満点） ── -->
     @if (evalHistory().length > 0) {
     <section class="section">
-      <h2 class="section-title">スコア推移（10点満点）</h2>
+      <h2 class="section-title">{{ i18n.t('mistakes.scoreTrend') }}</h2>
       @if (scoreChart().length > 0) {
         <div class="cefr-chart">
           <svg [attr.viewBox]="'0 0 ' + chartBox.w + ' ' + chartBox.h" preserveAspectRatio="xMidYMid meet">
@@ -78,7 +78,7 @@
           </div>
         </div>
       } @else {
-        <p class="chart-note">推移を表示するには、評価付きの添削が2回以上必要です。</p>
+        <p class="chart-note">{{ i18n.t('mistakes.chartNote') }}</p>
       }
     </section>
     }
@@ -86,7 +86,7 @@
     <!-- ── CEFR レベル推移 ── -->
     @if (evalHistory().length > 0) {
     <section class="section">
-      <h2 class="section-title">CEFRレベル推移</h2>
+      <h2 class="section-title">{{ i18n.t('mistakes.cefrTrend') }}</h2>
       @if (cefrChart().length > 0) {
         <div class="cefr-chart">
           <svg [attr.viewBox]="'0 0 ' + chartBox.w + ' ' + chartBox.h" preserveAspectRatio="xMidYMid meet">
@@ -126,18 +126,18 @@
           </div>
         </div>
       } @else {
-        <p class="chart-note">推移を表示するには、評価付きの添削が2回以上必要です。</p>
+        <p class="chart-note">{{ i18n.t('mistakes.chartNote') }}</p>
       }
     </section>
     }
 
     @if (stats().length > 0) {
     <section class="section">
-      <h2 class="section-title">カテゴリ別ミス件数</h2>
+      <h2 class="section-title">{{ i18n.t('mistakes.categoryCount') }}</h2>
       <div class="chart">
         @for (s of stats(); track s.category) {
           <div class="chart-row">
-            <span class="chart-label">{{ s.category }}</span>
+            <span class="chart-label">{{ categoryLabel(s.category) }}</span>
             <div class="bar-wrap">
               <div class="bar" [style.width]="barWidth(s.count)"></div>
             </div>
@@ -148,14 +148,14 @@
     </section>
 
     <section class="section">
-      <h2 class="section-title">よく間違える表現</h2>
+      <h2 class="section-title">{{ i18n.t('mistakes.frequent') }}</h2>
       <div class="frequent-list">
         @for (m of frequent(); track m.original) {
           <div class="frequent-item">
             <div class="frequent-header">
-              <span class="category-badge">{{ m.category }}</span>
+              <span class="category-badge">{{ mistakeCategoryLabel(m) }}</span>
               @if (m.count > 1) {
-                <span class="repeat-badge">{{ m.count }}回</span>
+                <span class="repeat-badge">{{ i18n.t('mistakes.repeatCount', { count: m.count }) }}</span>
               }
             </div>
             <div class="frequent-pair">
@@ -163,7 +163,7 @@
               <span class="arrow">→</span>
               <span class="f-corrected">{{ m.corrected }}</span>
             </div>
-            <p class="f-explanation">{{ m.explanation }}</p>
+            <p class="f-explanation">{{ mistakeExplanation(m) }}</p>
           </div>
         }
       </div>

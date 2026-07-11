@@ -6,6 +6,8 @@
  * 一括添削の実行前には、送信件数（＝API 呼び出し回数）と課金の可能性を confirm で確認する。
  * Gemini API キーが未設定のときは設定ページへの誘導バナーを出し、添削ボタンを無効化する
  * （SettingsStoreService.hasApiKey を購読するため、キー保存と同時に誘導が消える）。
+ * 添削解説（corrected/correctedEn）・ミス説明（explanation/explanationEn）は i18n.lang() に応じて
+ * core/i18n/localized-session.util.ts のヘルパーで表示言語を切り替える（英語版が無ければ日本語表示）。
  */
 import { Component, ElementRef, ViewChild, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +19,9 @@ import { buildBulkTemplateJson, buildBulkTemplateFromSessions, parseBulkImportJs
 import { formatTimestampForFilename } from '@shared/utils/date.util';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
 import { getReviewItems } from '@core/stats/session-stats.util';
+import { I18nService } from '@core/i18n/i18n.service';
+import { localizedCategory, localizedExplanation, localizedProse } from '@core/i18n/localized-session.util';
+import { Mistake } from '@core/models/session.model';
 import { PracticeState } from './practice-state.service';
 import { WaitingQuiz } from './waiting-quiz/waiting-quiz';
 
@@ -31,6 +36,7 @@ export class Practice {
   state = inject(PracticeState);
   // テンプレートが hasApiKey() を購読するため public。
   settingsStore = inject(SettingsStoreService);
+  protected i18n = inject(I18nService);
   private sanitizer = inject(DomSanitizer);
   private repository = inject(SessionRepositoryService);
 
@@ -49,6 +55,19 @@ export class Practice {
   toHtml(markdown: string): SafeHtml {
     // marked → DOMPurify でサニタイズした HTML のみ信頼済みとして渡す。
     return this.sanitizer.bypassSecurityTrustHtml(renderSafeMarkdown(markdown));
+  }
+
+  // ── 添削解説・ミス説明・カテゴリの表示言語切替（英語版が無ければ日本語にフォールバック） ──
+  proseText(source: { corrected: string; correctedEn?: string }): string {
+    return localizedProse(source, this.i18n.lang());
+  }
+
+  explanationText(m: Mistake): string {
+    return localizedExplanation(m, this.i18n.lang());
+  }
+
+  categoryText(m: Mistake): string {
+    return localizedCategory(m, this.i18n);
   }
 
   // ── 一括添削: テンプレートダウンロード / JSONアップロード ──────────
@@ -83,7 +102,7 @@ export class Practice {
       const { entries, errors } = parseBulkImportJson(reader.result as string);
       this.state.setBulkEntries(entries);
       if (errors.length > 0) {
-        alert(`一部のデータを読み込めませんでした:\n${errors.join('\n')}`);
+        alert(this.i18n.t('practice.bulk.alertPartial', { errors: errors.join('\n') }));
       }
       (event.target as HTMLInputElement).value = '';
     };
@@ -95,10 +114,7 @@ export class Practice {
   runBulk() {
     const count = this.state.bulkEntries().length;
     if (count === 0) return;
-    const ok = window.confirm(
-      `${count}件の英文を Gemini API へ送信します（API 呼び出し ${count} 回分）。\n` +
-        '無料枠を超えた分は課金対象となる場合があります。実行しますか？'
-    );
+    const ok = window.confirm(this.i18n.t('practice.bulk.confirm', { count }));
     if (!ok) return;
     this.state.submitBulk();
   }

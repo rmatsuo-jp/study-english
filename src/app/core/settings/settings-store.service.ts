@@ -11,11 +11,14 @@
  * 利用同意は consentAcceptedAt（日時）と consentVersion（同意した文言の版）の対で持つ。
  * 同意文言に実質的な変更（例: API 利用料金の負担条項の追加）を加えたら CONSENT_VERSION を上げること。
  * 既存ユーザーにも同意モーダルが再表示され、新しい文言への同意を取り直せる（判定は app.ts）。
+ * 表示言語（language）もテーマと同じくここで永続化する。旧データは language を持たないため
+ * getSettings() のデフォルトマージにより自動的に 'ja' として扱われる。
  */
 import { Injectable, signal } from '@angular/core';
 import { DEFAULT_MODEL_PRIORITY } from '../gemini/gemini-models.constants';
 import { readJson, writeJson } from '@shared/utils/local-storage.util';
 import { decryptText, encryptText, getOrCreateAesKey, isCryptoSupported } from '@shared/utils/crypto.util';
+import { Lang } from '@core/i18n/lang.model';
 
 const SETTINGS_KEY = 'app_settings';
 
@@ -29,6 +32,7 @@ export interface AppSettings {
   apiKey: string;
   modelPriority: string[]; // API送信の試行順（先頭が最優先、失敗したら次のモデルへフォールバック）
   theme: 'light' | 'dark';
+  language: Lang; // UI表示言語・添削結果の表示言語切替に使う
   consentAcceptedAt?: string; // プライバシーポリシー・利用規約への同意日時（ISO 8601）。未同意なら undefined。
   consentVersion?: number;    // 同意した文言のバージョン。未設定（旧データ）は 1 とみなす。
 }
@@ -40,6 +44,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   apiKey: '',
   modelPriority: DEFAULT_MODEL_PRIORITY,
   theme: 'dark',
+  language: 'ja',
 };
 
 @Injectable({ providedIn: 'root' })

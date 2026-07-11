@@ -1,31 +1,28 @@
 <!-- @file アプリシェル。router-outlet（メインコンテンツ）・グローバル添削通知バナー・ボトムナビ（6タブ）を配置する。
      各ナビ項目は routerLinkActive を #rlaN で参照して aria-current="page" を付与し、通知バナーは
      tabindex/role/keydown.enter でキーボードからも開けるようにしている。
-     PCレイアウト（サイドバー表示時）では nav 先頭にアプリタイトル（sidebar-title）を表示し、
-     続く sidebar-toggle ボタンで格納/展開を切り替えられる（app.ts の sidebarCollapsed signal に連動）。
+     PCレイアウト（サイドバー表示時）では nav 先頭にアプリタイトル（sidebar-title）、末尾（ナビ項目の下）に
+     JA/EN 言語トグルを表示し、タイトル横の sidebar-toggle ボタンで格納/展開を切り替えられる
+     （app.ts の sidebarCollapsed signal に連動、格納時は言語トグルも非表示）。
+     モバイルレイアウトでは bottom-nav 自体が非表示にならないタブバーのため、代わりに画面右上に固定表示する
+     lang-toggle-mobile でどのタブからも言語切り替えができるようにしている。
+     全文言は i18n.t() 経由（core/i18n/I18nService）で、言語トグル（toggleLanguage）を押すと
+     リロードなしで即座に切り替わる。
      初回起動時、および同意文言の改訂時（CONSENT_VERSION）は showConsent signal に応じて
      同意モーダルを最前面に表示する（app.ts 参照）。 -->
 <div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed()">
   @if (showConsent()) {
     <div class="consent-overlay">
       <div class="consent-dialog">
-        <h2>ご利用にあたって</h2>
-        <p>
-          本アプリは、入力した英文を添削のために <strong>Google Gemini API</strong> へ送信します。
-          ログインした場合は添削データが Firebase（Google）に保存されます。詳細は下記をご確認のうえ、
-          同意いただける場合のみご利用ください。
-        </p>
-        <p>
-          添削には利用者ご自身が取得した API キーを使用します。
-          <strong>Gemini API の利用料金が発生した場合、その負担は利用者ご自身に帰属し、当方は一切の責任を負いません。</strong>
-          Google アカウント側の課金設定と利用上限をご確認ください。
-        </p>
+        <h2>{{ i18n.t('consent.title') }}</h2>
+        <p>{{ i18n.t('consent.body1') }}</p>
+        <p>{{ i18n.t('consent.body2') }}</p>
         <p class="consent-links">
-          <a routerLink="/legal/privacy">プライバシーポリシー</a> ・
-          <a routerLink="/legal/terms">利用規約</a> ・
-          <a routerLink="/legal/disclaimer">免責事項</a>
+          <a routerLink="/legal/privacy">{{ i18n.t('consent.privacy') }}</a> ・
+          <a routerLink="/legal/terms">{{ i18n.t('consent.terms') }}</a> ・
+          <a routerLink="/legal/disclaimer">{{ i18n.t('consent.disclaimer') }}</a>
         </p>
-        <button class="btn-primary" type="button" (click)="acceptConsent()">同意して続ける</button>
+        <button class="btn-primary" type="button" (click)="acceptConsent()">{{ i18n.t('consent.accept') }}</button>
       </div>
     </div>
   }
@@ -49,8 +46,8 @@
 
   <nav class="bottom-nav" [class.collapsed]="sidebarCollapsed()">
     <div class="sidebar-header">
-      <a routerLink="/practice" class="sidebar-title"><span>英作文ラボ</span></a>
-      <button type="button" class="sidebar-toggle" (click)="toggleSidebar()" [attr.aria-label]="sidebarCollapsed() ? 'サイドバーを表示' : 'サイドバーを格納'">
+      <a routerLink="/practice" class="sidebar-title"><span>{{ i18n.t('app.title') }}</span></a>
+      <button type="button" class="sidebar-toggle" (click)="toggleSidebar()" [attr.aria-label]="sidebarCollapsed() ? i18n.t('sidebar.expand') : i18n.t('sidebar.collapse')">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6"/>
         </svg>
@@ -60,39 +57,49 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
       </svg>
-      <span>添削</span>
+      <span>{{ i18n.t('nav.practice') }}</span>
     </a>
     <a routerLink="/drill" routerLinkActive="active" #rla2="routerLinkActive" [attr.aria-current]="rla2.isActive ? 'page' : null" class="nav-item">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
       </svg>
-      <span>ドリル</span>
+      <span>{{ i18n.t('nav.drill') }}</span>
     </a>
     <a routerLink="/history" routerLinkActive="active" #rla3="routerLinkActive" [attr.aria-current]="rla3.isActive ? 'page' : null" class="nav-item">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
       </svg>
-      <span>履歴</span>
+      <span>{{ i18n.t('nav.history') }}</span>
     </a>
     <a routerLink="/mistakes" routerLinkActive="active" #rla4="routerLinkActive" [attr.aria-current]="rla4.isActive ? 'page' : null" class="nav-item">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
       </svg>
-      <span>ミス傾向</span>
+      <span>{{ i18n.t('nav.mistakes') }}</span>
     </a>
     <a routerLink="/settings" routerLinkActive="active" #rla5="routerLinkActive" [attr.aria-current]="rla5.isActive ? 'page' : null" class="nav-item">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
       </svg>
-      <span>設定</span>
+      <span>{{ i18n.t('nav.settings') }}</span>
     </a>
     @if (isDev) {
       <a routerLink="/dev" routerLinkActive="active" #rla6="routerLinkActive" [attr.aria-current]="rla6.isActive ? 'page' : null" class="nav-item">
         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
         </svg>
-        <span>開発</span>
+        <span>{{ i18n.t('nav.dev') }}</span>
       </a>
     }
+    <div class="lang-toggle" role="group" [attr.aria-label]="i18n.t('sidebar.language')">
+      <button type="button" class="lang-btn" [class.active]="i18n.lang() === 'ja'" (click)="toggleLanguage('ja')">JA</button>
+      <button type="button" class="lang-btn" [class.active]="i18n.lang() === 'en'" (click)="toggleLanguage('en')">EN</button>
+    </div>
   </nav>
+
+  <!-- ── モバイル用言語トグル（bottom-nav は常時表示のため右上に固定表示） ── -->
+  <div class="lang-toggle-mobile" role="group" [attr.aria-label]="i18n.t('sidebar.language')">
+    <button type="button" class="lang-btn" [class.active]="i18n.lang() === 'ja'" (click)="toggleLanguage('ja')">JA</button>
+    <button type="button" class="lang-btn" [class.active]="i18n.lang() === 'en'" (click)="toggleLanguage('en')">EN</button>
+  </div>
 </div>

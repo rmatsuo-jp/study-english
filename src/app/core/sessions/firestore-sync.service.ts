@@ -3,6 +3,8 @@
  * セッション永続化のうち「クラウド同期」専任部分。SessionStoreService の signal を読み書きし、
  * ログイン状態（AuthService）を監視して、ログインした瞬間にクラウドと双方向同期する。
  * 削除は物理削除せず deleted フラグ（tombstone）で表現し、削除も多端末へ伝播させる。
+ * mistakes/reviewItems/levelUpItems は配列要素自身にも optional フィールド（explanationEn 等）を
+ * 持つため、トップレベルだけでなく配列要素内の undefined キーも stripUndefinedDeep() で除去する。
  */
 import { effect, Injectable, inject } from '@angular/core';
 import {
@@ -21,12 +23,23 @@ import { SessionStoreService } from './session-store.service';
 // ⚠ session.model.ts の CorrectionSession に optional フィールドを追加したら、必ずここにも追加すること。
 const OPTIONAL_FIELDS: (keyof CorrectionSession)[] = [
   'correctedText',
+  'correctedEn',
   'evaluation',
   'reviewItems',
   'levelUpItems',
   'levelUpText',
   'deleted',
 ];
+
+// mistakes/reviewItems/levelUpItems の配列要素が持つ optional フィールド（Mistake.explanationEn 等）を
+// Firestore へ渡す前に取り除く。値が undefined のキーだけを削除する（浅い1階層のみで十分）。
+function stripUndefinedShallow<T extends Record<string, unknown>>(obj: T): T {
+  const copy: Record<string, unknown> = { ...obj };
+  for (const key of Object.keys(copy)) {
+    if (copy[key] === undefined) delete copy[key];
+  }
+  return copy as T;
+}
 
 @Injectable({ providedIn: 'root' })
 export class FirestoreSyncService {
@@ -64,6 +77,9 @@ export class FirestoreSyncService {
     for (const field of OPTIONAL_FIELDS) {
       if (data[field] === undefined) delete data[field];
     }
+    if (data['mistakes']) data['mistakes'] = (data['mistakes'] as Record<string, unknown>[]).map(stripUndefinedShallow);
+    if (data['reviewItems']) data['reviewItems'] = (data['reviewItems'] as Record<string, unknown>[]).map(stripUndefinedShallow);
+    if (data['levelUpItems']) data['levelUpItems'] = (data['levelUpItems'] as Record<string, unknown>[]).map(stripUndefinedShallow);
     return data;
   }
 

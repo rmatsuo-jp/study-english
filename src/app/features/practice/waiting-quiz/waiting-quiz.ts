@@ -5,11 +5,13 @@
  * ドリルの習熟度（DrillProgressService）には記録しない — 気晴らし用途であり、
  * 待機時間に左右される回答結果で習熟判定が歪むのを避けるため。
  * 添削が完了しても自動では閉じず、完了通知と「結果を見る」ボタンを出して遷移をユーザーに委ねる。
+ * 出題データ（hint/badge/translation）は生成時点の i18n.lang() で固定される（Drill と同じスナップショット方式）。
  */
 import { Component, computed, inject, signal } from '@angular/core';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
 import { getReviewItems, normalizeDrillKey } from '@core/stats/session-stats.util';
 import { buildClozeQuiz, normalizeAnswer, shuffleByWeight } from '@core/quiz/quiz.util';
+import { I18nService } from '@core/i18n/i18n.service';
 import { PracticeState } from '../practice-state.service';
 
 @Component({
@@ -21,12 +23,13 @@ import { PracticeState } from '../practice-state.service';
 export class WaitingQuiz {
   private repository = inject(SessionRepositoryService);
   state = inject(PracticeState);
+  protected i18n = inject(I18nService);
 
   // ── 出題リスト（コンポーネント生成時に一度だけ確定させる） ──────────
   // 添削中に新しいセッションが保存されて出題が入れ替わることを避けるため、signal ではなく固定配列で持つ。
   // weight は一律 1（習熟度を参照しないため）で、shuffleByWeight は純粋なランダム並べ替えとして働く。
   private readonly quizzes = shuffleByWeight(
-    getReviewItems(this.repository.sessions()).map(r => buildClozeQuiz(r, normalizeDrillKey(r.sentence), 1))
+    getReviewItems(this.repository.sessions()).map(r => buildClozeQuiz(r, normalizeDrillKey(r.sentence), 1, this.i18n.lang()))
   );
 
   hasQuiz = this.quizzes.length > 0;

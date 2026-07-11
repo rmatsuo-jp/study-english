@@ -1,17 +1,17 @@
 <!-- @file History ページテンプレート。上部に常設のカレンダー（月表示グリッドで添削済みの日を総合スコア/CEFR表示、評価未取得の旧データはドット表示）、下部にセッション一覧（キーワード検索・複数選択削除）を1画面で表示する。カレンダーで日付を選ぶと一覧がその日だけに絞り込まれる。セッションカードの描画は #sessionCard テンプレートとして共用し、折りたたみ表示でも総合スコア/CEFRバッジを表示する。
      session-card/session-header は選択モードに応じて tabindex/role を切り替え、keydown.enter/space でも開閉・選択できる。 -->
 <div class="page">
-  <h1 class="page-title">履歴</h1>
+  <h1 class="page-title">{{ i18n.t('history.title') }}</h1>
 
   <!-- ── カレンダー（常設・日付クリックで下の一覧を絞り込む） ── -->
   <div class="calendar-nav">
-    <button class="toolbar-btn" (click)="prevMonth()" aria-label="前の月">‹</button>
+    <button class="toolbar-btn" (click)="prevMonth()" [attr.aria-label]="i18n.t('history.prevMonth')">‹</button>
     <span class="calendar-month-label">{{ calendarMonthLabel() }}</span>
-    <button class="toolbar-btn" (click)="nextMonth()" aria-label="次の月">›</button>
+    <button class="toolbar-btn" (click)="nextMonth()" [attr.aria-label]="i18n.t('history.nextMonth')">›</button>
   </div>
 
   <div class="calendar-weekdays">
-    @for (w of ['日', '月', '火', '水', '木', '金', '土']; track w) {
+    @for (w of weekdayLabels(); track w) {
       <span class="weekday-cell">{{ w }}</span>
     }
   </div>
@@ -39,28 +39,28 @@
 
   @if (selectedDate()) {
     <div class="date-filter-banner">
-      <span>{{ formatDayKey(selectedDate()!) }} の履歴を表示中</span>
-      <button class="toolbar-btn" (click)="clearDateFilter()">解除</button>
+      <span>{{ i18n.t('history.dateFilterBanner', { date: formatDayKey(selectedDate()!) }) }}</span>
+      <button class="toolbar-btn" (click)="clearDateFilter()">{{ i18n.t('history.clearFilter') }}</button>
     </div>
   }
 
   <!-- ── セッション一覧（カレンダーの選択日 + キーワード検索で絞り込み） ── -->
   <div class="toolbar">
     @if (!selectionMode()) {
-      <button class="toolbar-btn" (click)="exportJson()">↓ バックアップ保存</button>
-      <button class="toolbar-btn" (click)="triggerImport()">↑ JSONから取り込み</button>
+      <button class="toolbar-btn" (click)="exportJson()">{{ i18n.t('history.export') }}</button>
+      <button class="toolbar-btn" (click)="triggerImport()">{{ i18n.t('history.import') }}</button>
       <button class="toolbar-btn sort-btn" (click)="toggleSort()">
-        日付 {{ sortOrder() === 'desc' ? '↓' : '↑' }}
+        {{ i18n.t('history.sort') }} {{ sortOrder() === 'desc' ? '↓' : '↑' }}
       </button>
-      <button class="toolbar-btn select-btn" (click)="toggleSelectionMode()">選択</button>
+      <button class="toolbar-btn select-btn" (click)="toggleSelectionMode()">{{ i18n.t('history.select') }}</button>
     } @else {
-      <button class="toolbar-btn" (click)="toggleSelectionMode()">キャンセル</button>
-      <button class="toolbar-btn" (click)="selectAll()">すべて選択</button>
-      <button class="toolbar-btn" (click)="deselectAll()">すべて解除</button>
+      <button class="toolbar-btn" (click)="toggleSelectionMode()">{{ i18n.t('history.cancel') }}</button>
+      <button class="toolbar-btn" (click)="selectAll()">{{ i18n.t('history.selectAll') }}</button>
+      <button class="toolbar-btn" (click)="deselectAll()">{{ i18n.t('history.deselectAll') }}</button>
       <button class="toolbar-btn delete-selected-btn"
               [disabled]="selectedIds().length === 0"
               (click)="deleteSelected()">
-        削除{{ selectedIds().length > 0 ? '（' + selectedIds().length + '件）' : '' }}
+        {{ i18n.t('history.delete', { count: selectedIds().length > 0 ? (i18n.lang() === 'en' ? ' (' + selectedIds().length + ')' : '（' + selectedIds().length + '件）') : '' }) }}
       </button>
     }
   </div>
@@ -70,26 +70,26 @@
     <!-- ── キーワード検索（元文・添削文・ミス表現を横断） ── -->
     <div class="search-box">
       <input type="text" class="search-input"
-             placeholder="キーワードで検索（英文・添削・ミス表現）"
+             [placeholder]="i18n.t('history.searchPlaceholder')"
              [(ngModel)]="searchQuery">
       @if (searchQuery()) {
-        <button class="search-clear" (click)="searchQuery.set('')" aria-label="検索をクリア">×</button>
+        <button class="search-clear" (click)="searchQuery.set('')" aria-label="×">×</button>
       }
     </div>
   }
 
   @if (sessions().length === 0) {
     <div class="empty">
-      <p>まだ添削履歴がありません。</p>
-      <p>添削ページで英作文を送信すると、ここに記録されます。</p>
+      <p>{{ i18n.t('history.emptyAll1') }}</p>
+      <p>{{ i18n.t('history.emptyAll2') }}</p>
     </div>
   } @else if (filteredSessions().length === 0 && selectedDate()) {
     <div class="empty">
-      <p>この日は添削を行っていません。</p>
+      <p>{{ i18n.t('history.emptyDay') }}</p>
     </div>
   } @else if (filteredSessions().length === 0) {
     <div class="empty">
-      <p>「{{ searchQuery() }}」に該当する履歴がありません。</p>
+      <p>{{ i18n.t('history.emptySearch', { query: searchQuery() }) }}</p>
     </div>
   }
 
@@ -127,7 +127,7 @@
           <span class="score-cefr">{{ ev.overallCefr }}</span>
         }
         @if (session.mistakes.length > 0) {
-          <span class="mistake-count">ミス {{ session.mistakes.length }}件</span>
+          <span class="mistake-count">{{ i18n.t('history.mistakeCount', { count: session.mistakes.length }) }}</span>
         }
       </div>
       <div class="session-actions">
@@ -140,46 +140,46 @@
 
     @if (!selectionMode() && expandedId() === session.id) {
       <div class="session-detail" (click)="$event.stopPropagation()">
-        <h3 class="detail-title">元の英作文</h3>
+        <h3 class="detail-title">{{ i18n.t('history.detailOriginal') }}</h3>
         <pre class="detail-text original">{{ session.original }}</pre>
 
         @if (session.evaluation; as ev) {
-          <h3 class="detail-title">評価スコア</h3>
+          <h3 class="detail-title">{{ i18n.t('history.detailEvaluation') }}</h3>
           <div class="eval-panel">
             <div class="eval-grid">
               <div class="eval-card">
-                <span class="eval-name">総合</span>
+                <span class="eval-name">{{ i18n.t('practice.evalOverall') }}</span>
                 <span class="eval-score">{{ ev.overallScore }}</span>
                 <span class="eval-cefr">{{ ev.overallCefr }}</span>
               </div>
               <div class="eval-card">
-                <span class="eval-name">文法</span>
+                <span class="eval-name">{{ i18n.t('practice.evalGrammar') }}</span>
                 <span class="eval-score">{{ ev.grammarScore }}</span>
                 <span class="eval-cefr">{{ ev.grammarCefr }}</span>
               </div>
               <div class="eval-card">
-                <span class="eval-name">語彙</span>
+                <span class="eval-name">{{ i18n.t('practice.evalVocabulary') }}</span>
                 <span class="eval-score">{{ ev.vocabularyScore }}</span>
                 <span class="eval-cefr">{{ ev.vocabularyCefr }}</span>
               </div>
               <div class="eval-card">
-                <span class="eval-name">内容</span>
+                <span class="eval-name">{{ i18n.t('practice.evalContent') }}</span>
                 <span class="eval-score">{{ ev.contentScore }}</span>
                 <span class="eval-cefr">{{ ev.contentCefr }}</span>
               </div>
             </div>
-            <div class="eval-density">エラー密度（100語あたり）: <strong>{{ ev.errorDensity }}</strong></div>
+            <div class="eval-density">{{ i18n.t('practice.errorDensity') }}: <strong>{{ ev.errorDensity }}</strong></div>
           </div>
         }
 
-        <h3 class="detail-title">添削解説</h3>
+        <h3 class="detail-title">{{ i18n.t('history.detailExplanation') }}</h3>
         <div class="detail-text markdown-body" [innerHTML]="toHtml(session)"></div>
 
         @if (session.mistakes.length > 0) {
-          <h3 class="detail-title">ミスリスト</h3>
+          <h3 class="detail-title">{{ i18n.t('history.detailMistakes') }}</h3>
           @for (m of session.mistakes; track m.original) {
             <div class="mini-mistake">
-              <span class="category-badge">{{ m.category }}</span>
+              <span class="category-badge">{{ categoryText(m) }}</span>
               <span class="mistake-original">{{ m.original }}</span>
               <span class="arrow">→</span>
               <span class="mistake-corrected">{{ m.corrected }}</span>

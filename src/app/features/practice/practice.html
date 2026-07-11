@@ -2,12 +2,14 @@
      入力エリア・エラー表示・送信ボタン・添削中の進捗バー＋待機中クイズ・
      添削結果（元の英作文 + 評価スコアパネル +
      添削後の英文Markdown + レベルアップした英文Markdown + 添削解説Markdown + ミスリスト）に加え、
-     JSONテンプレートで複数日分の英作文をまとめてアップロード・一括添削・進捗表示する一括添削セクションを含む。 -->
+     JSONテンプレートで複数日分の英作文をまとめてアップロード・一括添削・進捗表示する一括添削セクションを含む。
+     添削解説（proseText）・ミス説明（explanationText）・カテゴリ（categoryText）は
+     i18n.lang() に追随して表示言語が切り替わる（practice.ts のヘルパー参照）。 -->
 <div class="page">
-  <h1 class="page-title">添削</h1>
+  <h1 class="page-title">{{ i18n.t('practice.title') }}</h1>
 
   <div class="date-row">
-    <label class="label">日付</label>
+    <label class="label">{{ i18n.t('practice.date') }}</label>
     <input class="input date-input" type="date"
       [value]="state.selectedDate()"
       (input)="state.selectedDate.set($any($event.target).value)" />
@@ -16,18 +18,18 @@
   <!-- ── APIキー未設定時の設定ページ誘導（未設定のあいだ添削ボタンは押せない） ── -->
   @if (!settingsStore.hasApiKey()) {
     <div class="setup-box">
-      <span>添削には Gemini API キーが必要です。設定ページでキーを登録してください。</span>
-      <a class="setup-link" routerLink="/settings">設定ページを開く</a>
+      <span>{{ i18n.t('practice.setupRequired') }}</span>
+      <a class="setup-link" routerLink="/settings">{{ i18n.t('practice.setupLink') }}</a>
     </div>
   }
 
   <div class="input-section">
-    <label class="label">英作文</label>
+    <label class="label">{{ i18n.t('practice.inputLabel') }}</label>
     <textarea
       class="textarea"
       [(ngModel)]="state.userText"
       [ngModelOptions]="{standalone: true}"
-      placeholder="今日の英作文をここに入力してください..."
+      [placeholder]="i18n.t('practice.inputPlaceholder')"
       rows="8"
     ></textarea>
   </div>
@@ -37,12 +39,12 @@
   }
 
   <div class="actions">
-    <button class="btn-secondary" (click)="state.clear()" [disabled]="state.loading()">クリア</button>
+    <button class="btn-secondary" (click)="state.clear()" [disabled]="state.loading()">{{ i18n.t('practice.clear') }}</button>
     <button class="btn-primary" (click)="state.submit()" [disabled]="state.loading() || !state.userText().trim() || !settingsStore.hasApiKey()">
       @if (state.loading()) {
-        <span class="spinner"></span> 添削中...
+        <span class="spinner"></span> {{ i18n.t('practice.submitting') }}
       } @else {
-        添削する
+        {{ i18n.t('practice.submit') }}
       }
     </button>
   </div>
@@ -55,7 +57,7 @@
       </div>
       <span class="progress-percent">{{ state.progress() }}%</span>
       @if (!state.showQuiz() && hasReviewItems()) {
-        <button class="btn-secondary" (click)="state.showQuiz.set(true)">クイズで待つ</button>
+        <button class="btn-secondary" (click)="state.showQuiz.set(true)">{{ i18n.t('practice.waitWithQuiz') }}</button>
       }
     </div>
   }
@@ -67,67 +69,67 @@
 
   @if (state.result() && !state.showQuiz()) {
     <div class="result-section">
-      <h2 class="section-title">元の英作文</h2>
+      <h2 class="section-title">{{ i18n.t('practice.original') }}</h2>
       <div class="original-box">{{ state.result()!.original }}</div>
 
       <!-- ── 評価スコアパネル（<evaluation> JSON 由来。本文の解説文とは分離した厳格データ表示） ── -->
       @if (state.result()!.evaluation; as ev) {
-        <h2 class="section-title">評価スコア</h2>
+        <h2 class="section-title">{{ i18n.t('practice.evaluation') }}</h2>
         <div class="eval-panel">
           <div class="eval-grid">
             <div class="eval-card">
-              <span class="eval-name">総合</span>
+              <span class="eval-name">{{ i18n.t('practice.evalOverall') }}</span>
               <span class="eval-score">{{ ev.overallScore }}</span>
               <span class="eval-cefr">{{ ev.overallCefr }}</span>
             </div>
             <div class="eval-card">
-              <span class="eval-name">文法</span>
+              <span class="eval-name">{{ i18n.t('practice.evalGrammar') }}</span>
               <span class="eval-score">{{ ev.grammarScore }}</span>
               <span class="eval-cefr">{{ ev.grammarCefr }}</span>
             </div>
             <div class="eval-card">
-              <span class="eval-name">語彙</span>
+              <span class="eval-name">{{ i18n.t('practice.evalVocabulary') }}</span>
               <span class="eval-score">{{ ev.vocabularyScore }}</span>
               <span class="eval-cefr">{{ ev.vocabularyCefr }}</span>
             </div>
             <div class="eval-card">
-              <span class="eval-name">内容</span>
+              <span class="eval-name">{{ i18n.t('practice.evalContent') }}</span>
               <span class="eval-score">{{ ev.contentScore }}</span>
               <span class="eval-cefr">{{ ev.contentCefr }}</span>
             </div>
           </div>
-          <div class="eval-density">エラー密度（100語あたり）: <strong>{{ ev.errorDensity }}</strong></div>
+          <div class="eval-density">{{ i18n.t('practice.errorDensity') }}: <strong>{{ ev.errorDensity }}</strong></div>
         </div>
       }
 
       @if (state.result()!.correctedText; as correctedText) {
-        <h2 class="section-title">添削後の英文</h2>
+        <h2 class="section-title">{{ i18n.t('practice.correctedText') }}</h2>
         <div class="result-box markdown-body" [innerHTML]="toHtml(correctedText)"></div>
       }
 
       @if (state.result()!.levelUpText; as levelUpText) {
-        <h2 class="section-title">レベルアップした英文</h2>
+        <h2 class="section-title">{{ i18n.t('practice.levelUpText') }}</h2>
         <div class="result-box markdown-body" [innerHTML]="toHtml(levelUpText)"></div>
       }
 
-      <h2 class="section-title">添削解説</h2>
-      <div class="result-box markdown-body" [innerHTML]="toHtml(state.result()!.corrected)"></div>
+      <h2 class="section-title">{{ i18n.t('practice.explanation') }}</h2>
+      <div class="result-box markdown-body" [innerHTML]="toHtml(proseText(state.result()!))"></div>
 
       @if (state.result()!.mistakes.length > 0) {
-        <h2 class="section-title">ミスリスト</h2>
+        <h2 class="section-title">{{ i18n.t('practice.mistakeList') }}</h2>
         <div class="mistakes-list">
           @for (m of state.result()!.mistakes; track m.original) {
             <div class="mistake-card">
-              <span class="category-badge">{{ m.category }}</span>
+              <span class="category-badge">{{ categoryText(m) }}</span>
               <div class="mistake-row">
-                <span class="mistake-label">誤</span>
+                <span class="mistake-label">{{ i18n.t('practice.mistakeOriginal') }}</span>
                 <span class="mistake-original">{{ m.original }}</span>
               </div>
               <div class="mistake-row">
-                <span class="mistake-label correct">正</span>
+                <span class="mistake-label correct">{{ i18n.t('practice.mistakeCorrected') }}</span>
                 <span class="mistake-corrected">{{ m.corrected }}</span>
               </div>
-              <p class="mistake-explanation">{{ m.explanation }}</p>
+              <p class="mistake-explanation">{{ explanationText(m) }}</p>
             </div>
           }
         </div>
@@ -137,19 +139,19 @@
 
   <!-- ── 一括添削: JSONテンプレートで複数日分の英作文をまとめて添削・保存する ── -->
   <div class="bulk-section">
-    <h2 class="section-title">一括添削（複数の英文をまとめて送信）</h2>
-    <p class="bulk-hint">日付と英文をまとめたJSONファイルをアップロードすると、1件ずつ順番に添削して自動保存します。送信件数がそのまま Gemini API の呼び出し回数になるため、無料枠を超えた分は課金対象となる場合があります。</p>
+    <h2 class="section-title">{{ i18n.t('practice.bulk.title') }}</h2>
+    <p class="bulk-hint">{{ i18n.t('practice.bulk.hint') }}</p>
 
     <div class="bulk-actions">
-      <button class="btn-secondary" (click)="downloadTemplate()">テンプレートをダウンロード</button>
-      <button class="btn-secondary" (click)="downloadHistoryAsTemplate()">履歴からテンプレートを作成してダウンロード</button>
-      <button class="btn-secondary" (click)="triggerBulkUpload()">JSONファイルを選択</button>
+      <button class="btn-secondary" (click)="downloadTemplate()">{{ i18n.t('practice.bulk.downloadTemplate') }}</button>
+      <button class="btn-secondary" (click)="downloadHistoryAsTemplate()">{{ i18n.t('practice.bulk.downloadFromHistory') }}</button>
+      <button class="btn-secondary" (click)="triggerBulkUpload()">{{ i18n.t('practice.bulk.selectFile') }}</button>
       <input #bulkFileInput type="file" accept=".json" hidden (change)="onBulkFileSelected($event)" />
     </div>
 
     @if (state.bulkEntries().length > 0) {
       <div class="bulk-preview">
-        <h3 class="bulk-subtitle">アップロード内容（{{ state.bulkEntries().length }}件）</h3>
+        <h3 class="bulk-subtitle">{{ i18n.t('practice.bulk.preview', { count: state.bulkEntries().length }) }}</h3>
         <div class="bulk-list">
           @for (e of state.bulkEntries(); track e.date + e.text) {
             <div class="bulk-item">
@@ -161,9 +163,9 @@
         <div class="actions">
           <button class="btn-primary" (click)="runBulk()" [disabled]="state.bulkRunning() || !settingsStore.hasApiKey()">
             @if (state.bulkRunning()) {
-              <span class="spinner"></span> 一括添削中...
+              <span class="spinner"></span> {{ i18n.t('practice.bulk.running') }}
             } @else {
-              一括添削を実行
+              {{ i18n.t('practice.bulk.run') }}
             }
           </button>
         </div>
@@ -172,16 +174,16 @@
 
     @if (state.bulkProgress().length > 0) {
       <div class="bulk-progress">
-        <h3 class="bulk-subtitle">進捗</h3>
+        <h3 class="bulk-subtitle">{{ i18n.t('practice.bulk.progress') }}</h3>
         @for (p of state.bulkProgress(); track p.date + p.text) {
           <div class="bulk-progress-item" [class]="'status-' + p.status">
             <span class="bulk-date">{{ p.date }}</span>
             <span class="bulk-status-badge">
               @switch (p.status) {
-                @case ('pending') { 待機中 }
-                @case ('loading') { 処理中... }
-                @case ('success') { 成功 }
-                @case ('error') { 失敗 }
+                @case ('pending') { {{ i18n.t('practice.bulk.pending') }} }
+                @case ('loading') { {{ i18n.t('practice.bulk.loading') }} }
+                @case ('success') { {{ i18n.t('practice.bulk.success') }} }
+                @case ('error') { {{ i18n.t('practice.bulk.error') }} }
               }
             </span>
             @if (p.errorMessage) {
