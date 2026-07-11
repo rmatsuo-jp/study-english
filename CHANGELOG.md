@@ -1,3 +1,16 @@
+# [0.9.0](https://github.com/rmatsuo-jp/study-english/compare/v0.8.2...v0.9.0) (2026-07-11)
+
+
+### Bug Fixes
+
+* **drill:** サンプル問題出題中の「日付選択に戻る」が空画面に迷い込む不具合を修正 ([89a06b5](https://github.com/rmatsuo-jp/study-english/commit/89a06b5877ec82135b1bf502c5b65d1f7f5034bf))
+
+
+### Features
+
+* **drill:** 穴埋め復習の訳を常時表示、単語ヒントをボタン表示化 ([21bd1df](https://github.com/rmatsuo-jp/study-english/commit/21bd1dfab98b3bad0a8aa32b98238981bba7ab02))
+* **quiz:** 新規ユーザー向けサンプル問題（4択・レベルアップ）を追加 ([84a3be5](https://github.com/rmatsuo-jp/study-english/commit/84a3be559dc24297353820db7424a55c3b548be2))
+
 ## [0.8.2](https://github.com/rmatsuo-jp/study-english/compare/v0.8.1...v0.8.2) (2026-07-11)
 
 
