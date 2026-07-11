@@ -7,8 +7,10 @@
  * DrillProgressService を直接 inject しない。
  * ドリル進捗には「削除」概念がないため tombstone は不要。競合は各値の新しさ（lastAttemptAt /
  * maskLevel）で解決する。
+ * 同期失敗は syncError signal（読み取り専用）にメッセージを流し、app.ts がグローバルバナーで
+ * ユーザーに知らせる（次回の同期成功時に自動でクリアされる）。
  */
-import { effect, Injectable, inject } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { DrillProgress, LevelUpItemProgress } from '@core/models/session.model';
 import { AuthService } from '@core/firebase/auth.service';
@@ -25,15 +27,22 @@ export class DrillProgressSyncService {
   private auth = inject(AuthService);
   private store = inject(DrillProgressService);
 
+  // クラウド同期の直近の失敗メッセージ（成功時は null に戻る）。app.ts が購読して通知バナーに出す。
+  private _syncError = signal<string | null>(null);
+  readonly syncError = this._syncError.asReadonly();
+
   constructor() {
     // ログイン状態を監視し、ログインした瞬間にクラウドと双方向同期する。
     // ログアウト時（user が null）はローカルキャッシュをそのまま残す。
     effect(() => {
       const user = this.auth.user();
       if (user) {
-        this.syncFromCloud(user.uid).catch(err =>
-          console.error('[DrillProgressSyncService] クラウド同期に失敗:', err)
-        );
+        this.syncFromCloud(user.uid)
+          .then(() => this._syncError.set(null))
+          .catch(err => {
+            console.error('[DrillProgressSyncService] クラウド同期に失敗:', err);
+            this._syncError.set('ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。');
+          });
       }
     });
   }
@@ -72,9 +81,12 @@ export class DrillProgressSyncService {
       drillProgress: this.store.allDrillProgress(),
       levelUpProgress: this.store.allLevelUpProgress(),
     };
-    setDoc(this.progressDoc(uid), data).catch(err =>
-      console.error('[DrillProgressSyncService] 同期に失敗:', err)
-    );
+    setDoc(this.progressDoc(uid), data)
+      .then(() => this._syncError.set(null))
+      .catch(err => {
+        console.error('[DrillProgressSyncService] 同期に失敗:', err);
+        this._syncError.set('ドリル進捗のクラウド同期に失敗しました。ローカルには保存されています。');
+      });
   }
 
   // ログイン直後に呼ぶ双方向同期:

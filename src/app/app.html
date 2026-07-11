@@ -70,6 +70,12 @@
         <button class="close" type="button" (click)="$event.stopPropagation(); practiceState.dismissNotice()">×</button>
       }
     </div>
+  } @else if (syncError(); as se) {
+    <!-- クラウド同期失敗の通知（添削通知が無い時のみ表示。優先度は添削通知より低い） -->
+    <div class="global-notice is-error">
+      <span class="msg">{{ se }}</span>
+      <button class="close" type="button" (click)="dismissSyncError()">×</button>
+    </div>
   }
 
   <nav class="bottom-nav" [class.collapsed]="sidebarCollapsed()" #bottomNav>

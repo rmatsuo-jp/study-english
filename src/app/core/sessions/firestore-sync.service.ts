@@ -5,8 +5,10 @@
  * 削除は物理削除せず deleted フラグ（tombstone）で表現し、削除も多端末へ伝播させる。
  * mistakes/reviewItems/levelUpItems は配列要素自身にも optional フィールド（explanationEn 等）を
  * 持つため、トップレベルだけでなく配列要素内の undefined キーも stripUndefinedDeep() で除去する。
+ * 同期失敗は syncError signal（読み取り専用）にメッセージを流し、app.ts がグローバルバナーで
+ * ユーザーに知らせる（次回の同期成功時に自動でクリアされる）。
  */
-import { effect, Injectable, inject } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
 import {
   collection,
   doc,
@@ -57,15 +59,22 @@ export class FirestoreSyncService {
   private auth = inject(AuthService);
   private sessionStore = inject(SessionStoreService);
 
+  // クラウド同期の直近の失敗メッセージ（成功時は null に戻る）。app.ts が購読して通知バナーに出す。
+  private _syncError = signal<string | null>(null);
+  readonly syncError = this._syncError.asReadonly();
+
   constructor() {
     // ログイン状態を監視し、ログインした瞬間にクラウドと双方向同期する。
     // ログアウト時（user が null）はローカルキャッシュをそのまま残す。
     effect(() => {
       const user = this.auth.user();
       if (user) {
-        this.syncFromCloud(user.uid).catch(err =>
-          console.error('[FirestoreSyncService] クラウド同期に失敗:', err)
-        );
+        this.syncFromCloud(user.uid)
+          .then(() => this._syncError.set(null))
+          .catch(err => {
+            console.error('[FirestoreSyncService] クラウド同期に失敗:', err);
+            this._syncError.set('学習履歴のクラウド同期に失敗しました。ローカルには保存されています。');
+          });
       }
     });
   }
@@ -101,7 +110,12 @@ export class FirestoreSyncService {
     if (!uid || sessions.length === 0) return;
     Promise.all(
       sessions.map(s => setDoc(this.sessionDoc(uid, s.id), this.toDocData(s)))
-    ).catch(err => console.error('[FirestoreSyncService] 一括同期に失敗:', err));
+    )
+      .then(() => this._syncError.set(null))
+      .catch(err => {
+        console.error('[FirestoreSyncService] 一括同期に失敗:', err);
+        this._syncError.set('学習履歴のクラウド同期に失敗しました。ローカルには保存されています。');
+      });
   }
 
   // ログイン直後に呼ぶ双方向同期（tombstone 対応）:

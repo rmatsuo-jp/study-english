@@ -22,14 +22,18 @@
  * 固定しているため、実測反映は行わない。
  * feedbackFormUrl は全画面右上固定のフィードバックボタン（app.html）が遷移する外部Googleフォームの
  * URL。ユーザーからの機能要望・不具合報告・感想を受け付ける目的で、フォーム自体は自作せず外部リンクのみ提供する。
+ * syncError は FirestoreSyncService/DrillProgressSyncService のクラウド同期失敗を、practiceState.notice と
+ * 同じグローバルバナー（.global-notice）で表示する（練習の添削通知が無い時のみ、優先度を下げて表示）。
  */
-import { Component, ElementRef, inject, signal, viewChild, afterNextRender, DestroyRef } from '@angular/core';
+import { Component, ElementRef, inject, signal, computed, effect, viewChild, afterNextRender, DestroyRef } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { environment } from '../environments/environment';
 import { SettingsStoreService } from '@core/settings/settings-store.service';
 import { I18nService } from '@core/i18n/i18n.service';
 import { Lang } from '@core/i18n/lang.model';
 import { PracticeState } from '@features/practice/practice-state.service';
+import { FirestoreSyncService } from '@core/sessions/firestore-sync.service';
+import { DrillProgressSyncService } from '@features/drill/drill-progress-sync.service';
 
 @Component({
   selector: 'app-root',
@@ -43,6 +47,15 @@ export class App {
   private settingsStore = inject(SettingsStoreService);
   private destroyRef = inject(DestroyRef);
   protected i18n = inject(I18nService);
+  private firestoreSync = inject(FirestoreSyncService);
+  private drillProgressSync = inject(DrillProgressSyncService);
+
+  // ── クラウド同期失敗の通知（練習の添削通知が無い時だけ表示） ─────────
+  // 閉じるボタンで syncErrorDismissed を立てるが、次回同期が成功して syncError が null に戻ると
+  // effect() で自動的にリセットし、以後の失敗を再び通知できるようにする。
+  private syncErrorDismissed = signal(false);
+  private rawSyncError = computed(() => this.firestoreSync.syncError() ?? this.drillProgressSync.syncError());
+  protected syncError = computed(() => (this.syncErrorDismissed() ? null : this.rawSyncError()));
 
   private bottomNav = viewChild<ElementRef<HTMLElement>>('bottomNav');
   private readonly desktopMedia = window.matchMedia('(min-width: 768px)');
@@ -65,6 +78,11 @@ export class App {
     this.i18n.setLang(settings.language);
 
     afterNextRender(() => this.observeBottomNavHeight());
+
+    // 同期が成功して rawSyncError が null に戻ったら、次の失敗を再び通知できるよう dismissed を解除する
+    effect(() => {
+      if (this.rawSyncError() === null) this.syncErrorDismissed.set(false);
+    });
   }
 
   // ── bottom-nav の実高さを監視し、--bottom-nav-height に反映（PCサイドバー時は対象外） ──
@@ -122,5 +140,10 @@ export class App {
   // ── サイドバー格納ボタン: 表示⇔格納をトグル ─────────────────
   toggleSidebar() {
     this.sidebarCollapsed.update((v) => !v);
+  }
+
+  // ── 同期エラーバナーの閉じるボタン: 次回同期成功まで再表示しない ──────
+  dismissSyncError() {
+    this.syncErrorDismissed.set(true);
   }
 }
