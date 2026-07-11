@@ -20,6 +20,8 @@
  * 増殖ループ－高さが際限なく増え続ける不具合－を避けるため）。
  * PC レイアウト（768px 以上、サイドバー化）では app.scss 側で --bottom-nav-height を 0rem に
  * 固定しているため、実測反映は行わない。
+ * feedbackFormUrl は全画面右上固定のフィードバックボタン（app.html）が遷移する外部Googleフォームの
+ * URL。ユーザーからの機能要望・不具合報告・感想を受け付ける目的で、フォーム自体は自作せず外部リンクのみ提供する。
  */
 import { Component, ElementRef, inject, signal, viewChild, afterNextRender, DestroyRef } from '@angular/core';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
@@ -50,6 +52,9 @@ export class App {
 
   // ── 開発用ナビ項目の表示可否（本番ビルドでは /dev ルート自体が存在しないため非表示にする） ─
   protected isDev = !environment.production;
+
+  // ── フィードバック用Googleフォームのリンク先（全画面共通の右上固定ボタンから遷移） ──
+  protected readonly feedbackFormUrl = 'https://forms.gle/es4FQrQrWd2h73kZ9';
 
   // ── 同意モーダルの表示可否（初回起動時、または同意文言が改訂された場合に表示） ──
   protected showConsent = signal(this.settingsStore.needsConsent());

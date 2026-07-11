@@ -50,11 +50,49 @@
 }
 
 .app-content {
+  position: relative; // content-topbarの絶対配置の基準にする
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+}
+
+// ── フィードバックボタン行。各ページの .page コンテナ（max-width 640px/960px, margin:0 auto,
+//    padding 1rem/2rem）と同じ幅・パディング・中央寄せにすることで、ボタンの右端がページ内の
+//    ボタン列（添削するボタン等）と揃うようにする。position:absoluteでレイアウト上の高さを持たせず、
+//    .page-title（font-size:1.5rem, padding-top 1rem/2rem）と同じ行の高さに重ねて表示することで、
+//    タイトルとボタンの高さを揃える（.app-content をスクロールすると .page-title と一緒に流れる）。
+.content-topbar {
+  position: absolute;
+  top: 1rem;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 1.8rem; // .page-title（font-size:1.5rem）の行の高さに合わせる
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  pointer-events: none; // ボタン以外の領域はクリックを透過させる
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.feedback-button {
+  padding: 0.5rem 0.875rem;
+  border: 2px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .bottom-nav {
@@ -283,6 +321,13 @@
 
   .lang-toggle-mobile {
     display: none;
+  }
+
+  // ── 各ページの .page が max-width:960px/padding:2rem に切り替わるのに合わせる ──
+  .content-topbar {
+    top: 2rem;
+    max-width: 960px;
+    padding: 0 2rem;
   }
 
   .sidebar-toggle {
