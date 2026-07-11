@@ -10,9 +10,15 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +37,7 @@ jobs:
         run: npm ci
 
       # コミット種別から次バージョンを判定 → package.json / src/version.ts / CHANGELOG.md を更新し
-      # タグ・GitHub Release を作成して main へ push（[skip ci] 付きで再帰起動しない）
+      # タグ・GitHub Release を作成して main へ push([skip ci] 付きで再帰起動しない)
       - name: Release (bump version, tag, changelog)
         run: npx semantic-release
         env:
@@ -43,8 +49,22 @@ jobs:
       - name: SPA fallback (404.html)
         run: cp dist/study-english/browser/index.html dist/study-english/browser/404.html
 
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist/study-english/browser
+          path: ./dist/study-english/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
