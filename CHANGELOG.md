@@ -1,3 +1,11 @@
+## [0.10.1](https://github.com/rmatsuo-jp/study-english/compare/v0.10.0...v0.10.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* **ui:** サイドバー言語トグルの表記と格納時の表示を改善 ([7464b79](https://github.com/rmatsuo-jp/study-english/commit/7464b791f49e98daf19bb787a4165e79f8bb673f))
+* **ui:** 設定画面のバージョン表記を「バージョン」から「Ver」に変更 ([490267b](https://github.com/rmatsuo-jp/study-english/commit/490267beaf4f9c8a9786a93215ef57feedb223ec))
+
 # [0.10.0](https://github.com/rmatsuo-jp/study-english/compare/v0.9.1...v0.10.0) (2026-07-11)
 
 
