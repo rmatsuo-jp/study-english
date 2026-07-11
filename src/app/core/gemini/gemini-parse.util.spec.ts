@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { extractTaggedJson, extractTaggedText, stripKnownBlocks } from './gemini-parse.util';
+import { extractTaggedJson, extractTaggedText, stripKnownBlocks, KNOWN_TAGS, HEADING_BLOCKS } from './gemini-parse.util';
 
 describe('extractTaggedJson', () => {
   const validateArr = (json: unknown) => {
@@ -159,5 +159,13 @@ describe('stripKnownBlocks', () => {
     expect(extractTaggedText(text, 'grammar-notes-ja')).toBe('三単現の s が抜けています。');
     expect(extractTaggedText(text, 'grammar-notes-en')).toBeUndefined();
     expect(extractTaggedText(text, 'cefr-rationale-ja')).toBe('語彙は A2 相当です。');
+  });
+});
+
+describe('KNOWN_TAGS / HEADING_BLOCKS の整合性', () => {
+  it('HEADING_BLOCKSの終了タグはすべてKNOWN_TAGSに含まれる（stripKnownBlocksの2段階除去の前提）', () => {
+    expect(
+      HEADING_BLOCKS.every(([, tag]) => (KNOWN_TAGS as readonly string[]).includes(tag))
+    ).toBe(true);
   });
 });

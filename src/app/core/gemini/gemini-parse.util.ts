@@ -4,6 +4,7 @@
  * 自由記述の英文・Markdown用の extractTaggedText（タグ抽出のみ、JSON化しない）、
  * および抽出済みタグを本文から取り除く stripKnownBlocks の3種類を提供する。
  * 新しいタグ付き項目を追加する場合は、対応する抽出関数を呼びつつ KNOWN_TAGS にもタグ名を足すこと。
+ * KNOWN_TAGS / HEADING_BLOCKS はテスト（gemini-parse.util.spec.ts）から整合性を検証するため export する。
  * gemini.service.ts は全セクション（解説5項目 + corrected-text/levelup-text/mistakes/evaluation/
  * levelup/review）を extractTaggedText/extractTaggedJson で個別に抽出しており、1タグの抽出失敗は
  * そのフィールドが undefined になるだけで他タグの抽出には影響しない。stripKnownBlocks は
@@ -92,7 +93,7 @@ export function extractTaggedText(
 
 // ── 抽出済みブロックの除去（最終フォールバック用） ──────────────────────
 // prompt.util.ts が Gemini に出力させるタグの全一覧。新しいタグを増やしたらここにも足す。
-const KNOWN_TAGS = [
+export const KNOWN_TAGS = [
   'grammar-notes-ja',
   'grammar-notes-en',
   'natural-expr-ja',
@@ -113,7 +114,7 @@ const KNOWN_TAGS = [
 
 // 見出しから閉じタグまでを丸ごと落とすブロック。見出しと閉じタグの間には、他コンポーネントで
 // 表示済みの内容（スコアの講評など）や複数のタグが挟まるため、末尾のタグまで一括で除去する。
-const HEADING_BLOCKS: readonly (readonly [string, string])[] = [
+export const HEADING_BLOCKS: readonly (readonly [string, string])[] = [
   // 各見出しの後は -ja → -en の順で日英タグが続く
   ['文法・語法のミスの指摘', 'grammar-notes-en'],
   ['自然な表現の提案', 'natural-expr-en'],
