@@ -92,6 +92,11 @@
 }
 
 // ── レベルアップ・タイピング: 日付選択画面 ────────────────────────
+.date-select-header {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
 .date-select {
   display: flex;
   flex-direction: column;

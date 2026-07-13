@@ -69,6 +69,11 @@
   } @else if (state.mode() === 'levelup' && !state.levelUpDateChosen()) {
     <!-- ── レベルアップ・タイピング: 日付選択画面 ── -->
     <div class="intro">
+      <div class="date-select-header">
+        <button class="btn-secondary" (click)="state.restart()">
+          {{ i18n.t('drill.backToModeSelect') }}
+        </button>
+      </div>
       <p>{{ i18n.t('drill.chooseDate') }}</p>
       <div class="date-select">
         @for (s of state.levelUpDates(); track s.id) {
@@ -92,13 +97,15 @@
           <p class="empty-note">{{ i18n.t('drill.noLevelUpSessions') }}</p>
         }
       </div>
-      <button class="btn-secondary" (click)="state.restart()">
-        {{ i18n.t('drill.backToModeSelect') }}
-      </button>
     </div>
   } @else if (state.mode() === 'cloze' && !state.clozeDateChosen()) {
     <!-- ── 穴埋め復習: 日付選択画面 ── -->
     <div class="intro">
+      <div class="date-select-header">
+        <button class="btn-secondary" (click)="state.restart()">
+          {{ i18n.t('drill.backToModeSelect') }}
+        </button>
+      </div>
       <p>{{ i18n.t('drill.chooseDateCloze') }}</p>
       <div class="date-select">
         @for (s of state.clozeDates(); track s.id) {
@@ -122,9 +129,6 @@
           <p class="empty-note">{{ i18n.t('drill.noClozeSessions') }}</p>
         }
       </div>
-      <button class="btn-secondary" (click)="state.restart()">
-        {{ i18n.t('drill.backToModeSelect') }}
-      </button>
     </div>
   } @else if (state.mode() === 'levelup' && !state.levelUpSentenceChosen()) {
     <!-- ── レベルアップ・タイピング: 文一覧選択画面 ── -->
