@@ -87,5 +87,5 @@ npm run lint:text      # 違反を検出する
 npm run lint:text:fix  # 検出した違反を正表記に自動置換する
 ```
 
-対象は `docs/` 配下の Markdown、`README.md`、`src/app/core/gemini/prompt.util.ts`。
+対象は `docs/` 配下の Markdown、`README.md`、`ARCHITECTURE.md`、`src/app/core/gemini/prompt.util.ts`。
 `prompt.util.ts` は Gemini の出力語彙を直接規定するため、ソースコードの中で唯一チェック対象に含めている。

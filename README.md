@@ -4,13 +4,8 @@ Gemini AI を使った英語添削 PWA アプリです。Angular で構築され
 
 ## 技術スタック
 
-| 項目           | 内容                                        |
-| -------------- | ------------------------------------------- |
-| フレームワーク | Angular 22（Standalone, PWA）               |
-| AI             | Google Gemini API (`@google/generative-ai`) |
-| ストレージ     | LocalStorage + Firestore 同期               |
-| スタイル       | SCSS                                        |
-| テスト         | Vitest                                      |
+Angular 22（Standalone, PWA）+ Google Gemini API + LocalStorage/Firestore 同期。
+詳細な技術スタック一覧は [docs/overview.md](docs/overview.md) を参照してください。
 
 ## セットアップ
 
