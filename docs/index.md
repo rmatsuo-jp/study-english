@@ -4,50 +4,52 @@
 目的に合ったドキュメントを選んでください。Claude Code はドキュメントの新規作成・移動・削除時に
 このファイルを更新し、末尾の「ドキュメントリファクタリング方針」に従ってください。
 
-対象読者は「開発者」「ユーザー」「法務」「Claude Code（AI開発ツール）」の4種類で分類する。
-どれか1つに決めがたいものは対象読者欄に **要検討** と表示し、理由を添えている
-（`のちほどリファクタリング` 対象 — 分割や再配置を検討する）。
-
-## リポジトリ直下
-
-| ファイル | 対象読者 | 内容 |
-| --- | --- | --- |
-| [README.md](../README.md) | **要検討**（開発者＋ユーザー） | プロジェクト概要・機能・技術スタック・セットアップ手順。初見の開発者向けだが、アプリ機能紹介などユーザー向け内容も混在 |
-| [ARCHITECTURE.md](../ARCHITECTURE.md) | 開発者 | レイヤー構成（features → core → shared）、データフロー、データモデル、ルーティング設計 |
-| [SECURITY.md](../SECURITY.md) | 開発者 | サポート対象バージョンと脆弱性報告方法（GitHub Private Vulnerability Reporting） |
-| [CHANGELOG.md](../CHANGELOG.md) | **要検討**（開発者＋ユーザー） | semantic-releaseによる自動生成の変更履歴。開発者はリリース内容確認に、ユーザーは更新内容確認に使う可能性がある |
-| [CLAUDE.md](../CLAUDE.md) | Claude Code | Claude Code向けの開発ルール（依存方向・型定義運用・コメント規約など）。開発フロー上のルールはこちらが正 |
+対象読者は「開発者」「ユーザー」「法務」「Claude Code（AI開発ツール）」「共通参照資料」の
+5種類で分類する。共通参照資料は特定の1読者に絞らず、複数読者が共通して参照するルール・語彙集を指す。
+以下、対象読者ごとに見出しを分けて一覧化する。
 
 ## 開発者向け
 
-| ファイル | 対象読者 | 内容 |
-| --- | --- | --- |
-| [overview.md](overview.md) | 開発者 | システム構成、機能一覧、ディレクトリ構成、データフロー、LocalStorageキー |
-| [setup.md](setup.md) | 開発者 | ローカル開発環境構築手順（clone、Node/npmバージョン、APIキー設定、テスト・lint・ビルド） |
+| ファイル | 内容 |
+| --- | --- |
+| [README.md](../README.md) | プロジェクト概要・技術スタック・セットアップ最短手順・ビルド/テスト/Lint・セキュリティ運用・プロジェクト構成。ユーザー向け機能紹介は[overview.md](overview.md)、操作方法は[manual.md](manual.md)を参照 |
+| [ARCHITECTURE.md](../ARCHITECTURE.md) | レイヤー構成（features → core → shared）、データフロー、データモデル、ルーティング設計 |
+| [SECURITY.md](../SECURITY.md) | サポート対象バージョンと脆弱性報告方法（GitHub Private Vulnerability Reporting） |
+| [CHANGELOG.md](../CHANGELOG.md) | semantic-releaseによる自動生成の変更履歴。リリース内容の確認に使う |
+| [overview.md](overview.md) | システム構成、機能概要、ディレクトリ構成、データフロー、データ型、LocalStorageキー。各画面の操作方法は[manual.md](manual.md)を参照 |
+| [setup.md](setup.md) | ローカル開発環境構築手順（clone、Node/npmバージョン、APIキー設定、テスト・lint・ビルド） |
 
 ## ユーザー向け
 
-| ファイル | 対象読者 | 内容 |
-| --- | --- | --- |
-| [manual.md](manual.md) | ユーザー | 初期設定（APIキー、Googleログイン/クラウド同期）と各画面（添削・ドリル・履歴・ミス・設定）の操作方法、FAQ |
-| [deploy-to-android-pwa.md](deploy-to-android-pwa.md) | ユーザー | GitHub PagesへのPWAデプロイとAndroid端末へのインストール手順 |
+| ファイル | 内容 |
+| --- | --- |
+| [manual.md](manual.md) | リリースに伴う注意事項、初期設定（APIキー、Googleログイン/クラウド同期）と各画面（添削・ドリル・履歴・ミス・設定）の操作方法、FAQ |
+| [deploy-to-android-pwa.md](deploy-to-android-pwa.md) | GitHub PagesへのPWAデプロイとAndroid端末へのインストール手順 |
 
 ## 法務
 
 `docs/legal/` のみディレクトリ構成を維持しています（理由は下記「ドキュメントリファクタリング方針」参照）。
 
-| ファイル | 対象読者 | 内容 |
-| --- | --- | --- |
-| [legal/terms.md](legal/terms.md) | 法務 | 利用規約（禁止事項、アカウント・第三者サービス利用、知的財産権など） |
-| [legal/privacy.md](legal/privacy.md) | 法務 | プライバシーポリシー（ローカル保存/Firebase同期データ、Gemini APIへの送信データ、APIキー暗号化） |
-| [legal/disclaimer.md](legal/disclaimer.md) | 法務 | 免責事項（無償提供・AI出力の正確性・データ損失等に関する免責、準拠法） |
-| [legal/LICENSE.md](legal/LICENSE.md) | 法務 | MITライセンス本文（日本語参考訳付き） |
+| ファイル | 内容 |
+| --- | --- |
+| [legal/terms.md](legal/terms.md) | 利用規約（禁止事項、アカウント・第三者サービス利用、知的財産権など） |
+| [legal/privacy.md](legal/privacy.md) | プライバシーポリシー（ローカル保存/Firebase同期データ、Gemini APIへの送信データ、APIキー暗号化） |
+| [legal/disclaimer.md](legal/disclaimer.md) | 免責事項（無償提供・AI出力の正確性・データ損失等に関する免責、準拠法） |
+| [legal/LICENSE.md](legal/LICENSE.md) | MITライセンス本文（日本語参考訳付き） |
 
-## 用語集
+## Claude Code
 
-| ファイル | 対象読者 | 内容 |
-| --- | --- | --- |
-| [glossary.md](glossary.md) | **要検討**（開発者＋Claude Code） | 日本語用語の正典。UI文言・Geminiプロンプト・ドキュメントの表記統一に使う。機械チェックは`prh.yml`（`npm run lint:text`）。開発者が参照する一方、Claude Codeがドキュメント/プロンプト編集時に必ず参照するルールでもあり、片方に決めがたい |
+| ファイル | 内容 |
+| --- | --- |
+| [CLAUDE.md](../CLAUDE.md) | Claude Code向けの開発ルール（依存方向・型定義運用・コメント規約など）。開発フロー上のルールはこちらが正 |
+
+## 共通参照資料
+
+複数の対象読者（開発者・Claude Code）が共通して参照する、表記・用語の正典。
+
+| ファイル | 内容 |
+| --- | --- |
+| [glossary.md](glossary.md) | 日本語用語の正典。UI文言・Geminiプロンプト・ドキュメントの表記統一に使う。機械チェックは`prh.yml`（`npm run lint:text`）。開発者がドキュメント執筆時に参照するほか、Claude Codeはドキュメント/プロンプト編集時に必ず参照する |
 
 ## ドキュメントリファクタリング方針
 
@@ -59,8 +61,11 @@ Claude Codeがドキュメントを追加・移動・削除する際は、以下
   [legal.ts](../src/app/features/legal/legal.ts) が、このディレクトリ構成に依存しているため。
   `docs/legal/` 配下のファイルを移動・改名する場合は、`angular.json` の該当assets設定と
   `legal.ts` の取得パス（`legal/{doc}.md`）も必ず合わせて更新すること。
-- 新規ドキュメントを追加したら、性質（開発者向け／ユーザー向け／法務）を判断し、法務以外は
-  `docs/` 直下にフラットに配置した上で、このファイルの表に1行追記する。
+- 新規ドキュメントを追加したら、性質（開発者向け／ユーザー向け／法務／Claude Code／共通参照資料）を
+  判断し、法務以外は `docs/` 直下にフラットに配置した上で、該当する対象読者の見出しの表に1行追記する。
+  複数読者にまたがる内容は、極力いずれかの読者向けに書き分けて分割する（例:
+  READMEからユーザー向け内容をmanual.md/overview.mdへ移設した前例を参照）。どうしても
+  分割できない共通ルール・語彙集のみ「共通参照資料」に分類する。
 - ファイルを移動・削除した場合も、このファイルのリンクと表を同時に更新する。
   更新を怠るとこの索引が実態と乖離するため、ドキュメント変更のPRには本ファイルの更新を含めること。
 - 用語表記は `docs/glossary.md` を正とする。UI文言・Geminiプロンプト・ドキュメントの文言を
