@@ -21,8 +21,13 @@ rules:
       - ステップアップ
       - 格上げ
 
-  - expected: 穴埋め復習
+  - expected: 穴あきタイピング
     patterns:
+      - レベルアップ・タイピング
+
+  - expected: 穴埋めクイズ
+    patterns:
+      - 穴埋め復習
       - 穴埋めテスト
 
   - expected: 定量評価

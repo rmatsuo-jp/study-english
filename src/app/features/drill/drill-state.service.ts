@@ -1,14 +1,14 @@
 /**
  * @file 弱点克服ドリルの状態を保持するシングルトンサービス。
  * 2 つの出題モードを持つ:
- *  - 'cloze'    穴埋め復習（getSessionsWithReviewItems）: まず日付（＝1回の添削セッション）を選び、
+ *  - 'cloze'    穴埋めクイズ（getSessionsWithReviewItems）: まず日付（＝1回の添削セッション）を選び、
  *               その日の reviewItems だけで出題する（selectClozeDate）。既定は入力、
  *               「ヒント（4択）」ボタンで類似4択に切り替えて答えられる。4択モードはクリック/タップで
  *               即採点する。日付選択画面では各日付ごとに達成数/全体数の
  *               進捗バッジ（progressForClozeSession、判定基準は1回でも正解したか＝everCorrect）を表示する。
  *               出題の重み付け（weightFor、既に習熟した問題を出にくくする）は別基準で、
  *               引き続き DRILL_MASTERY_STREAK（3回連続正解）を使う。
- *  - 'levelup'  レベルアップ・タイピング（getSessionsWithLevelUp）: まず日付（＝1回の添削セッション）を選び、
+ *  - 'levelup'  穴あきタイピング（getSessionsWithLevelUp）: まず日付（＝1回の添削セッション）を選び、
  *               次にその日の文一覧から取り組みたい1文を選んで出題する（セッション横断のシャッフルはしない。
  *               文の並びは Gemini が返した元の順番のまま）。
  *               各文は「maskLevel（0=全文表示 〜 maxLevel=全単語マスク）」の一本道で進行する。
@@ -74,7 +74,7 @@ export class DrillState {
   private i18n = inject(I18nService);
 
   // ── 出題元（モードごとの件数をスタート画面で表示） ───────────────
-  // 穴埋め復習・レベルアップ・タイピングともに日付選択方式のため、件数ではなく「対象セッション一覧」を保持する。
+  // 穴埋めクイズ・穴あきタイピングともに日付選択方式のため、件数ではなく「対象セッション一覧」を保持する。
   clozeDates = computed(() => getSessionsWithReviewItems(this.repository.sessions()));
   clozeCount = computed(() => this.clozeDates().length);
   levelUpDates = computed(() => getSessionsWithLevelUp(this.repository.sessions()));
@@ -114,10 +114,10 @@ export class DrillState {
   score = signal(0);
   hintShown = signal(false); // 日本語訳をヒントボタンで表示中か（デフォルト非表示）
 
-  // レベルアップ・タイピングの進行状態。
+  // 穴あきタイピングの進行状態。
   maskLevel = signal(0); // 現在のアイテムのマスク段階（0=全文表示）
   mistakeKind = signal<MistakeKind | null>(null); // 直近の不正解の分類（結果メッセージ用）
-  // レベルアップ・タイピングは「maxLevelで正解」した問題数を結果サマリーの分子として使う。
+  // 穴あきタイピングは「maxLevelで正解」した問題数を結果サマリーの分子として使う。
   masteredCount = signal(0);
   // levelup モードは 日付選択 → 文一覧選択 → 出題 の3段階。
   // levelUpDateChosen=false: 日付選択画面。true & levelUpSentenceChosen=false: 文一覧選択画面。両方true: 出題画面。
@@ -125,7 +125,7 @@ export class DrillState {
   levelUpSentenceChosen = signal(false);
   currentSessionId = signal<string | null>(null); // 選択中セッションID（進捗保存キー）
 
-  // 穴埋め復習も「日付（＝1回の添削セッション）を選ぶ→その日のカードで出題」の2段階。
+  // 穴埋めクイズも「日付（＝1回の添削セッション）を選ぶ→その日のカードで出題」の2段階。
   clozeDateChosen = signal(false);
 
   // 新規ユーザー向け静的サンプル問題で出題中かどうか。true の間は DrillProgressSyncService への
@@ -181,7 +181,7 @@ export class DrillState {
     this.started.set(true);
   }
 
-  // ── 日付選択（穴埋め復習）: 選んだセッションの reviewItems だけを重み付きシャッフルして出題する ─
+  // ── 日付選択（穴埋めクイズ）: 選んだセッションの reviewItems だけを重み付きシャッフルして出題する ─
   selectClozeDate(session: CorrectionSession) {
     this.quiz.set(shuffleByWeight(this.buildClozeQuizzes(session.reviewItems ?? [])));
     this.currentSessionId.set(session.id);
@@ -196,7 +196,7 @@ export class DrillState {
     this.clozeDateChosen.set(true);
   }
 
-  // 選択中セッションの進捗サマリー（達成数/全体数）。穴埋め復習の日付選択画面のバッジ表示に使う。
+  // 選択中セッションの進捗サマリー（達成数/全体数）。穴埋めクイズの日付選択画面のバッジ表示に使う。
   // 達成は「1回でも正解したか（everCorrect）」で判定する（後で間違えても達成は取り消さない）。
   progressForClozeSession(session: CorrectionSession): { done: number; total: number } {
     const items = session.reviewItems ?? [];
@@ -339,7 +339,7 @@ export class DrillState {
     if (!this.sampleMode()) this.drillProgress.recordDrillResult(cur.key, correct);
   }
 
-  // ── レベルアップ・タイピングの回答チェック ─────────────────────
+  // ── 穴あきタイピングの回答チェック ─────────────────────
   // 正解: maxLevel未満なら maskLevel を+1、maxLevelなら習熟として記録。
   // 不正解: 単語単位の diff で「タイポ（見えている単語のミス）」か「理解度不足（隠れている単語のミス）」かを
   // 判別し、タイポなら maskLevel 据え置き、理解度不足なら1段階引き下げる。

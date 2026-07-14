@@ -1,9 +1,9 @@
 /**
- * @file ドリルの習熟度（頻出ミス・復習カードの正解ストリーク）と、レベルアップ・タイピングの
+ * @file ドリルの習熟度（頻出ミス・復習カードの正解ストリーク）と、穴あきタイピングの
  * マスク段階進捗のローカル永続化を担うサービス。Drill 機能専用のストア（features/drill 内に同居）。
  * 各問題の正誤履歴は drillProgress signal（DRILL_PROGRESS_KEY）で正解ストリーク（出題重み用）と
  * everCorrect（1回でも正解したかの永続フラグ、達成バッジ用）として永続化する。
- * レベルアップ・タイピングのマスク段階進捗は levelUpProgress signal（LEVELUP_PROGRESS_KEY）で
+ * 穴あきタイピングのマスク段階進捗は levelUpProgress signal（LEVELUP_PROGRESS_KEY）で
  * セッションID単位に永続化し、日付選択画面での再開・完了表示に使う。
  * クラウド同期は行わない（ローカル専任）。DrillProgressSyncService が allDrillProgress() /
  * allLevelUpProgress() / persist() 経由でこのサービスを読み書きし、Firestore との同期を担う。
@@ -23,7 +23,7 @@ export class DrillProgressService {
   // ── ドリル習熟度キャッシュ（key = normalizeDrillKey の結果） ─────────
   private drillProgress = signal<Record<string, DrillProgress>>(this.loadDrillProgress());
 
-  // ── レベルアップ・タイピング進捗キャッシュ（sessionId → itemKey → 進捗） ─
+  // ── 穴あきタイピング進捗キャッシュ（sessionId → itemKey → 進捗） ─
   private levelUpProgress = signal<Record<string, Record<string, LevelUpItemProgress>>>(
     this.loadLevelUpProgress(),
   );

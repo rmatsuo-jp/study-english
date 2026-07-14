@@ -146,12 +146,12 @@ const ja = {
 
   // ── drill ──
   'drill.title': 'ドリル',
-  'drill.cloze.name': '穴埋め復習',
+  'drill.cloze.name': '穴埋めクイズ',
   'drill.cloze.desc': '添削から作った穴埋めカードで復習します。',
   'drill.cloze.empty': '「復習カードの自動生成」を有効にして添削すると出題されます。',
   'drill.cloze.sampleNote':
     'これはサンプル問題です。添削を行うとご自身の弱点に基づいた問題が出題されます。',
-  'drill.levelup.name': 'レベルアップ・タイピング',
+  'drill.levelup.name': '穴あきタイピング',
   'drill.levelup.desc': 'CEFR一段階上の表現をタイピングで習熟します。',
   'drill.levelup.empty': '「レベルアップ表現の生成」を有効にして添削すると出題されます。',
   'drill.levelup.sampleNote':
