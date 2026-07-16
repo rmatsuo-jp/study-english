@@ -290,7 +290,8 @@ const ja = {
   'achievements.levelup-perfect-5.title': 'パーフェクトコレクター',
   'achievements.levelup-perfect-5.desc': '穴あきタイピングで日程の全文習熟を5回達成する。',
   'achievements.levelup-perfect-streak-3.title': '連続パーフェクト',
-  'achievements.levelup-perfect-streak-3.desc': '穴あきタイピングで3回連続して日程の全文を習熟する。',
+  'achievements.levelup-perfect-streak-3.desc':
+    '穴あきタイピングで3回連続して日程の全文を習熟する。',
   'achievements.levelup-mastery.title': '穴あきタイピング制覇',
   'achievements.levelup-mastery.desc': '穴あきタイピングの全日程をクリアする。',
 
@@ -575,9 +576,11 @@ const en: Record<TranslationKey, string> = {
   'achievements.cloze-streak-5.title': 'Hot Streak',
   'achievements.cloze-streak-5.desc': 'Answer 5 cloze questions correctly in a row in one session.',
   'achievements.cloze-streak-10.title': 'On Fire',
-  'achievements.cloze-streak-10.desc': 'Answer 10 cloze questions correctly in a row in one session.',
+  'achievements.cloze-streak-10.desc':
+    'Answer 10 cloze questions correctly in a row in one session.',
   'achievements.cloze-streak-20.title': 'Unstoppable',
-  'achievements.cloze-streak-20.desc': 'Answer 20 cloze questions correctly in a row in one session.',
+  'achievements.cloze-streak-20.desc':
+    'Answer 20 cloze questions correctly in a row in one session.',
   'achievements.cloze-daily-3.title': 'Building a Habit',
   'achievements.cloze-daily-3.desc': 'Practice cloze review on 3 consecutive days.',
   'achievements.cloze-daily-7.title': 'One Week Strong',
@@ -602,9 +605,11 @@ const en: Record<TranslationKey, string> = {
   'achievements.levelup-correct-10.title': 'First Correct Streak',
   'achievements.levelup-correct-10.desc': 'Answer 10 level-up typing questions correctly in total.',
   'achievements.levelup-correct-100.title': 'Answer Master',
-  'achievements.levelup-correct-100.desc': 'Answer 100 level-up typing questions correctly in total.',
+  'achievements.levelup-correct-100.desc':
+    'Answer 100 level-up typing questions correctly in total.',
   'achievements.levelup-correct-500.title': 'Answer Expert',
-  'achievements.levelup-correct-500.desc': 'Answer 500 level-up typing questions correctly in total.',
+  'achievements.levelup-correct-500.desc':
+    'Answer 500 level-up typing questions correctly in total.',
   'achievements.levelup-streak-5.title': 'Hot Streak',
   'achievements.levelup-streak-5.desc':
     'Answer 5 level-up typing questions correctly in a row in one session.',

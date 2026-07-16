@@ -83,7 +83,7 @@ export const PRACTICE_THEMES: PracticeTheme[] = [
   {
     category: 'description',
     ja: 'あなたが尊敬する人物の性格や外見について描写してみましょう。',
-    en: "Describe the personality and appearance of someone you admire.",
+    en: 'Describe the personality and appearance of someone you admire.',
   },
   {
     category: 'description',
@@ -98,7 +98,7 @@ export const PRACTICE_THEMES: PracticeTheme[] = [
   {
     category: 'description',
     ja: '今まで見た中で一番印象に残っている景色について描写してみましょう。',
-    en: "Describe the most memorable view you have ever seen.",
+    en: 'Describe the most memorable view you have ever seen.',
   },
   {
     category: 'description',

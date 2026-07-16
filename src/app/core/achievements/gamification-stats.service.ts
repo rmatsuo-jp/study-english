@@ -72,7 +72,11 @@ function nextDailyStreak(
   }
   const diff = daysBetween(prev.lastActiveDate, today);
   const currentDailyStreak =
-    diff === 0 ? Math.max(1, prev.currentDailyStreak) : diff === 1 ? prev.currentDailyStreak + 1 : 1;
+    diff === 0
+      ? Math.max(1, prev.currentDailyStreak)
+      : diff === 1
+        ? prev.currentDailyStreak + 1
+        : 1;
   return {
     currentDailyStreak,
     longestDailyStreak: Math.max(prev.longestDailyStreak, currentDailyStreak),
@@ -81,7 +85,9 @@ function nextDailyStreak(
 
 function daysBetween(fromDayKey: string, toDayKeyValue: string): number {
   const msPerDay = 24 * 60 * 60 * 1000;
-  return Math.round((new Date(toDayKeyValue).getTime() - new Date(fromDayKey).getTime()) / msPerDay);
+  return Math.round(
+    (new Date(toDayKeyValue).getTime() - new Date(fromDayKey).getTime()) / msPerDay,
+  );
 }
 
 @Injectable({ providedIn: 'root' })
@@ -132,7 +138,10 @@ export class GamificationStatsService {
       totalAttempts: feature.totalAttempts + 1,
       totalCorrect: feature.totalCorrect + (correct ? 1 : 0),
       totalWrong: feature.totalWrong + (correct ? 0 : 1),
-      bestInSessionCorrectStreak: Math.max(feature.bestInSessionCorrectStreak, currentSessionStreak),
+      bestInSessionCorrectStreak: Math.max(
+        feature.bestInSessionCorrectStreak,
+        currentSessionStreak,
+      ),
     };
     this.save({ ...prev, [mode]: updated });
   }

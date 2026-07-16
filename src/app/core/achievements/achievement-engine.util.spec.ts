@@ -2,7 +2,9 @@ import { FeatureGamificationStats, GamificationStats } from '@core/models/sessio
 import { evaluateNewlyUnlocked } from './achievement-engine.util';
 import { AchievementContext } from './achievement.model';
 
-function emptyFeatureStats(overrides: Partial<FeatureGamificationStats> = {}): FeatureGamificationStats {
+function emptyFeatureStats(
+  overrides: Partial<FeatureGamificationStats> = {},
+): FeatureGamificationStats {
   return {
     totalAttempts: 0,
     totalCorrect: 0,
@@ -19,12 +21,14 @@ function emptyFeatureStats(overrides: Partial<FeatureGamificationStats> = {}): F
   };
 }
 
-function baseStats(overrides: {
-  correction?: Partial<FeatureGamificationStats>;
-  cloze?: Partial<FeatureGamificationStats>;
-  levelup?: Partial<FeatureGamificationStats>;
-  unlockedAchievements?: Record<string, string>;
-} = {}): GamificationStats {
+function baseStats(
+  overrides: {
+    correction?: Partial<FeatureGamificationStats>;
+    cloze?: Partial<FeatureGamificationStats>;
+    levelup?: Partial<FeatureGamificationStats>;
+    unlockedAchievements?: Record<string, string>;
+  } = {},
+): GamificationStats {
   return {
     correction: emptyFeatureStats(overrides.correction),
     cloze: emptyFeatureStats(overrides.cloze),

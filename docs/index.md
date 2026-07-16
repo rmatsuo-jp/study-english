@@ -10,46 +10,46 @@
 
 ## 開発者向け
 
-| ファイル | 内容 |
-| --- | --- |
-| [README.md](../README.md) | プロジェクト概要・セットアップ最短手順・ビルド/テスト/Lint・セキュリティ運用・プロジェクト構成。技術スタック詳細や機能紹介は[overview.md](overview.md)、操作方法は[manual.md](manual.md)を参照 |
-| [ARCHITECTURE.md](../ARCHITECTURE.md) | レイヤー構成（features → core → shared）、データフロー、データモデル、ルーティング設計 |
-| [SECURITY.md](../SECURITY.md) | サポート対象バージョンと脆弱性報告方法（GitHub Private Vulnerability Reporting） |
-| [CHANGELOG.md](../CHANGELOG.md) | semantic-releaseによる自動生成の変更履歴。リリース内容の確認に使う |
-| [overview.md](overview.md) | システム構成、機能概要、ディレクトリ構成、データフロー、データ型、LocalStorageキー。各画面の操作方法は[manual.md](manual.md)を参照 |
-| [setup.md](setup.md) | ローカル開発環境構築手順（clone、Node/npmバージョン、APIキー設定、テスト・lint・ビルド） |
+| ファイル                              | 内容                                                                                                                                                                                           |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [README.md](../README.md)             | プロジェクト概要・セットアップ最短手順・ビルド/テスト/Lint・セキュリティ運用・プロジェクト構成。技術スタック詳細や機能紹介は[overview.md](overview.md)、操作方法は[manual.md](manual.md)を参照 |
+| [ARCHITECTURE.md](../ARCHITECTURE.md) | レイヤー構成（features → core → shared）、データフロー、データモデル、ルーティング設計                                                                                                         |
+| [SECURITY.md](../SECURITY.md)         | サポート対象バージョンと脆弱性報告方法（GitHub Private Vulnerability Reporting）                                                                                                               |
+| [CHANGELOG.md](../CHANGELOG.md)       | semantic-releaseによる自動生成の変更履歴。リリース内容の確認に使う                                                                                                                             |
+| [overview.md](overview.md)            | システム構成、機能概要、ディレクトリ構成、データフロー、データ型、LocalStorageキー。各画面の操作方法は[manual.md](manual.md)を参照                                                             |
+| [setup.md](setup.md)                  | ローカル開発環境構築手順（clone、Node/npmバージョン、APIキー設定、テスト・lint・ビルド）                                                                                                       |
 
 ## ユーザー向け
 
-| ファイル | 内容 |
-| --- | --- |
-| [manual.md](manual.md) | リリースに伴う注意事項、初期設定（APIキー、Googleログイン/クラウド同期）と各画面（添削・ドリル・履歴・ミス・設定）の操作方法、FAQ |
-| [deploy-to-android-pwa.md](deploy-to-android-pwa.md) | GitHub PagesへのPWAデプロイとAndroid端末へのインストール手順 |
+| ファイル                                             | 内容                                                                                                                              |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| [manual.md](manual.md)                               | リリースに伴う注意事項、初期設定（APIキー、Googleログイン/クラウド同期）と各画面（添削・ドリル・履歴・ミス・設定）の操作方法、FAQ |
+| [deploy-to-android-pwa.md](deploy-to-android-pwa.md) | GitHub PagesへのPWAデプロイとAndroid端末へのインストール手順                                                                      |
 
 ## 法務
 
 `docs/legal/` のみディレクトリ構成を維持しています（理由は下記「ドキュメントリファクタリング方針」参照）。
 
-| ファイル | 内容 |
-| --- | --- |
-| [legal/terms.md](legal/terms.md) | 利用規約（禁止事項、アカウント・第三者サービス利用、知的財産権など） |
-| [legal/privacy.md](legal/privacy.md) | プライバシーポリシー（ローカル保存/Firebase同期データ、Gemini APIへの送信データ、APIキー暗号化） |
-| [legal/disclaimer.md](legal/disclaimer.md) | 免責事項（無償提供・AI出力の正確性・データ損失等に関する免責、準拠法） |
-| [legal/LICENSE.md](legal/LICENSE.md) | MITライセンス本文（日本語参考訳付き） |
+| ファイル                                   | 内容                                                                                             |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| [legal/terms.md](legal/terms.md)           | 利用規約（禁止事項、アカウント・第三者サービス利用、知的財産権など）                             |
+| [legal/privacy.md](legal/privacy.md)       | プライバシーポリシー（ローカル保存/Firebase同期データ、Gemini APIへの送信データ、APIキー暗号化） |
+| [legal/disclaimer.md](legal/disclaimer.md) | 免責事項（無償提供・AI出力の正確性・データ損失等に関する免責、準拠法）                           |
+| [legal/LICENSE.md](legal/LICENSE.md)       | MITライセンス本文（日本語参考訳付き）                                                            |
 
 ## Claude Code
 
-| ファイル | 内容 |
-| --- | --- |
+| ファイル                  | 内容                                                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------------------------- |
 | [CLAUDE.md](../CLAUDE.md) | Claude Code向けの開発ルール（依存方向・型定義運用・コメント規約など）。開発フロー上のルールはこちらが正 |
-| [todo.md](todo.md) | 今後の機能追加・修正およびリファクタリングのTODOリスト。Claude Codeはタスク着手・完了時に更新する |
+| [todo.md](todo.md)        | 今後の機能追加・修正およびリファクタリングのTODOリスト。Claude Codeはタスク着手・完了時に更新する       |
 
 ## 共通参照資料
 
 複数の対象読者（開発者・Claude Code）が共通して参照する、表記・用語の正典。
 
-| ファイル | 内容 |
-| --- | --- |
+| ファイル                   | 内容                                                                                                                                                                                                                         |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [glossary.md](glossary.md) | 日本語用語の正典。UI文言・Geminiプロンプト・ドキュメントの表記統一に使う。機械チェックは`prh.yml`（`npm run lint:text`）。開発者がドキュメント執筆時に参照するほか、Claude Codeはドキュメント/プロンプト編集時に必ず参照する |
 
 ## ドキュメントリファクタリング方針
