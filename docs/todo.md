@@ -45,6 +45,22 @@ Claude Codeはタスク着手・完了時に本ファイルを更新すること
     新設する実績一覧ページ、`translations.ts`（新規UI文言）、`docs/glossary.md`（「実績」
     「連続正解」「パーフェクト」等の新規ドメイン用語を追記し `npm run lint:text` 対応）。
 
+- 同日複数添削の順序（N回目）表示
+  - 一日一添削を基本としつつ、同じ日に追加で添削したいニーズに対応するため、同日内の何回目の
+    添削かをUIで判別できるようにする。
+  - `CorrectionSession.id` は既に日付非依存（`Date.now()+random`、`practice-state.service.ts`）で
+    同日複数保存時も衝突しないため、ストレージ層の変更は不要。表示側のみの対応で足りる。
+  - `history-state.service.ts` の `filteredSessions`（選択日の全セッションを返す）や
+    `history-calendar.ts` の `sessionsByDay`（日付ごとにグループ化済み）を起点に、同日内で
+    `date`（タイムスタンプ）昇順に並べ替えて「N回目」の序数を導出するヘルパーの追加を検討する。
+  - `history.html` の各セッションカード表示（`filteredSessions()` のループ箇所）に「1回目」
+    「2回目」等のラベルを表示する。
+  - `history-calendar.ts` のカレンダーバッジは現在、同日に複数セッションがある場合でも末尾
+    （＝最後に保存された）1件の評価のみを表示している。複数回あることが分かるよう見直しを検討する
+    （例: 件数表示への変更）。
+  - UI文言を新規追加する場合は `docs/glossary.md`／`prh.yml` への追記と `npm run lint:text`
+    での確認が必要（CLAUDE.md の用語ルール参照）。
+
 ## リファクタリング
 
 - （現時点で記載事項なし。今後追記）
