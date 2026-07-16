@@ -39,6 +39,11 @@
  * 行わない（levelupはcurrentSessionId=nullで自動的にスキップされ、clozeはsampleMode()で明示的にガードする）。
  * サンプル出題中は実セッションが存在せず日付選択画面が空になるため、backToDateSelect() は
  * sampleMode() を見てモード選択画面（restart()）へ戻す特別扱いをする。
+ * ゲーミフィケーション（統計・実績）: サンプル出題を除く採点のたびに GamificationSyncService.
+ * recordAnswer() で累積統計を更新し、cloze は結果サマリー到達時、levelup は日程内全文完了時に
+ * recordSessionComplete() でセッション完了（パーフェクト判定含む）を記録する。両者とも記録直後に
+ * core/achievements/achievement-engine.util.ts の evaluateNewlyUnlocked() で新規解除を判定し、
+ * newlyUnlocked signal に積んで drill.html のトースト表示に渡す（dismissNewlyUnlocked()で消去）。
  */
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
@@ -52,6 +57,10 @@ import { DrillProgressSyncService } from './drill-progress-sync.service';
 import { CorrectionSession, ReviewItem } from '@core/models/session.model';
 import { SAMPLE_LEVELUP_ITEMS, SAMPLE_REVIEW_ITEMS } from '@core/quiz/sample-data';
 import { I18nService } from '@core/i18n/i18n.service';
+import { AchievementId } from '@core/achievements/achievement.model';
+import { evaluateNewlyUnlocked } from '@core/achievements/achievement-engine.util';
+import { GamificationSyncService } from '@core/achievements/gamification-sync.service';
+import { TranslationKey } from '@core/i18n/translations';
 import {
   buildClozeQuiz,
   buildLevelUpQuiz,
@@ -72,6 +81,14 @@ export class DrillState {
   private repository = inject(SessionRepositoryService);
   private drillProgress = inject(DrillProgressSyncService);
   private i18n = inject(I18nService);
+  private gamification = inject(GamificationSyncService);
+
+  // 1プレイ内の連続正解数（自己ベスト判定用）。start() でリセットする。
+  private sessionCorrectStreak = signal(0);
+  // 直近の採点/セッション完了で新規解除された実績ID一覧。UI（drill.html）のトースト表示に使う。
+  newlyUnlocked = signal<AchievementId[]>([]);
+  // 結果サマリー表示用の累積統計（drill.html が現在の連続記録・継続日数を表示するのに使う）。
+  gamificationStats = this.gamification.stats;
 
   // ── 出題元（モードごとの件数をスタート画面で表示） ───────────────
   // 穴埋めクイズ・穴あきタイピングともに日付選択方式のため、件数ではなく「対象セッション一覧」を保持する。
@@ -159,6 +176,8 @@ export class DrillState {
     this.levelUpQuiz.set([]);
     this.currentSessionId.set(null);
     this.clozeDateChosen.set(false);
+    this.sessionCorrectStreak.set(0);
+    this.newlyUnlocked.set([]);
 
     // 新規ユーザー（セッション0件）は日付選択をスキップし、静的サンプル問題を直接出題する。
     this.sampleMode.set(this.isNewUser());
@@ -336,7 +355,47 @@ export class DrillState {
     this.currentCorrect.set(correct);
     if (correct) this.score.update((s) => s + 1);
     this.revealed.set(true);
-    if (!this.sampleMode()) this.drillProgress.recordDrillResult(cur.key, correct);
+    if (!this.sampleMode()) {
+      this.drillProgress.recordDrillResult(cur.key, correct);
+      this.recordAnswerForGamification(correct);
+    }
+  }
+
+  // 採点結果を統計に反映し、新規解除された実績があれば newlyUnlocked に積む。
+  // サンプルモード中は呼ばない（sampleMode() のガードは呼び出し元で行う）。
+  private recordAnswerForGamification(correct: boolean): void {
+    this.sessionCorrectStreak.update((n) => (correct ? n + 1 : 0));
+    this.gamification.recordAnswer(this.mode(), correct, this.sessionCorrectStreak());
+    this.evaluateAchievements();
+  }
+
+  // セッション（1回の出題セット/日程）完了を統計に反映し、新規解除された実績があれば積む。
+  private recordSessionCompleteForGamification(sessionKey: string, perfect: boolean): void {
+    this.gamification.recordSessionComplete(this.mode(), sessionKey, perfect);
+    this.evaluateAchievements();
+  }
+
+  private evaluateAchievements(): void {
+    const ids = evaluateNewlyUnlocked(this.gamification.stats(), {
+      clozeAchievement: this.clozeAchievement(),
+      levelUpAchievement: this.levelUpAchievement(),
+    });
+    if (ids.length === 0) return;
+    this.gamification.markUnlocked(ids);
+    this.newlyUnlocked.update((prev) => [...prev, ...ids]);
+  }
+
+  // 実績解除トーストを閉じる。
+  dismissNewlyUnlocked(): void {
+    this.newlyUnlocked.set([]);
+  }
+
+  // 実績IDから i18n タイトルキー（achievements.<id>.title）を組み立てる。
+  // AchievementId は core/achievements 側で string リテラルユニオンとして定義されており
+  // i18n の TranslationKey を知らないため、ここでキャストする
+  // （core/i18n/localized-session.util.ts と同じ方針）。
+  achievementTitleKey(id: AchievementId): TranslationKey {
+    return `achievements.${id}.title` as TranslationKey;
   }
 
   // ── 穴あきタイピングの回答チェック ─────────────────────
@@ -355,12 +414,15 @@ export class DrillState {
 
     const sessionId = this.currentSessionId();
 
+    if (!this.sampleMode()) this.recordAnswerForGamification(correct);
+
     if (correct) {
       this.mistakeKind.set(null);
       const level = this.maskLevel();
       if (level >= cur.maxLevel) {
         if (sessionId) this.drillProgress.setLevelUpItemProgress(sessionId, cur.key, level, true);
         this.masteredCount.update((c) => c + 1);
+        if (sessionId && !this.sampleMode()) this.checkLevelUpSessionComplete(sessionId);
       } else {
         const nextLevel = level + 1;
         this.maskLevel.set(nextLevel);
@@ -381,6 +443,18 @@ export class DrillState {
     }
   }
 
+  // 該当日程の全文が完了（maxLevelで正解済み）したかを判定し、完了していれば
+  // levelup版の「セッション完了」として統計に記録する（levelupに「不完全パーフェクト」はなく、
+  // 全文完了＝パーフェクト扱い）。重複カウントは GamificationStatsService.completedSessionKeys で防止する。
+  private checkLevelUpSessionComplete(sessionId: string): void {
+    const session = this.repository.sessions().find((s) => s.id === sessionId);
+    if (!session) return;
+    const { done, total } = this.progressForSession(session);
+    if (total > 0 && done === total) {
+      this.recordSessionCompleteForGamification(`levelup-${sessionId}`, true);
+    }
+  }
+
   // 同じ問題にもう一度挑戦する（mistakesの「もう一度」／levelupの「次へ」の実体。
   // index・maskLevelには触れないため、levelupでは直前の答え合わせで更新済みのmaskLevelのまま
   // 同じ文が再出題される）。
@@ -397,6 +471,12 @@ export class DrillState {
     const nextIndex = this.index() + 1;
     if (nextIndex >= this.total()) {
       this.finished.set(true);
+      if (!this.sampleMode() && this.currentSessionId()) {
+        this.recordSessionCompleteForGamification(
+          `cloze-${this.currentSessionId()}`,
+          this.score() === this.total(),
+        );
+      }
       return;
     }
     this.index.set(nextIndex);

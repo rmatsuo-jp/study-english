@@ -1,7 +1,8 @@
 /**
  * @file アプリ全体で使うドメイン型定義。Mistake（1件のミス情報）・WritingEvaluation（定量評価＝スコア＋CEFR）・
  * ReviewItem（穴埋めクイズカード）・LevelUpItem（レベルアップ例文タイピング用、1文単位）・
- * DrillProgress（ドリルの習熟度）・LevelUpItemProgress（穴あきタイピングのマスク段階進捗）と
+ * DrillProgress（ドリルの習熟度）・GamificationStats/FeatureGamificationStats（添削・穴埋めクイズ・
+ * 穴あきタイピングの対象機能別累積統計・実績解除状況）・LevelUpItemProgress（穴あきタイピングのマスク段階進捗）と
  * CorrectionSession（1回の添削セッション。corrected=添削解説プローズ、correctedText=添削後の全文、
  * levelUpText=レベルアップ後の全文、model=添削に使用したGeminiモデルID）を定義する。
  * 日本語の説明系フィールド（Mistake.explanation, ReviewItem.hint/translation, LevelUpItem.translation,
@@ -59,6 +60,44 @@ export interface DrillProgress {
   correctStreak: number; // 連続正解数
   everCorrect?: boolean; // 1回でも正解したことがあるか（永続的な達成フラグ）
   lastAttemptAt: string; // 直近に解答した日時（ISO 8601）
+}
+
+// ── FeatureGamificationStats: 1機能（添削／穴埋めクイズ／穴あきタイピング）分の累積統計 ─
+// 挑戦回数・正誤数はグレーディング（drill-state.service.ts の grade()/checkTyping()、
+// または practice-state.service.ts の添削保存）のたびに加算する。
+// currentDailyStreak/longestDailyStreak は「その機能に取り組んだ日」の連続日数（lastActiveDate基準、
+// 日付キーは @shared/utils/date.util.ts の toDayKey() で統一する）。
+// currentPerfectStreak/longestPerfectStreak は「全問正解で終えたセッション」の連続回数
+// （levelupは日程内全文完了、clozeは全問正解で1セッションとしてカウント）。
+// completedSessionKeys は levelup の「日程完了」を重複カウントしないための既完了キー集合。
+// 添削（correction）は totalAttempts（＝添削回数）と日次ストリーク系フィールドのみ使用し、
+// 正誤・パーフェクト・セッション完了系フィールドは常に初期値（0 / 空オブジェクト）のまま未使用とする
+// （型を1つに共通化することで、日次ストリーク更新・Firestoreマージのロジックを3機能で使い回せる）。
+export interface FeatureGamificationStats {
+  totalAttempts: number;
+  totalCorrect: number;
+  totalWrong: number;
+  sessionsCompleted: number;
+  perfectSessionCount: number;
+  currentPerfectStreak: number;
+  longestPerfectStreak: number;
+  currentDailyStreak: number;
+  longestDailyStreak: number;
+  lastActiveDate?: string; // 'YYYY-MM-DD'（日次ストリーク判定用）
+  bestInSessionCorrectStreak: number; // 1プレイ内の最大連続正解数（自己ベスト）
+  completedSessionKeys: Record<string, true>; // levelup日程完了の重複防止
+}
+
+// ── GamificationStats: 実績判定の元データ。添削／穴埋めクイズ／穴あきタイピングの
+// 対象機能別に統計を持つ（実績の分類も対象機能単位）。
+// 既存データの遡及集計は行わず、本機能リリース以降のプレイ・添削から集計を開始する方針
+// （docs/todo.md 参照）。CorrectionSession とは独立のモデルのため
+// firestore-sync.service.ts の OPTIONAL_FIELDS_MAP 対応は不要（core/achievements/ 側で同期する）。
+export interface GamificationStats {
+  correction: FeatureGamificationStats;
+  cloze: FeatureGamificationStats;
+  levelup: FeatureGamificationStats;
+  unlockedAchievements: Record<string, string>; // achievementId → 解除日時(ISO)
 }
 
 // ── LevelUpItemProgress: 穴あきタイピング1文分の進捗 ─────

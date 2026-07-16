@@ -20,6 +20,11 @@
  * （practice.html 側はプレースホルダー文言を表示）。カードは常時クリック可能な1つの要素で、
  * 未表示（themeRevealed=false）のクリックで初めて候補を選んで表示し、表示済みのクリックでは
  * 別の候補に入れ替える。この分岐を handleThemeCardClick() に一本化する。
+ * ゲーミフィケーション（添削の統計・実績）: submit()/submitBulk() の saveSession() 直後に
+ * recordCorrectionForGamification() を呼び、GamificationSyncService.recordCorrectionSaved() で
+ * 添削回数・継続日数を更新する。記録直後に achievement-engine.util.ts の evaluateNewlyUnlocked() で
+ * 新規解除を判定し、newlyUnlocked signal に積んで practice.html のトースト表示に渡す
+ * （dismissNewlyUnlocked()で消去。features/drill/drill-state.service.ts と同じ方針）。
  */
 import { Injectable, inject, signal } from '@angular/core';
 import { GeminiService, CorrectionResult } from '@core/gemini/gemini.service';
@@ -31,12 +36,44 @@ import { BulkEntry, buildBulkTemplateFromSessions } from './bulk-import.util';
 import { toDayKey } from '@shared/utils/date.util';
 import { CorrectionSession } from '@core/models/session.model';
 import { PRACTICE_THEMES, PracticeTheme } from '@core/practice/practice-themes.data';
+import { AchievementId } from '@core/achievements/achievement.model';
+import { evaluateNewlyUnlocked } from '@core/achievements/achievement-engine.util';
+import { GamificationSyncService } from '@core/achievements/gamification-sync.service';
+import { TranslationKey } from '@core/i18n/translations';
 
 @Injectable({ providedIn: 'root' })
 export class PracticeState {
   private gemini = inject(GeminiService);
   private repository = inject(SessionRepositoryService);
   private settingsStore = inject(SettingsStoreService);
+  private gamification = inject(GamificationSyncService);
+
+  // 直近の添削保存で新規解除された実績ID一覧。UI（practice.html）のトースト表示に使う。
+  newlyUnlocked = signal<AchievementId[]>([]);
+
+  dismissNewlyUnlocked(): void {
+    this.newlyUnlocked.set([]);
+  }
+
+  // 実績IDから i18n タイトルキー（achievements.<id>.title）を組み立てる。
+  // AchievementId は core/achievements 側で string リテラルユニオンとして定義されており
+  // i18n の TranslationKey を知らないため、ここでキャストする
+  // （core/i18n/localized-session.util.ts / features/drill/drill-state.service.ts と同じ方針）。
+  achievementTitleKey(id: AchievementId): TranslationKey {
+    return `achievements.${id}.title` as TranslationKey;
+  }
+
+  // 添削保存のたびに呼ぶ。添削の累積統計（回数・継続日数）を記録し、新規解除された実績があれば積む。
+  private recordCorrectionForGamification(): void {
+    this.gamification.recordCorrectionSaved();
+    const ids = evaluateNewlyUnlocked(this.gamification.stats(), {
+      clozeAchievement: { done: 0, total: 0 },
+      levelUpAchievement: { done: 0, total: 0 },
+    });
+    if (ids.length === 0) return;
+    this.gamification.markUnlocked(ids);
+    this.newlyUnlocked.update((prev) => [...prev, ...ids]);
+  }
 
   // ── 状態管理（signal。コンポーネント破棄後も保持される） ──────────
   userText = signal('');
@@ -108,6 +145,7 @@ export class PracticeState {
 
       const session = this.buildSession(this.selectedDate(), text, res);
       this.repository.saveSession(session);
+      this.recordCorrectionForGamification();
       // 添削が成功して初めて入力欄をクリアする。
       this.userText.set('');
     } catch (e) {
@@ -226,6 +264,7 @@ export class PracticeState {
             );
             const session = this.buildSession(entry.date, entry.text, res);
             this.repository.saveSession(session);
+            this.recordCorrectionForGamification();
             this.updateBulkStatus(i, 'success');
             successCount++;
           } catch (e) {

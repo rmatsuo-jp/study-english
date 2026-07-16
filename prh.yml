@@ -60,6 +60,22 @@ rules:
       - お題
       - トピック提案
 
+  - expected: 実績
+    patterns:
+      - アチーブメント
+
+  - expected: 連続正解
+    patterns:
+      - コンボ
+
+  - expected: パーフェクト
+    patterns:
+      - コンプリート
+
+  - expected: 継続日数
+    patterns:
+      - ログイン日数
+
   # ── 固有名詞・略語（半角固定）────────────────────
   - expected: Gemini
     patterns:

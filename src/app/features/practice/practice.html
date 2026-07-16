@@ -10,9 +10,26 @@
      日付選択の右側にはテーマ提案カード（練習用の静的候補、practice-themes.data.ts）の枠を常時表示する。
      カードの中身は未クリックのあいだプレースホルダー文言を出し、クリックして初めて1件のテーマ文が現れる
      （以降のクリックでは別の候補に入れ替わる）。入力欄は自分で書いた英文専用のため、
-     カードはクリックしても入力欄には挿入されない表示専用。 -->
+     カードはクリックしても入力欄には挿入されない表示専用。
+     添削実績を新規解除した際は、タイトル直下に実績解除トースト（state.newlyUnlocked()）を表示する
+     （features/drill/drill.html と同じ視覚言語・i18nキーを使う）。 -->
 <div class="page">
   <h1 class="page-title">{{ i18n.t('practice.title') }}</h1>
+
+  @if (state.newlyUnlocked().length > 0) {
+    <!-- ── 実績解除トースト（添削ページ内のみ表示） ── -->
+    <div class="achievement-toast">
+      <strong>{{ i18n.t('achievements.toast.heading') }}</strong>
+      <ul>
+        @for (id of state.newlyUnlocked(); track id) {
+          <li>{{ i18n.t(state.achievementTitleKey(id)) }}</li>
+        }
+      </ul>
+      <button class="btn-secondary" (click)="state.dismissNewlyUnlocked()">
+        {{ i18n.t('achievements.toast.dismiss') }}
+      </button>
+    </div>
+  }
 
   <!-- ── 添削中の実測進捗（ストリーミング受信のマイルストーン＋文字数比）＋待機中クイズ。
        送信開始と同時に自動表示され、添削完了時に自動で閉じる。スクロールせず解けるようタイトル直下に置く。 ── -->

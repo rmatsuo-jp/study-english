@@ -11,9 +11,26 @@
      答え合わせ後は「次へ」で同じ文を更新後の maskLevel のまま再出題し、「中断」で文一覧選択画面に戻る
      （別の文に進みたい場合は中断→文一覧から選び直す）。
      日付・文ごとの進捗はセッションID単位で保存され、日付選択・文一覧の各画面で完了状況の確認・途中再開ができる。
-     全文言は i18n.t()（core/i18n/I18nService）経由で表示する。 -->
+     全文言は i18n.t()（core/i18n/I18nService）経由で表示する。
+     実績解除時は画面上部にトーストを表示し（state.newlyUnlocked()）、結果サマリー（clozeのみ）には
+     現在の連続正解自己ベスト・継続日数（state.gamificationStats()）を表示する。 -->
 <div class="page">
   <h1 class="page-title">{{ i18n.t('drill.title') }}</h1>
+
+  @if (state.newlyUnlocked().length > 0) {
+    <!-- ── 実績解除トースト（ドリル画面内のみ表示） ── -->
+    <div class="achievement-toast">
+      <strong>{{ i18n.t('achievements.toast.heading') }}</strong>
+      <ul>
+        @for (id of state.newlyUnlocked(); track id) {
+          <li>{{ i18n.t(state.achievementTitleKey(id)) }}</li>
+        }
+      </ul>
+      <button class="btn-secondary" (click)="state.dismissNewlyUnlocked()">
+        {{ i18n.t('achievements.toast.dismiss') }}
+      </button>
+    </div>
+  }
 
   @if (!state.started()) {
     <!-- ── モード選択（スタート画面） ── -->
@@ -164,6 +181,20 @@
         </p>
       }
       <p class="result-message">{{ i18n.t('drill.resultMessage') }}</p>
+      <p class="result-stats">
+        {{
+          i18n.t('drill.stats.bestStreak', {
+            streak: state.gamificationStats().cloze.bestInSessionCorrectStreak,
+          })
+        }}
+      </p>
+      <p class="result-stats">
+        {{
+          i18n.t('drill.stats.dailyStreak', {
+            days: state.gamificationStats().cloze.currentDailyStreak,
+          })
+        }}
+      </p>
       <button class="btn-primary" (click)="state.backToDateSelect()">
         {{ i18n.t('drill.backToDateSelect') }}
       </button>

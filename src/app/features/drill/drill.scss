@@ -91,6 +91,29 @@
   }
 }
 
+.achievement-toast {
+  border: 1px solid var(--color-success);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--color-surface);
+
+  strong {
+    color: var(--color-success);
+  }
+
+  ul {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+  }
+}
+
+.result-stats {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin: 0.25rem 0;
+}
+
 // 笏笏 遨ｴ縺ゅ″繧ｿ繧､繝斐Φ繧ｰ: 譌･莉倬∈謚樒判髱｢ 笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏笏
 .date-select-header {
   text-align: left;
