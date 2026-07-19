@@ -30,6 +30,10 @@ const ja = {
   'consent.disclaimer': '免責事項',
   'consent.accept': '同意して続ける',
 
+  'whatsNew.title': '新機能とアップデート',
+  'whatsNew.fixes': '不具合修正',
+  'whatsNew.close': '閉じる',
+
   'notice.close': '閉じる',
 
   'feedback.buttonText': '💬 ご意見・ご要望',
@@ -361,6 +365,10 @@ const en: Record<TranslationKey, string> = {
   'consent.terms': 'Terms of Service',
   'consent.disclaimer': 'Disclaimer',
   'consent.accept': 'Agree and Continue',
+
+  'whatsNew.title': "What's New",
+  'whatsNew.fixes': 'Bug Fixes',
+  'whatsNew.close': 'Close',
 
   'notice.close': 'Close',
 
