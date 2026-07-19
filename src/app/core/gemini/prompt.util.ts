@@ -170,9 +170,10 @@ CEFRはCEFR公式ディスクリプタ（実際に「その言語で何ができ
   {
     id: 'cloze-review',
     text: `【復習用カードの生成】
-上で指摘した各ミスを復習できる穴埋めカードを作成してください。添削後の正しい文の中で、訂正した語・句を ___ で隠し、誤りやすい誤答を交えた4択（正解を1つ含む計4個）にします。ヒント（日本語）と日本語訳も添えてください。ミスが無い場合は、添削後の文の重要表現を題材にしてください。hintEn/translationEnにはhint/translationと同じ内容の英語版を入れてください。回答末尾（evaluationの後）に次のJSON形式で出力してください。
+上で指摘した各ミスを復習できる穴埋めカードを作成してください。添削後の正しい文の中で、訂正した語・句を ___ で隠し、誤りやすい誤答を交えた4択（正解を1つ含む計4個）にします。ヒント（日本語）と日本語訳も添えてください。ミスが無い場合は、添削後の文の重要表現を題材にしてください。hintEn/translationEnにはhint/translationと同じ内容の英語版を入れてください。
+さらに、choices の各語について「なぜ正解／不正解なのか」を choices と同じ順番で choiceExplanations に入れてください。各理由は日本語1文・20〜30字程度で簡潔にし、choiceExplanationsEn には同内容の簡潔な英語1文を入れてください。回答末尾（evaluationの後）に次のJSON形式で出力してください。
 <review>
-{"reviewItems":[{"sentence":"I ___ to school every day.","answer":"go","hint":"主語がIの現在形","hintEn":"Present tense with subject I","translation":"私は毎日学校へ行く。","translationEn":"I go to school every day.","choices":["go","goes","went","going"]}]}
+{"reviewItems":[{"sentence":"I ___ to school every day.","answer":"go","hint":"主語がIの現在形","hintEn":"Present tense with subject I","translation":"私は毎日学校へ行く。","translationEn":"I go to school every day.","choices":["go","goes","went","going"],"choiceExplanations":["主語がIの現在形なので正解","3人称単数現在の-sが不要","過去形は文意（every day）に合わない","進行形にする助動詞がない"],"choiceExplanationsEn":["Correct: present tense with subject I","Wrong: no -s needed for subject I","Wrong: past tense clashes with 'every day'","Wrong: missing auxiliary for progressive form"]}]}
 </review>`,
   },
 ];

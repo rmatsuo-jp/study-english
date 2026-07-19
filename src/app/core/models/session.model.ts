@@ -29,6 +29,7 @@ export interface Mistake {
 // ── ReviewItem: Gemini が返す穴埋め（クローズ）復習カード 1 件 ─────
 // Drill ページの「穴埋めクイズ」モードで出題する。既定は answer をタイピング入力、
 // ヒント押下時は choices（正解含む4択）に切り替えて出題する。
+// choiceExplanations は choices と同順の正誤理由（回答確定後にDrillページで選択肢ごとに表示）。
 export interface ReviewItem {
   sentence: string; // ___（半角アンダースコア3つ）で空所を作った英文
   answer: string; // 空所に入る正解の語/句
@@ -37,6 +38,8 @@ export interface ReviewItem {
   translation: string; // 英文の日本語訳
   translationEn?: string; // 任意。translation の英語版
   choices: string[]; // 4択（正解を1つ含む）
+  choiceExplanations?: string[]; // 任意。choices と同順、各選択肢の正誤理由（日本語1文）
+  choiceExplanationsEn?: string[]; // 任意。choiceExplanations の英語版
 }
 
 // ── LevelUpItem: Gemini が返す「CEFR一段階上のレベルアップ」1文分の例文 ─────

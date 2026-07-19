@@ -364,10 +364,26 @@
             </button>
           }
           <div class="choice-list">
-            @for (c of q.choices; track c) {
-              <button class="choice-btn" [disabled]="state.revealed()" (click)="state.choose(c)">
-                {{ c }}
-              </button>
+            @for (c of q.choices; track c; let i = $index) {
+              @if (state.revealed() && q.choiceExplanations) {
+                <div
+                  class="choice-result"
+                  [class.correct]="c === q.answer"
+                  [class.wrong]="c !== q.answer"
+                >
+                  <span class="choice-mark">{{ c === q.answer ? '○' : '✕' }}</span>
+                  <span class="choice-text">{{ c }}</span>
+                  <span class="choice-explanation">{{ q.choiceExplanations[i] }}</span>
+                </div>
+              } @else {
+                <button
+                  class="choice-btn"
+                  [disabled]="state.revealed()"
+                  (click)="state.choose(c)"
+                >
+                  {{ c }}
+                </button>
+              }
             }
           </div>
         }
@@ -382,10 +398,12 @@
               state.currentCorrect() ? i18n.t('drill.resultCorrect') : i18n.t('drill.resultWrong')
             }}
           </div>
-          <div class="correct-answer">
-            <span class="correct-label">{{ i18n.t('drill.correctAnswer') }}</span>
-            <span class="correct-text">{{ q.answer }}</span>
-          </div>
+          @if (!q.choiceExplanations) {
+            <div class="correct-answer">
+              <span class="correct-label">{{ i18n.t('drill.correctAnswer') }}</span>
+              <span class="correct-text">{{ q.answer }}</span>
+            </div>
+          }
           @if (!state.choiceMode()) {
             <p class="quiz-hint">{{ i18n.t('drill.hintLabel', { hint: q.hint }) }}</p>
           }
