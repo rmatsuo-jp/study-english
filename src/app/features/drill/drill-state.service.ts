@@ -47,9 +47,11 @@
  * パーフェクト達成数（perfectCountForSession/perfectCountForClozeSession）: 「クリア済み」バッジとは別に、
  * 満点（全問正解）で完了するたびに加算する累積カウンタを DrillProgressService.incrementPerfectCount で
  * 記録し、日付選択画面に表示する（クリア後も繰り返し練習する動機付け）。cloze は next() が最終問題を
- * 抜けるたびに毎回加算されるが、levelup は完了済みの文を再選択して正解してもチェック済み文一覧が変わらず
- * done===totalが常にtrueのままのため、checkTyping() 側で「その文が既に習熟済みだったか」をガードし、
- * 新規に習熟が完了した瞬間のみ checkLevelUpSessionComplete を呼んで二重加算を防ぐ。
+ * 抜けるたびに毎回加算される。levelup は完了済みの文が既に多い日程を再訪しても checkLevelUpSessionComplete
+ * を毎回呼ぶ必要があるため、代わりに「1回の訪問（selectLevelUpDate〜次にselectLevelUpDateするまで）で
+ * 最大1回、訪問中に一度でも不正解があれば加算しない」という訪問単位のガード
+ * （levelUpVisitHadMistake/levelUpPerfectRecordedForVisit、selectLevelUpDate()でリセット）で
+ * 重複加算を防ぐ。
  */
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { SessionRepositoryService } from '@core/sessions/session-repository.service';
@@ -142,6 +144,10 @@ export class DrillState {
   mistakeKind = signal<MistakeKind | null>(null); // 直近の不正解の分類（結果メッセージ用）
   // 穴あきタイピングは「maxLevelで正解」した問題数を結果サマリーの分子として使う。
   masteredCount = signal(0);
+  // パーフェクト達成数の「訪問」単位ガード。selectLevelUpDate() で日程を開くたびにリセットする
+  // （既に習熟済みの文が多い日程を再訪しても、この訪問中に一度も間違えなければ1回だけ加算するため）。
+  private levelUpVisitHadMistake = signal(false);
+  private levelUpPerfectRecordedForVisit = signal(false);
   // levelup モードは 日付選択 → 文一覧選択 → 出題 の3段階。
   // levelUpDateChosen=false: 日付選択画面。true & levelUpSentenceChosen=false: 文一覧選択画面。両方true: 出題画面。
   levelUpDateChosen = signal(false);
@@ -258,6 +264,8 @@ export class DrillState {
     this.levelUpQuiz.set(items);
     this.currentSessionId.set(session.id);
     this.masteredCount.set(Object.values(progress).filter((p) => p.completed).length);
+    this.levelUpVisitHadMistake.set(false);
+    this.levelUpPerfectRecordedForVisit.set(false);
 
     this.levelUpDateChosen.set(true);
     this.levelUpSentenceChosen.set(false);
@@ -426,16 +434,15 @@ export class DrillState {
       this.mistakeKind.set(null);
       const level = this.maskLevel();
       if (level >= cur.maxLevel) {
-        // 既に習熟済みの文を再度正解しても masteredCount/セッション完了判定を重複加算しないためのガード
-        // （完了済みの文は文一覧から何度でも再選択・再回答できるため）。
+        // masteredCount（結果表示の自己ベスト）は既に習熟済みの文の再正解では加算しないが、
+        // セッション完了判定（checkLevelUpSessionComplete）は再挑戦のたびに必ず行う。
+        // パーフェクト達成数はそちら側で「訪問」単位に重複防止するため、ここではガードしない。
         const alreadyMastered = sessionId
           ? (this.drillProgress.getLevelUpProgress(sessionId)[cur.key]?.completed ?? false)
           : false;
         if (sessionId) this.drillProgress.setLevelUpItemProgress(sessionId, cur.key, level, true);
-        if (!alreadyMastered) {
-          this.masteredCount.update((c) => c + 1);
-          if (sessionId && !this.sampleMode()) this.checkLevelUpSessionComplete(sessionId);
-        }
+        if (!alreadyMastered) this.masteredCount.update((c) => c + 1);
+        if (sessionId && !this.sampleMode()) this.checkLevelUpSessionComplete(sessionId);
       } else {
         const nextLevel = level + 1;
         this.maskLevel.set(nextLevel);
@@ -447,6 +454,7 @@ export class DrillState {
 
     const kind = classifyMistake(cur, this.userAnswer(), this.maskLevel());
     this.mistakeKind.set(kind);
+    this.levelUpVisitHadMistake.set(true);
     if (kind === 'gap') {
       const lowered = Math.max(0, this.maskLevel() - 1);
       this.maskLevel.set(lowered);
@@ -459,13 +467,20 @@ export class DrillState {
   // 該当日程の全文が完了（maxLevelで正解済み）したかを判定し、完了していれば
   // levelup版の「セッション完了」として統計に記録する（levelupに「不完全パーフェクト」はなく、
   // 全文完了＝パーフェクト扱い）。重複カウントは GamificationStatsService.completedSessionKeys で防止する。
+  // パーフェクト達成数（perfectCounts）は、既に習熟済みの文が多い日程を再訪した場合でも
+  // 正解のたびに毎回この判定を行う必要があるため、alreadyMastered に関係なく呼ばれる。
+  // その代わり「1回の訪問で最大1回」「訪問中に一度でも不正解があれば加算しない」という
+  // 訪問単位のガード（levelUpVisitHadMistake/levelUpPerfectRecordedForVisit）でここだけ重複防止する。
   private checkLevelUpSessionComplete(sessionId: string): void {
     const session = this.repository.sessions().find((s) => s.id === sessionId);
     if (!session) return;
     const { done, total } = this.progressForSession(session);
     if (total > 0 && done === total) {
       this.recordSessionCompleteForGamification(`levelup-${sessionId}`, true);
-      this.drillProgress.incrementPerfectCount(`levelup-${sessionId}`);
+      if (!this.levelUpVisitHadMistake() && !this.levelUpPerfectRecordedForVisit()) {
+        this.drillProgress.incrementPerfectCount(`levelup-${sessionId}`);
+        this.levelUpPerfectRecordedForVisit.set(true);
+      }
     }
   }
 
