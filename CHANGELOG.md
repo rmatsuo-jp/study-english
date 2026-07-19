@@ -1,3 +1,24 @@
+# [1.2.0](https://github.com/rmatsuo-jp/eibun-lab/compare/v1.1.0...v1.2.0) (2026-07-19)
+
+
+### Bug Fixes
+
+* ドリル画面のモードタイトル・戻るボタンの表示崩れと配置不統一を修正 ([1698123](https://github.com/rmatsuo-jp/eibun-lab/commit/16981235be68f11fafbfe2f8d7258ab43fd43f98))
+* 学習法セクションの最優先課題と学習時間の目安が改行なしに連結される不具合を修正 ([6c05fad](https://github.com/rmatsuo-jp/eibun-lab/commit/6c05fadf73123c2a5d54313cfbb9161eb92f49d4))
+* 実績統計の同期でlastActiveDate未設定時にFirestore書き込みが失敗する不具合を修正 ([ad56591](https://github.com/rmatsuo-jp/eibun-lab/commit/ad56591db842c0569cfb39e29a17569a643c981c))
+* 穴あきタイピングでパーフェクト達成数が加算されない不具合を修正 ([4bb2668](https://github.com/rmatsuo-jp/eibun-lab/commit/4bb266833816f10f499698cbc7d9d58b55034712))
+* 穴埋めクイズのヒントボタンと選択肢の間隔を調整 ([c658310](https://github.com/rmatsuo-jp/eibun-lab/commit/c6583103e7cf31a3cabd28f6076c2fd843f872ce))
+
+
+### Features
+
+* ドリルにパーフェクト達成数バッジを追加 ([013cf82](https://github.com/rmatsuo-jp/eibun-lab/commit/013cf822a2e0b1663b25a2d6e758f14b8714fa15))
+* 実績タブに全体の解除進捗バーを追加 ([097db89](https://github.com/rmatsuo-jp/eibun-lab/commit/097db89fc29666d6920f4fc5f33140c8d92d762c))
+* 新バージョンのリリースノートを起動時に自動表示 ([f16e1c3](https://github.com/rmatsuo-jp/eibun-lab/commit/f16e1c333167116dce2630fce012ca95b45de132))
+* 穴埋めクイズの4択に選択肢ごとの正誤理由を追加 ([cfa8963](https://github.com/rmatsuo-jp/eibun-lab/commit/cfa89636502df2cbe73bbd84b16117d727bb131a))
+* 設定タブにGitHubリポジトリへのリンクを追加 ([27c62ca](https://github.com/rmatsuo-jp/eibun-lab/commit/27c62ca444eff02abe774adc0be7bf647699d9f2))
+* 設定ページで過去のリリースノートを閲覧できるようにする ([1199613](https://github.com/rmatsuo-jp/eibun-lab/commit/1199613c9f45c80235741d7512aa36cc37e828e8))
+
 # [1.1.0](https://github.com/rmatsuo-jp/eibun-lab/compare/v1.0.4...v1.1.0) (2026-07-16)
 
 
