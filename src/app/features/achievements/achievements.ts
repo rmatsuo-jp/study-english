@@ -5,6 +5,7 @@
  * 「制覇」（cloze-mastery/levelup-mastery）はドリル機能側のデータ（features/drill専有）がないと
  * 達成度を算出できないため、未解除時は進捗（現在値/しきい値）を表示せずロック表示のみ行う
  * （achievement.model.ts 参照）。
+ * ページ上部には全体の解除進捗（解除済み/全体数）をバーで表示する。
  */
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
@@ -77,4 +78,8 @@ export class Achievements {
   );
 
   protected totalCount = ACHIEVEMENTS.length;
+
+  protected overallProgressPercent = computed(
+    () => (this.unlockedCount() / this.totalCount) * 100,
+  );
 }

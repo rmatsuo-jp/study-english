@@ -5,6 +5,18 @@
   <p class="achievements-summary">
     {{ i18n.t('achievements.unlockedCount', { done: unlockedCount(), total: totalCount }) }}
   </p>
+  <div
+    class="achievements-overall-progress-bar"
+    role="progressbar"
+    [attr.aria-valuenow]="overallProgressPercent()"
+    aria-valuemin="0"
+    aria-valuemax="100"
+  >
+    <div
+      class="achievements-overall-progress-fill"
+      [style.width.%]="overallProgressPercent()"
+    ></div>
+  </div>
 
   @for (group of groups; track group) {
     <section class="achievement-category">
